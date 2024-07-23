@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<Authors>Vadim Belov</Authors>
+		<Company>bvdcode</Company>
+		<Product>EasyExtensions</Product>
+		<Description>Ready-to-use library for convenient development of Telegram bots.</Description>
+		<Copyright>Copyright © Vadim Belov 2024</Copyright>
+		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<Title>EasyExtensions</Title>
+		<PackageId>EasyExtensions</PackageId>
+		<PackageTags>ASP.NET,EFCore,Quartz,Database,Extensions</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>packageIcon.png</PackageIcon>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions/packageIcon.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<RootNamespace>EasyExtensions</RootNamespace>
+		<AssemblyName>EasyExtensions</AssemblyName>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
+	</ItemGroup>
+</Project>
