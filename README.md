@@ -32,7 +32,7 @@ Ready-to-use **.NET Standard** library for convenient development.
 
 Start by importing the library into your project
 
-`dotnet add package EasyExtensions --version 0.0.1`
+`dotnet add package EasyExtensions --version 0.1.0`
 
 ## Features
 
