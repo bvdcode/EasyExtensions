@@ -13,7 +13,11 @@
         /// <returns> Cloned object. </returns>
         public static TObj MemberwiseClone<TObj>(this TObj obj)
         {
-            return (TObj)obj!
+            if (obj == null)
+            {
+                return default!;
+            }
+            return (TObj)obj
                 .GetType()
                 .GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                 .Invoke(obj, null)!;
