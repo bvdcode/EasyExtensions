@@ -21,29 +21,227 @@ Ready-to-use **.NET Standard** library for convenient development.
 - **Free** - use the library for free.
 - **Cross-platform** - run the library on any platform.
 - **Lightweight** - use only necessary features.
-- **Scalable** - add new features and services.
-- **Tested** - use the library with confidence.
 - **Documented** - read the documentation and start using the library.
-- **Supported** - get help and support from the community.
-- **Maintained** - get updates and new features.
-- **Customizable** - change the library for your needs.
 
 # Getting Started
 
 Start by importing the library into your project
 
-`dotnet add package EasyExtensions --version 0.1.0`
+`dotnet add package EasyExtensions --version 0.1.3`
 
-## Features
+# Extensions
 
-- LINQ extensions
-- String extensions
-- EF Core extensions
-- DateTime extensions
-- Quartz.NET extensions
-- PostgreSql extensions
+## Byte Array Extensions
 
-## Contributing
+
+`string SHA512(this byte[] bytes)` - Calculate SHA512 hash of byte array.
+
+`bytes` - Data to calculate hash.
+
+`returns` - SHA512 hash of byte array.
+
+## Claims Principal Extensions
+
+
+`int GetId(this ClaimsPrincipal? user)` - Get user id.
+
+`user` - User instance.
+
+`returns` - User id.
+
+---
+
+`int TryGetId(this ClaimsPrincipal? user)` - Try get user id.
+
+`user` - User instance.
+
+`returns` - User id, or 0 if not found.
+
+---
+
+`IEnumerable<string> GetRoles(this ClaimsPrincipal user, string rolePrefix = "")` - Get user roles.
+
+`user` - User instance.
+
+`rolePrefix` - Role prefix, for example: "user-group-" prefix returns group like "user-group-admins" </param>
+
+`returns` - User roles.
+
+## DateTime Extensions
+
+
+`DateTime DropMicroseconds(this DateTime value)` - Remove microseconds from DateTime.
+
+`value` - DateTime value.
+
+`returns` - DateTime without microseconds.
+
+---
+
+`DateTimeOffset DropMicroseconds(this DateTimeOffset value)` - Remove microseconds from DateTimeOffset.
+
+`value` - DateTimeOffset value.
+
+`returns` - DateTimeOffset without microseconds.
+
+---
+
+`DateTime ToUniversalTimeWithoutOffset(this DateTime value)` - Create new datetime with same values but DateTimeKind.Utc.
+
+`value` - DateTime value.
+
+`returns` - New datetime.
+
+---
+
+`DateTime? ToNullable(this DateTime value)` - Convert datetime value to nullable datetime type.
+
+`value` - DateTime value.
+
+`returns` - Wrapped datetime value.
+
+
+## Exception Extensions
+
+
+`string ToStringWithInner(this Exception ex)` - Create string with error message from all inner exceptions if exists.
+
+`exception` - Exception instance.
+
+`returns` - Error message.
+
+
+## HttpRequest Extensions
+
+
+`string GetRemoteAddress(this HttpRequest request)` - Get remote host IP address using proxy "X-Real-IP", "CF-Connecting-IP", "X-Forwarded-For" headers, or connection remote IP address.
+
+`request` - HttpRequest instance.
+
+`returns` - IP address, or "Unknown" by default.
+
+
+## Math Extensions
+
+
+`int Pow(this int number, int exponent)` - Pow specified foundation to exponent.
+
+`number` - Foundation.
+
+`exponent` - Exponent of pow.
+
+`returns` - Calculation result.
+
+
+## Object Extensions
+
+
+`TObj MemberwiseClone<TObj>(this TObj obj)` - Clone object with MemberwiseClone.
+
+`obj` - Object to clone.
+
+`returns` - Cloned object.
+
+
+## ServiceCollection Extensions
+
+
+`IServiceCollection AddCpuUsageService(this IServiceCollection services)` - Adds CpuUsageService to the IServiceCollection.
+
+`services` - IServiceCollection instance.
+
+`returns` - Current IServiceCollection instance.
+
+---
+
+`IServiceCollection AddRepositories(this IServiceCollection services)` - Add all types inherited from IRepository.
+
+`services` - IServiceCollection instance.
+
+`returns` - Current IServiceCollection instance.
+
+
+## Stream Extensions
+
+
+`byte[] ReadToEnd(this Stream stream)` - Reads the bytes from the current stream and writes them to the byte array.
+
+`stream` - Stream instance.
+
+`returns` - Received byte array.
+
+---
+
+`Task<byte[]> ReadToEndAsync(this Stream stream)` - Asynchronously reads the bytes from the current stream and writes them to the byte array.
+
+`stream` - Stream instance.
+
+`returns` - Received byte array.
+
+---
+
+`string SHA512(this Stream stream)` - Calculate SHA512 hash of byte stream.
+
+`stream` - Data to calculate hash.
+
+`returns` - SHA512 hash of byte stream.
+
+
+## String Extensions
+
+
+`string SHA512(this string str)` - Create SHA512 hash of specified text string.
+
+`str` - Text string.
+
+`returns` - SHA512 hash.
+
+---
+
+`long ReadOnlyNumbers(this string str)` - Read only numbers from specified string.
+
+`str` - Text string.
+
+`returns` - Parsed number, or -1 by default.
+
+---
+
+`string ToLowerFirstLetter(this string text)` - Make first letter as lower case. If text is null or whitespace - returns string.Empty.
+
+`text` - Text string.
+
+`returns` - Text with lower case first letter.
+
+---
+
+`string ToUpperFirstLetter(this string text)` - Make first letter as upper case. If text is null or whitespace - returns string.Empty.
+
+`text` - Text string.
+
+`returns` - Text with upper case first letter.
+
+
+# Helpers
+
+## DateTime Helpers
+
+
+`DateTime ParseDateTimeOffset(string date)` - Parse DateTimeOffset from JSON format ISO 8601.
+
+`date` - Date string.
+
+`returns` - Parsed DateTimeOffset.
+
+---
+
+`DateTime ParseDateTime(string time)` - Parse DateTime from JSON format ISO 8601.
+
+`datetime` - Date string.
+
+`returns` - Parsed DateTime.
+
+
+# Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 

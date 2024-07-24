@@ -12,21 +12,21 @@ namespace EasyExtensions
         /// Create string with error message from all inner exceptions if exists.
         /// </summary>
         /// <returns> Error message. </returns>
-        public static string ToStringWithInner(this Exception ex)
+        public static string ToStringWithInner(this Exception exception)
         {
             StringBuilder exceptionMessage = new StringBuilder();
             const int maxDepth = 1000;
             int counter = 0;
             while (true)
             {
-                exceptionMessage.Append(ex.GetType().Name);
+                exceptionMessage.Append(exception.GetType().Name);
                 exceptionMessage.Append(": ");
-                exceptionMessage.Append(ex.Message);
+                exceptionMessage.Append(exception.Message);
                 exceptionMessage.Append(Environment.NewLine);
-                if (ex.InnerException != null)
+                if (exception.InnerException != null)
                 {
                     exceptionMessage.Append("- ");
-                    ex = ex.InnerException;
+                    exception = exception.InnerException;
                 }
                 else
                 {

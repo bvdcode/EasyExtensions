@@ -8,7 +8,7 @@ namespace EasyExtensions
     public static class HttpRequestExtensions
     {
         /// <summary>
-        /// Get remote host IP address using proxy "X-Real-IP" header, or basic connection info if not specified.
+        /// Get remote host IP address using proxy "X-Real-IP", "CF-Connecting-IP", "X-Forwarded-For" headers, or connection remote IP address.
         /// </summary>
         /// <returns> IP address, or "Unknown" by default. </returns>
         public static string GetRemoteAddress(this HttpRequest request)

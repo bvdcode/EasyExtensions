@@ -9,7 +9,7 @@ namespace EasyExtensions.Helpers
     public static class DateTimeHelpers
     {
         /// <summary>
-        /// Parse DateTime from JSON format.
+        /// Parse DateTime from JSON format ISO 8601.
         /// </summary>
         /// <returns> Parsed datetime with UTC kind. </returns>
         /// <exception cref="ArgumentException"></exception>
@@ -21,7 +21,7 @@ namespace EasyExtensions.Helpers
         }
 
         /// <summary>
-        /// Parse DateTimeOffset from JSON format.
+        /// Parse DateTimeOffset from JSON format ISO 8601.
         /// </summary>
         /// <returns> Parsed datetime offset. </returns>
         /// <exception cref="ArgumentException"></exception>

@@ -26,12 +26,12 @@ namespace EasyExtensions
         }
 
         /// <summary>
-        /// Create new datetime with same values but <see cref="DateTimeKind.Utc"/>. This method can lost microseconds.
+        /// Create new datetime with same values but <see cref="DateTimeKind.Utc"/>.
         /// </summary>
         /// <returns> New datetime. </returns>
         public static DateTime ToUniversalTimeWithoutOffset(this DateTime value)
         {
-            return new DateTime(value.Ticks, DateTimeKind.Utc);
+            return DateTime.SpecifyKind(value, DateTimeKind.Utc);
         }
 
         /// <summary>

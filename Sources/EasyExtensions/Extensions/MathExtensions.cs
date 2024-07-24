@@ -13,7 +13,7 @@ namespace EasyExtensions
         /// <param name="number"> Foundation. </param>
         /// <param name="exponent"> Exponent of pow. </param>
         /// <returns> Calculation result. </returns>
-        /// <exception cref="OverflowException" />
+        /// <exception cref="OverflowException"> Throws when calculation result is too big. </exception>
         public static int Pow(this int number, int exponent)
         {
             checked

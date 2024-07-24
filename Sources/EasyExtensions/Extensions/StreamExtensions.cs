@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EasyExtensions
@@ -36,6 +38,24 @@ namespace EasyExtensions
             using MemoryStream ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             return ms.ToArray();
+        }
+
+        /// <summary>
+        /// Calculate SHA512 hash of byte stream.
+        /// </summary>
+        /// <param name="stream"> Data to calculate hash. </param>
+        /// <returns> SHA512 hash of byte stream. </returns>
+        public static string SHA512(this Stream stream)
+        {
+            using SHA512 sha = System.Security.Cryptography.SHA512.Create();
+            byte[] array = sha.ComputeHash(stream);
+            StringBuilder stringBuilder = new StringBuilder(128);
+            byte[] array2 = array;
+            foreach (byte b in array2)
+            {
+                stringBuilder.Append(b.ToString("X2"));
+            }
+            return stringBuilder.ToString().ToLower();
         }
     }
 }

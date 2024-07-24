@@ -10,59 +10,43 @@ namespace EasyExtensions
     /// </summary>
     public static class ClaimsPrincipalExtensions
     {
-        const string customClaimKey = "tkd";
-
         /// <summary>
-        /// Get TMKID user identifier.
+        /// Get user id.
         /// </summary>
-        /// <returns> Authorized user identifier. </returns>
-        /// <exception cref="KeyNotFoundException"> Claim with key not found. </exception>
-        /// <exception cref="FormatException"> Claim with key has incorrect value. </exception>
-        /// <exception cref="ArgumentNullException"> User is null. </exception>
-        public static int GetTmkId(this ClaimsPrincipal user)
+        /// <param name="user"> User instance. </param>
+        /// <returns> User id. </returns>
+        /// <exception cref="KeyNotFoundException"> Throws when claim not found. </exception>
+        public static int GetId(this ClaimsPrincipal? user)
         {
             if (user == null)
             {
-                throw new ArgumentNullException(nameof(user));
+                throw new KeyNotFoundException(ClaimTypes.Sid);
             }
-            Claim? claim = user.Claims.FirstOrDefault(x => x.Type == customClaimKey) ?? throw new KeyNotFoundException($"Claim with key '{customClaimKey}' not found.");
-            bool parsed = int.TryParse(claim.Value, out int result);
-            if (!parsed)
-            {
-                throw new FormatException($"Claim with key '{customClaimKey}' has incorrect value: '{claim.Value}'.");
-            }
-            return result;
+            var value = user.FindFirst(ClaimTypes.Sid)
+                ?? throw new KeyNotFoundException(ClaimTypes.Sid);
+            return int.Parse(value.Value);
         }
 
         /// <summary>
-        /// Try get TMKID user identifier.
+        /// Try get user id.
         /// </summary>
-        /// <returns> Authorized user identifier, or -1 if not specified. </returns>
-        public static int TryGetTmkId(this ClaimsPrincipal user)
+        /// <param name="user"> User instance. </param>
+        /// <returns> User id, or 0 if not found. </returns>
+        public static int TryGetId(this ClaimsPrincipal? user)
         {
             if (user == null)
             {
-                return -1;
+                return 0;
             }
-            const int defaultUserId = -1;
-            if (user == null)
-            {
-                return defaultUserId;
-            }
-            Claim? claim = user.Claims.FirstOrDefault(x => x.Type == customClaimKey);
-            if (claim == null)
-            {
-                return defaultUserId;
-            }
-            bool parsed = int.TryParse(claim.Value, out int result);
-            return parsed ? result : defaultUserId;
+            var value = user.FindFirst(ClaimTypes.Sid);
+            return value == null ? 0 : int.Parse(value.Value);
         }
 
         /// <summary>
         /// Get user roles.
         /// </summary>
         /// <param name="user"> User instance. </param>
-        /// <param name="rolePrefix"> Role prefix, for example: "tccv-group-" prefix returns group like "tccv-group-controllers" </param>
+        /// <param name="rolePrefix"> Role prefix, for example: "user-group-" prefix returns group like "user-group-admins" </param>
         /// <returns> User roles. </returns>
         public static IEnumerable<string> GetRoles(this ClaimsPrincipal user, string rolePrefix = "")
         {
