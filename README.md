@@ -28,7 +28,13 @@ Ready-to-use **.NET Standard** library for convenient development.
 Start by importing the library into your project
 
 ```bash
-dotnet add package EasyExtensions --version 0.1.3
+dotnet add package EasyExtensions --version 0.1.7
+```
+
+Add Quartz package if you want to use Quartz extensions
+
+```bash
+dotnet add package EasyExtensions.Quartz --version 0.1.7
 ```
 
 # Extensions
