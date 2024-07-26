@@ -491,6 +491,21 @@ IServiceCollection AddJwt(this IServiceCollection services, IConfiguration confi
 IServiceCollection AllowAnonymousOnDevelopment(this IServiceCollection services);
 ```
 
+
+# Drawing Extensions
+
+```csharp
+/// <summary>
+/// Fit image to target size and copy and blur it to background.
+/// </summary>
+/// <param name="image">Target image.</param>
+/// <param name="targetWidth">Target width.</param>
+/// <param name="targetHeight">Target height.</param>
+/// <param name="gaussianBlurLevel">Gaussian blur level (optional).</param>
+/// <returns cref="Image">Image with blured background.</returns>
+Image FitBluredBackground(this Image image, int targetWidth, int targetHeight, float gaussianBlurLevel = 8F);
+```
+
 # Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
