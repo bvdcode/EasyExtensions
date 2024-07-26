@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.EntityFramew
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Tests", "EasyExtensions.Tests\EasyExtensions.Tests.csproj", "{578C727F-EC7A-49F9-8F99-F9238349D3F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Sentry", "EasyExtensions.Sentry\EasyExtensions.Sentry.csproj", "{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{578C727F-EC7A-49F9-8F99-F9238349D3F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{578C727F-EC7A-49F9-8F99-F9238349D3F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{578C727F-EC7A-49F9-8F99-F9238349D3F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

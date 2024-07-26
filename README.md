@@ -583,7 +583,7 @@ IServiceCollection AddGridifyMappers(this IServiceCollection services);
 IServiceCollection AddDbContext<TContext>(this IServiceCollection services, IConfigurationRoot configuration, int maxPoolSize = 100, int timeout_s = 60) where TContext : DbContext
 ```
 
-# Host Extensions
+## Host Extensions
 
 ```csharp
 /// <summary>
@@ -591,6 +591,22 @@ IServiceCollection AddDbContext<TContext>(this IServiceCollection services, ICon
 /// </summary>
 /// <returns> Current <see cref="IHost"/> instance. </returns>
 IHost ApplyMigrations<TContext>(this IHost host) where TContext : DbContext
+```
+
+
+# Sentry Extensions
+
+## WebHostBuilder Extensions
+
+```csharp
+/// <summary>
+/// Use Sentry integration with specified DSN.
+/// </summary>
+/// <param name="builder"> Current <see cref="IWebHostBuilder"/> instance. </param>
+/// <param name="dsn"> Sentry DSN. </param>
+/// <param name="forceUseInDevelopment"> Force use in development environment. </param>
+/// <returns> Current <see cref="IWebHostBuilder"/> instance. </returns>
+IWebHostBuilder UseSentryWithUserCapturing(this IWebHostBuilder builder, string dsn, bool forceUseInDevelopment = false);
 ```
 
 # Contributing
