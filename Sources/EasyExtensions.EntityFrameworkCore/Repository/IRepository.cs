@@ -12,7 +12,7 @@ namespace EasyExtensions.EntityFrameworkCore.Database.Repository
     /// Represents a generic repository interface for accessing and manipulating entities of type TItem.
     /// </summary>
     /// <typeparam name="TItem">The type of entity.</typeparam>
-    public interface IRepository<TItem> where TItem : BaseEntity
+    public interface IRepository<TItem> : IRepository where TItem : BaseEntity
     {
         /// <summary>
         /// Retrieves an entity by its ID asynchronously.
@@ -85,15 +85,21 @@ namespace EasyExtensions.EntityFrameworkCore.Database.Repository
         Task<IList<TItem>> ListAsync();
 
         /// <summary>
-        /// Saves all changes made in the context to the underlying database asynchronously.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the database.</returns>
-        Task<int> SaveChangesAsync();
-
-        /// <summary>
         /// Returns an <see cref="IQueryable{T}"/> of entities.
         /// </summary>
         /// <returns> An <see cref="IQueryable{T}"/> of entities.</returns>
         IQueryable<TItem> Query();
+    }
+
+    /// <summary>
+    /// Base repository interface for accessing and manipulating entities.
+    /// </summary>
+    public interface IRepository
+    {
+        /// <summary>
+        /// Saves all changes made in the context to the underlying database asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the database.</returns>
+        Task<int> SaveChangesAsync();
     }
 }
