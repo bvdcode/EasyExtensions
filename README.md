@@ -72,6 +72,9 @@ dotnet add package EasyExtensions.Authorization --version 0.1.14
   * [String Extensions](#string-extensions)
 
 - [Helpers](#helpers)
+  * [DateTime Helpers](#datetime-helpers)
+  * [Reflection Helpers](#reflection-helpers)
+  * [String Helpers](#string-helpers)
 
 - [Quartz Extensions](#quartz-extensions)
   * [ServiceCollection Extensions](#servicecollection-extensions)
@@ -82,12 +85,14 @@ dotnet add package EasyExtensions.Authorization --version 0.1.14
   * [ServiceCollection Extensions](#servicecollection-extensions)
 
 - [Drawing Extensions](#drawing-extensions)
+  * [Image Extensions](#image-extensions)
 
 - [Entity Framework Extensions](#entity-framework-extensions)
   * [ServiceCollection Extensions](#servicecollection-extensions)
   * [Host Extensions](#host-extensions)
 
 - [Sentry Extensions](#sentry-extensions)
+  * [WebHostBuilder Extensions](#webhostbuilder-extensions)
 
 
 # Extensions
