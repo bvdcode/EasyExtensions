@@ -45,8 +45,31 @@ namespace EasyExtensions.EntityFrameworkCore.Database
     ///         <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>    
-    public abstract class AuditedDbContext : DbContext
+    public class AuditedDbContext : DbContext
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DbContext" /> class. The
+        ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />
+        ///     method will be called to configure the database (and other options) to be used for this context.
+        /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
+        ///     for more information and examples.
+        /// </remarks>
+        protected AuditedDbContext() : base() { }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DbContext" /> class using the specified options.
+        ///     The <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method will still be called to allow further
+        ///     configuration of the options.
+        /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see> and
+        ///     <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+        /// </remarks>
+        /// <param name="options">The options for this context.</param>
+        public AuditedDbContext(DbContextOptions options) : base(options) { }
+
         /// <summary>
         ///     Saves all changes made in this context to the database and update Modified and Created datetime.
         /// </summary>
