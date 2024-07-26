@@ -1,0 +1,20 @@
+namespace EasyExtensions.Tests
+{
+    public class MathTests
+    {
+        [Test]
+        public void Pow_ValidInput_ValidOutput()
+        {
+            Assert.That(2.Pow(8), Is.EqualTo(byte.MaxValue + 1));
+        }
+
+        /// <summary>
+        /// Throw if calculation result more than Int32 (2^31 - 1) max value.
+        /// </summary>
+        [Test]
+        public void Pow_ValidInput_ThrowOverflowException()
+        {
+            Assert.Throws(typeof(OverflowException), () => 2.Pow(31));
+        }
+    }
+}
