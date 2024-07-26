@@ -129,6 +129,20 @@ DateTime? ToNullable(this DateTime value);
 ```
 
 
+# Enumerable Extensions
+
+
+```csharp
+/// <summary>
+/// Randomizes the order of the elements in the collection.
+/// </summary>
+/// <typeparam name="TItem"> Type of the items in the collection. </typeparam>
+/// <param name="enumerable"> Collection to randomize. </param>
+/// <returns> Randomized collection. </returns>
+IEnumerable<TItem> Random<TItem>(this IEnumerable<TItem> enumerable);
+```
+
+
 ## Exception Extensions
 
 
