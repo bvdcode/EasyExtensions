@@ -1,36 +1,39 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>enable</Nullable>
 		<Authors>Vadim Belov</Authors>
 		<Company>bvdcode</Company>
-		<Product>EasyExtensions</Product>
+		<Product>EasyExtensions.Quartz</Product>
 		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
 		<Copyright>Copyright © Vadim Belov 2024</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Title>EasyExtensions</Title>
-		<PackageId>EasyExtensions</PackageId>
+		<Title>EasyExtensions.Quartz</Title>
+		<PackageId>EasyExtensions.Quartz</PackageId>
 		<PackageTags>ASP.NET,EFCore,Quartz,Database,Extensions</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>packageIcon.png</PackageIcon>
-		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions/packageIcon.png</PackageIconUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Quartz/packageIcon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<RootNamespace>EasyExtensions</RootNamespace>
+		<RootNamespace>EasyExtensions.Quartz</RootNamespace>
 		<AssemblyName>EasyExtensions</AssemblyName>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+		<PackageReference Include="Quartz.AspNetCore" Version="3.9.0" />
+		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
 	</ItemGroup>
+
 </Project>
