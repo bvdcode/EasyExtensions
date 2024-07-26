@@ -13,8 +13,9 @@ namespace EasyExtensions.Helpers
         /// <summary>
         /// Get all types inherited from interface.
         /// </summary>
+        /// <typeparam name="TInterface"> Interface type. </typeparam>
         /// <returns> All types inherited from interface. </returns>
-        public static IEnumerable<Type> GetTypesOfInterface(string interfaceName)
+        public static IEnumerable<Type> GetTypesOfInterface<TInterface>() where TInterface : class
         {
             List<Type> result = new List<Type>();
             var callingAssembly = Assembly.GetCallingAssembly();
@@ -22,7 +23,10 @@ namespace EasyExtensions.Helpers
             var executingAssembly = Assembly.GetExecutingAssembly();
             var assemblies = new List<Assembly> { callingAssembly, entryAssembly, executingAssembly };
             assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies());
-            assemblies = assemblies.Where(x => x != null).Distinct().ToList();
+            assemblies = assemblies
+                .Where(x => x != null)
+                .Distinct()
+                .ToList();
             foreach (Assembly assembly in assemblies)
             {
                 Type[] types = new Type[0];
@@ -36,7 +40,7 @@ namespace EasyExtensions.Helpers
                 }
                 foreach (Type type in types)
                 {
-                    if (type.GetInterfaces().Length > 0 && type.GetInterfaces().Any(x => x.Name.StartsWith(interfaceName) && !type.IsAbstract))
+                    if (type.GetInterfaces().Length > 0 && type.GetInterfaces().Any(x => x == typeof(TInterface) && !type.IsAbstract))
                     {
                         if (!result.Any(x => x.FullName == type.FullName))
                         {

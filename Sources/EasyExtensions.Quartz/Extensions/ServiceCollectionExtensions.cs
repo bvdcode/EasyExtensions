@@ -23,7 +23,7 @@ namespace EasyExtensions.Quartz
 
         private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator)
         {
-            var jobs = ReflectionHelpers.GetTypesOfInterface(nameof(IJob));
+            var jobs = ReflectionHelpers.GetTypesOfInterface<IJob>();
             foreach (var job in jobs)
             {
                 JobTriggerAttribute? jobTriggerAttribute = job.GetCustomAttribute<JobTriggerAttribute>();

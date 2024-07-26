@@ -23,24 +23,23 @@ namespace EasyExtensions
         }
 
         /// <summary>
-        /// Add all types inherited from IRepository.
+        /// Add all types inherited from TInterface.
         /// </summary>
         /// <param name="services"> Current <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="serviceLifetime"> Service lifetime, default is Scoped. </param>
+        /// <typeparam name="TInterface"> Interface type. </typeparam>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        public static IServiceCollection AddRepositories(this IServiceCollection services)
+        public static IServiceCollection AddTypesOfInterface<TInterface>(this IServiceCollection services, 
+            ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) where TInterface : class
         {
-            const string implementedInterfaceName = "IRepository";
-            var types = ReflectionHelpers.GetTypesOfInterface(implementedInterfaceName);
+            var types = ReflectionHelpers.GetTypesOfInterface<TInterface>();
             if (!types.Any())
             {
-                throw new Exception($"No types inherited from {implementedInterfaceName} found.");
+                throw new TypeLoadException($"No types inherited from {typeof(TInterface).Name} found.");
             }
             foreach (var type in types)
             {
-                Type repo = type
-                    .GetInterfaces()
-                    .First(x => x.Name.Contains(implementedInterfaceName));
-                var descriptor = new ServiceDescriptor(repo, type, ServiceLifetime.Scoped);
+                var descriptor = new ServiceDescriptor(typeof(TInterface), type, serviceLifetime);
                 services.Add(descriptor);
             }
             return services;
