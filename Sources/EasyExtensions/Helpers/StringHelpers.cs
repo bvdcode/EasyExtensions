@@ -77,6 +77,28 @@ namespace EasyExtensions.Helpers
             return GetRandomString(length, charset, true);
         }
 
+        /// <summary>
+        /// Remove spaces from string - trim, replace new lines and multiple spaces.
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <returns></returns>
+        public static string RemoveSpaces(string? comment)
+        {
+            if (string.IsNullOrWhiteSpace(comment))
+            {
+                return string.Empty;
+            }
+            comment = comment
+                .Replace('\n', ' ')
+                .Replace("\r", " ")
+                .Trim();
+            while (comment.Contains("  "))
+            {
+                comment = comment.Replace("  ", " ");
+            }
+            return comment;
+        }
+
         private static string GetRandomString(int length, string charset, bool useCryptoRandomNumberGenerator)
         {
             Random? random = useCryptoRandomNumberGenerator ? null : new Random();

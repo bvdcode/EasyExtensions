@@ -399,6 +399,17 @@ string CreateRandomString(int length);
 string CreateRandomString(int length, string charset);
 ```
 
+---
+
+```csharp
+/// <summary>
+/// Remove spaces from string - trim, replace new lines and multiple spaces.
+/// </summary>
+/// <param name="comment"></param>
+/// <returns></returns>
+string RemoveSpaces(string? comment);
+```
+
 
 # Quartz Extensions
 
