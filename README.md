@@ -455,6 +455,42 @@ public class TestJob : IJob
 ```
 
 
+# Authorization Extensions
+
+```csharp
+/// <summary>
+/// Adds CORS policy with origins.
+/// </summary>
+/// <param name="services"> <see cref="IServiceCollection"/> instance. </param>
+/// <param name="policyName"> Name of the policy. </param>
+/// <param name="origins"> Origins to add to the policy. </param>
+/// <returns></returns>
+IServiceCollection AddCorsWithOrigins(this IServiceCollection services, string policyName, params string[] origins);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Adds JWT authentication from JwtSettings section or Jwt[Key] configuration values.
+/// </summary>
+/// <param name="services"> <see cref="IServiceCollection"/> instance. </param>
+/// <param name="configuration"> Configuration from which to get JWT settings. </param>
+/// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+/// <exception cref="KeyNotFoundException"> When JwtSettings section is not set. </exception>
+IServiceCollection AddJwt(this IServiceCollection services, IConfiguration configuration);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Ignore <see cref="AuthorizeAttribute"/> when application is on development environment.
+/// </summary>
+/// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+IServiceCollection AllowAnonymousOnDevelopment(this IServiceCollection services);
+```
+
 # Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
