@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Collections.Generic;
 
-namespace EasyExtensions.Extensions
+namespace EasyExtensions
 {
     /// <summary>
     /// <see cref="ClaimsPrincipal"/> extensions.

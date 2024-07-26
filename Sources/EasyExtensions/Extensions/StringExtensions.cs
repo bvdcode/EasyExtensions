@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Security.Cryptography;
 
-namespace EasyExtensions.Extensions
+namespace EasyExtensions
 {
     /// <summary>
     /// <see cref="string"/> extensions.

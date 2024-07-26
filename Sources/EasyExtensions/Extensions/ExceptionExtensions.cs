@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace EasyExtensions.Extensions
+namespace EasyExtensions
 {
     /// <summary>
     /// <see cref="Exception"/> extensions.

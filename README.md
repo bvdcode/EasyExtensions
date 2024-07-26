@@ -456,8 +456,6 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right"><a href="#readme-top">back to top</a></p>
-
 # License
 
 Distributed under the MIT License. See LICENSE.md for more information.

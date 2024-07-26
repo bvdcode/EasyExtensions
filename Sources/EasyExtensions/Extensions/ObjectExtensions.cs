@@ -1,4 +1,4 @@
-﻿namespace EasyExtensions.Extensions
+﻿namespace EasyExtensions
 {
     /// <summary>
     /// Object extensions.

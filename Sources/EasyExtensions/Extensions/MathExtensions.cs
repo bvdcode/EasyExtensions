@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyExtensions.Extensions
+namespace EasyExtensions
 {
     /// <summary>
     /// Numeric fast extensions with basic <see cref="Math"/> methods.

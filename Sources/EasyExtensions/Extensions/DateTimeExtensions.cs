@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EasyExtensions.Extensions
+namespace EasyExtensions
 {
     /// <summary>
     /// <see cref="DateTime"/> extensions.

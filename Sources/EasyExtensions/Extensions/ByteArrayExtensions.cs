@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace EasyExtensions.Extensions
+namespace EasyExtensions
 {
     /// <summary>
     /// ByteArrayExtensions
