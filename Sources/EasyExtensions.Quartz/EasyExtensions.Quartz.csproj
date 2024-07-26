@@ -20,8 +20,6 @@
 		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<RootNamespace>EasyExtensions</RootNamespace>
-		<AssemblyName>EasyExtensions</AssemblyName>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
