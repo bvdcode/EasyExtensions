@@ -28,31 +28,37 @@ Ready-to-use **.NET Standard** library for convenient development.
 - Start by importing the library into your project
 
 ```bash
-dotnet add package EasyExtensions --version 0.1.14
+dotnet add package EasyExtensions --version 0.1.16
+```
+
+- Add AspNetCore package if you want to use AspNetCore extensions
+
+```bash
+dotnet add package EasyExtensions.AspNetCore --version 0.1.16
 ```
 
 - Add Quartz package if you want to use Quartz extensions
 
 ```bash
-dotnet add package EasyExtensions.Quartz --version 0.1.14
+dotnet add package EasyExtensions.Quartz --version 0.1.16
 ```
 
 - Add Entity Framework Core package if you want to use Entity Framework extensions
 
 ```bash
-dotnet add package EasyExtensions.EntityFrameworkCore --version 0.1.14
+dotnet add package EasyExtensions.EntityFrameworkCore --version 0.1.16
 ```
 
 - Add Drawing package if you want to use Drawing extensions
 
 ```bash
-dotnet add package EasyExtensions.Drawing --version 0.1.14
+dotnet add package EasyExtensions.Drawing --version 0.1.16
 ```
 
 - Add Authorization package if you want to use Authorization extensions
 
 ```bash
-dotnet add package EasyExtensions.Authorization --version 0.1.14
+dotnet add package EasyExtensions.Authorization --version 0.1.16
 ```
 
 
