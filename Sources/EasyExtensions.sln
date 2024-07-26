@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Quartz", "Ea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Authorization", "EasyExtensions.Authorization\EasyExtensions.Authorization.csproj", "{D7463A1F-138A-4CD9-B0B7-C2C7B0D9BC52}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Drawing", "EasyExtensions.Drawing\EasyExtensions.Drawing.csproj", "{09EB9C06-E11C-4583-A092-E73BBCEBF1D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D7463A1F-138A-4CD9-B0B7-C2C7B0D9BC52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7463A1F-138A-4CD9-B0B7-C2C7B0D9BC52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7463A1F-138A-4CD9-B0B7-C2C7B0D9BC52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09EB9C06-E11C-4583-A092-E73BBCEBF1D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09EB9C06-E11C-4583-A092-E73BBCEBF1D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09EB9C06-E11C-4583-A092-E73BBCEBF1D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09EB9C06-E11C-4583-A092-E73BBCEBF1D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
