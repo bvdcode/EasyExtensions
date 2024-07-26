@@ -471,6 +471,8 @@ public class TestJob : IJob
 
 # Authorization Extensions
 
+## ServiceCollection Extensions
+
 ```csharp
 /// <summary>
 /// Adds CORS policy with origins.
@@ -508,6 +510,8 @@ IServiceCollection AllowAnonymousOnDevelopment(this IServiceCollection services)
 
 # Drawing Extensions
 
+## Image Extensions
+
 ```csharp
 /// <summary>
 /// Fit image to target size and copy and blur it to background.
@@ -518,6 +522,57 @@ IServiceCollection AllowAnonymousOnDevelopment(this IServiceCollection services)
 /// <param name="gaussianBlurLevel">Gaussian blur level (optional).</param>
 /// <returns cref="Image">Image with blured background.</returns>
 Image FitBluredBackground(this Image image, int targetWidth, int targetHeight, float gaussianBlurLevel = 8F);
+```
+
+
+# Entity Framework Extensions
+
+
+## ServiceCollection Extensions
+
+```csharp
+/// <summary>
+/// Adds exception handler for EasyExtensions.EntityFrameworkCore.Exceptions to the <see cref="IServiceCollection"/>.
+/// </summary>
+/// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
+/// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+IServiceCollection AddExceptionHandler(this IServiceCollection services);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Sets up Gridify.
+/// </summary>
+IServiceCollection AddGridifyMappers(this IServiceCollection services);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Adds a <see cref="DbContext"/> to the <see cref="IServiceCollection"/> using the 
+/// <see cref="IConfigurationRoot"/> to build the connection string from DatabaseSettings section.
+/// </summary>
+/// <typeparam name="TContext"> The type of <see cref="DbContext"/> to add. </typeparam>
+/// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
+/// <param name="configuration"> The <see cref="IConfigurationRoot"/> instance. </param>
+/// <param name="maxPoolSize"> The maximum pool size, default is 100. </param>
+/// <param name="timeout_s"> The connection timeout in seconds, default is 60. </param>
+/// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+/// <exception cref="KeyNotFoundException"> When DatabaseSettings section is not set. </exception>
+IServiceCollection AddDbContext<TContext>(this IServiceCollection services, IConfigurationRoot configuration, int maxPoolSize = 100, int timeout_s = 60) where TContext : DbContext
+```
+
+# Host Extensions
+
+```csharp
+/// <summary>
+/// Applies migrations to the database.
+/// </summary>
+/// <returns> Current <see cref="IHost"/> instance. </returns>
+IHost ApplyMigrations<TContext>(this IHost host) where TContext : DbContext
 ```
 
 # Contributing

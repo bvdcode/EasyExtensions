@@ -19,11 +19,11 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds exception handler for <see cref="EntityNotFoundException"/>.
+        /// Adds exception handler for EasyExtensions.EntityFrameworkCore.Exceptions to the <see cref="IServiceCollection"/>.
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection SetupExceptionHandler(this IServiceCollection services)
+        /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        public static IServiceCollection AddExceptionHandler(this IServiceCollection services)
         {
             services.AddExceptionHandler(o => o.ExceptionHandler = HandleException);
             return services;
@@ -32,7 +32,7 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
         /// <summary>
         /// Sets up Gridify.
         /// </summary>
-        public static IServiceCollection SetupGridify(this IServiceCollection services)
+        public static IServiceCollection AddGridifyMappers(this IServiceCollection services)
         {
             GridifyGlobalConfiguration.EnableEntityFrameworkCompatibilityLayer();
             GridifyGlobalConfiguration.DefaultPageSize = 20;
