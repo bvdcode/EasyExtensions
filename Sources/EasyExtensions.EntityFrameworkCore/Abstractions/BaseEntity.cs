@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using EasyExtensions.EntityFrameworkCore.Database.Repository;
 
 namespace EasyExtensions.EntityFrameworkCore.Database.Abstractions
@@ -13,6 +14,18 @@ namespace EasyExtensions.EntityFrameworkCore.Database.Abstractions
         /// </summary>
         [Column("id")]
         public int Id { get; set; }
+
+        /// <summary>
+        /// Created at UTC.
+        /// </summary>
+        [Column("created_at_utc")]
+        public DateTime CreatedAtUtc { get; set; }
+
+        /// <summary>
+        /// Updated at UTC.
+        /// </summary>
+        [Column("updated_at_utc")]
+        public DateTime UpdatedAtUtc { get; set; }
 
         /// <summary>
         /// Update entity method which called on <see cref="BaseRepository{TItem}.UpdateAsync(TItem)"/>.
