@@ -3,6 +3,7 @@ using Sentry.Protocol;
 using Sentry.AspNetCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using EasyExtensions.AspNetCore;
 
 namespace EasyExtensions.Sentry.Factories
 {

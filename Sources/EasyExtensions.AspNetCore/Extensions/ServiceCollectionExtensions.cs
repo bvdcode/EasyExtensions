@@ -4,7 +4,7 @@ using EasyExtensions.Helpers;
 using EasyExtensions.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EasyExtensions
+namespace EasyExtensions.AspNetCore
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.
