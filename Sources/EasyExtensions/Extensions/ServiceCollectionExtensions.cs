@@ -39,7 +39,10 @@ namespace EasyExtensions
             }
             foreach (var type in types)
             {
-                var descriptor = new ServiceDescriptor(typeof(TInterface), type, serviceLifetime);
+                var typeInterfaces = type.GetInterfaces();
+                var genericType = typeInterfaces.FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(TInterface));
+                var contract = genericType ?? typeof(TInterface);
+                var descriptor = new ServiceDescriptor(contract, type, serviceLifetime);
                 services.Add(descriptor);
             }
             return services;
