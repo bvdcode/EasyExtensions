@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
-namespace EasyExtensions
+namespace EasyExtensions.Extensions
 {
     /// <summary>
     /// <see cref="Stream"/> extensions.

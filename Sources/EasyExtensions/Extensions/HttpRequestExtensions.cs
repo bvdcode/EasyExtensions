@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace EasyExtensions
+namespace EasyExtensions.Extensions
 {
     /// <summary>
     /// <see cref="HttpRequest"/> extensions.

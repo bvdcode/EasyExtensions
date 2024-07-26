@@ -11,9 +11,10 @@ namespace EasyExtensions.Helpers
         /// <summary>
         /// Default randomizer charset.
         /// </summary>
-        public const string DefaultCharset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                                      "abcdefghijklmnopqrstuvwxyz" +
-                                      "0123456789";
+        public const string DefaultCharset =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+            "abcdefghijklmnopqrstuvwxyz" +
+            "0123456789";
 
         /// <summary>
         /// Fast generate pseudo random string with <see cref="DefaultCharset"/> and string length.

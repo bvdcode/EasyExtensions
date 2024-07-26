@@ -1,8 +1,6 @@
 ﻿using System.IO;
-using System.Text;
-using System.Security.Cryptography;
 
-namespace EasyExtensions
+namespace EasyExtensions.Extensions
 {
     /// <summary>
     /// ByteArrayExtensions
