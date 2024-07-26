@@ -402,6 +402,8 @@ string CreateRandomString(int length, string charset);
 
 # Quartz Extensions
 
+Usually, Quartz integration requires a lot of boilerplate code. This library simplifies the process of adding Quartz jobs to the project.
+
 ## ServiceCollection Extensions
 
 
