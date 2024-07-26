@@ -27,198 +27,261 @@ Ready-to-use **.NET Standard** library for convenient development.
 
 Start by importing the library into your project
 
-`dotnet add package EasyExtensions --version 0.1.3`
+```bash
+dotnet add package EasyExtensions --version 0.1.3
+```
 
 # Extensions
 
 ## Byte Array Extensions
 
 
-`string SHA512(this byte[] bytes)` - Calculate SHA512 hash of byte array.
-
-`bytes` - Data to calculate hash.
-
-`returns` - SHA512 hash of byte array.
+```csharp
+/// <summary>
+/// Calculate SHA512 hash of byte array.
+/// </summary>
+/// <param name="bytes"> Data to calculate hash. </param>
+/// <returns> SHA512 hash of byte array. </returns>
+string SHA512(this byte[] bytes);
+```
 
 ## Claims Principal Extensions
 
 
-`int GetId(this ClaimsPrincipal? user)` - Get user id.
-
-`user` - User instance.
-
-`returns` - User id.
-
----
-
-`int TryGetId(this ClaimsPrincipal? user)` - Try get user id.
-
-`user` - User instance.
-
-`returns` - User id, or 0 if not found.
+```csharp
+/// <summary>
+/// Get user id.
+/// </summary>
+/// <param name="user"> User instance. </param>
+/// <returns> User id. </returns>
+/// <exception cref="KeyNotFoundException"> Throws when claim not found. </exception>
+int GetId(this ClaimsPrincipal? user);
+```
 
 ---
 
-`IEnumerable<string> GetRoles(this ClaimsPrincipal user, string rolePrefix = "")` - Get user roles.
+```csharp
+/// <summary>
+/// Try get user id.
+/// </summary>
+/// <param name="user"> User instance. </param>
+/// <returns> User id, or 0 if not found. </returns>
+int TryGetId(this ClaimsPrincipal? user);
+```
 
-`user` - User instance.
+---
 
-`rolePrefix` - Role prefix, for example: "user-group-" prefix returns group like "user-group-admins" </param>
-
-`returns` - User roles.
+```csharp
+/// <summary>
+/// Get user roles.
+/// </summary>
+/// <param name="user"> User instance. </param>
+/// <param name="rolePrefix"> Role prefix, for example: "user-group-" prefix returns group like "user-group-admins" </param>
+/// <returns> User roles. </returns>
+IEnumerable<string> GetRoles(this ClaimsPrincipal user, string rolePrefix = "");
+```
 
 ## DateTime Extensions
 
 
-`DateTime DropMicroseconds(this DateTime value)` - Remove microseconds from DateTime.
-
-`value` - DateTime value.
-
-`returns` - DateTime without microseconds.
-
----
-
-`DateTimeOffset DropMicroseconds(this DateTimeOffset value)` - Remove microseconds from DateTimeOffset.
-
-`value` - DateTimeOffset value.
-
-`returns` - DateTimeOffset without microseconds.
+```csharp
+/// <summary>
+/// Remove microseconds from <see cref="DateTime"/>.
+/// </summary>
+/// <returns> DateTime without microseconds. </returns>
+DateTime DropMicroseconds(this DateTime value);
+```
 
 ---
 
-`DateTime ToUniversalTimeWithoutOffset(this DateTime value)` - Create new datetime with same values but DateTimeKind.Utc.
-
-`value` - DateTime value.
-
-`returns` - New datetime.
+```csharp
+/// <summary>
+/// Remove microseconds from <see cref="DateTime"/>.
+/// </summary>
+/// <returns> DateTime without microseconds. </returns>
+DateTimeOffset DropMicroseconds(this DateTimeOffset value);
+```
 
 ---
 
-`DateTime? ToNullable(this DateTime value)` - Convert datetime value to nullable datetime type.
+```csharp
+/// <summary>
+/// Create new datetime with same values but <see cref="DateTimeKind.Utc"/>.
+/// </summary>
+/// <returns> New datetime. </returns>
+DateTime ToUniversalTimeWithoutOffset(this DateTime value);
+```
 
-`value` - DateTime value.
+---
 
-`returns` - Wrapped datetime value.
+```csharp
+/// <summary>
+/// Convert datetime value to nullable datetime type.
+/// </summary>
+/// <returns> Wrapped datetime value. </returns>
+DateTime? ToNullable(this DateTime value);
+```
 
 
 ## Exception Extensions
 
 
-`string ToStringWithInner(this Exception ex)` - Create string with error message from all inner exceptions if exists.
-
-`exception` - Exception instance.
-
-`returns` - Error message.
+```csharp
+/// <summary>
+/// Create string with error message from all inner exceptions if exists.
+/// </summary>
+/// <returns> Error message. </returns>
+string ToStringWithInner(this Exception exception);
+```
 
 
 ## HttpRequest Extensions
 
 
-`string GetRemoteAddress(this HttpRequest request)` - Get remote host IP address using proxy "X-Real-IP", "CF-Connecting-IP", "X-Forwarded-For" headers, or connection remote IP address.
-
-`request` - HttpRequest instance.
-
-`returns` - IP address, or "Unknown" by default.
+```csharp
+/// <summary>
+/// Get remote host IP address using proxy "X-Real-IP", "CF-Connecting-IP", "X-Forwarded-For" headers, or connection remote IP address.
+/// </summary>
+/// <returns> IP address, or "Unknown" by default. </returns>
+string GetRemoteAddress(this HttpRequest request);
+```
 
 
 ## Math Extensions
 
 
-`int Pow(this int number, int exponent)` - Pow specified foundation to exponent.
-
-`number` - Foundation.
-
-`exponent` - Exponent of pow.
-
-`returns` - Calculation result.
+```csharp
+/// <summary>
+/// Pow specified foundation to exponent.
+/// </summary>
+/// <param name="number"> Foundation. </param>
+/// <param name="exponent"> Exponent of pow. </param>
+/// <returns> Calculation result. </returns>
+/// <exception cref="OverflowException"> Throws when calculation result is too big. </exception>
+int Pow(this int number, int exponent);
+```
 
 
 ## Object Extensions
 
 
-`TObj MemberwiseClone<TObj>(this TObj obj)` - Clone object with MemberwiseClone.
-
-`obj` - Object to clone.
-
-`returns` - Cloned object.
+```csharp
+/// <summary>
+/// Clone object with MemberwiseClone.
+/// </summary>
+/// <typeparam name="TObj"> Type of object. </typeparam>
+/// <param name="obj"> Object to clone. </param>
+/// <returns> Cloned object. </returns>
+TObj MemberwiseClone<TObj>(this TObj obj);
+```
 
 
 ## ServiceCollection Extensions
 
 
-`IServiceCollection AddCpuUsageService(this IServiceCollection services)` - Adds CpuUsageService to the IServiceCollection.
-
-`services` - IServiceCollection instance.
-
-`returns` - Current IServiceCollection instance.
+```csharp
+/// <summary>
+/// Adds <see cref="CpuUsageService"/> to the <see cref="IServiceCollection"/>.
+/// </summary>
+/// <param name="services"> Current <see cref="IServiceCollection"/> instance. </param>
+/// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+IServiceCollection AddCpuUsageService(this IServiceCollection services);
+```
 
 ---
 
-`IServiceCollection AddRepositories(this IServiceCollection services)` - Add all types inherited from IRepository.
-
-`services` - IServiceCollection instance.
-
-`returns` - Current IServiceCollection instance.
+```csharp
+/// <summary>
+/// Add all types inherited from TInterface.
+/// </summary>
+/// <param name="services"> Current <see cref="IServiceCollection"/> instance. </param>
+/// <param name="serviceLifetime"> Service lifetime, default is Scoped. </param>
+/// <typeparam name="TInterface"> Interface type. </typeparam>
+/// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+IServiceCollection AddTypesOfInterface<TInterface>(this IServiceCollection services, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) where TInterface : class
+```
 
 
 ## Stream Extensions
 
 
-`byte[] ReadToEnd(this Stream stream)` - Reads the bytes from the current stream and writes them to the byte array.
-
-`stream` - Stream instance.
-
-`returns` - Received byte array.
-
----
-
-`Task<byte[]> ReadToEndAsync(this Stream stream)` - Asynchronously reads the bytes from the current stream and writes them to the byte array.
-
-`stream` - Stream instance.
-
-`returns` - Received byte array.
+```csharp
+/// <summary>
+/// Reads the bytes from the current stream and writes them to the byte array.
+/// </summary>
+/// <returns> Received byte array. </returns>
+/// <exception cref="IOException"> An I/O error occurred. </exception>
+/// <exception cref="ArgumentNullException"> Destination is null. </exception>
+/// <exception cref="ObjectDisposedException"> Either the current stream or the destination stream is disposed. </exception>
+/// <exception cref="NotSupportedException"> The current stream does not support reading, or the destination stream does not support writing. </exception>
+byte[] ReadToEnd(this Stream stream);
+```
 
 ---
 
-`string SHA512(this Stream stream)` - Calculate SHA512 hash of byte stream.
+```csharp
+/// <summary>
+/// Asynchronously reads the bytes from the current stream and writes them to the byte array.
+/// </summary>
+/// <returns> Received byte array. </returns>
+/// <exception cref="ArgumentNullException"> Destination is null. </exception>
+/// <exception cref="ObjectDisposedException"> Either the current stream or the destination stream is disposed. </exception>
+/// <exception cref="NotSupportedException"> The current stream does not support reading, or the destination stream does not support writing. </exception>
+public static async Task<byte[]> ReadToEndAsync(this Stream stream)
+```
 
-`stream` - Data to calculate hash.
+---
 
-`returns` - SHA512 hash of byte stream.
+```csharp
+/// <summary>
+/// Calculate SHA512 hash of byte stream.
+/// </summary>
+/// <param name="stream"> Data to calculate hash. </param>
+/// <returns> SHA512 hash of byte stream. </returns>
+string SHA512(this Stream stream);
+```
 
 
 ## String Extensions
 
 
-`string SHA512(this string str)` - Create SHA512 hash of specified text string.
-
-`str` - Text string.
-
-`returns` - SHA512 hash.
-
----
-
-`long ReadOnlyNumbers(this string str)` - Read only numbers from specified string.
-
-`str` - Text string.
-
-`returns` - Parsed number, or -1 by default.
+```csharp
+/// <summary>
+/// Make first letter as lower case. If text is null or whitespace - returns <see cref="string.Empty"/>
+/// </summary>
+/// <returns> Text with lower case first letter. </returns>
+string ToLowerFirstLetter(this string text);
+```
 
 ---
 
-`string ToLowerFirstLetter(this string text)` - Make first letter as lower case. If text is null or whitespace - returns string.Empty.
-
-`text` - Text string.
-
-`returns` - Text with lower case first letter.
+```csharp
+/// <summary>
+/// Make first letter as upper case. If text is null or whitespace - returns <see cref="string.Empty"/>
+/// </summary>
+/// <returns> Text with upper case first letter. </returns>
+string ToUpperFirstLetter(this string text);
+```
 
 ---
 
-`string ToUpperFirstLetter(this string text)` - Make first letter as upper case. If text is null or whitespace - returns string.Empty.
+```csharp
+/// <summary>
+/// Create SHA512 hash of specified text string.
+/// </summary>
+/// <returns> SHA512 hash. </returns>
+string SHA512(this string str);
+```
 
-`text` - Text string.
+---
 
-`returns` - Text with upper case first letter.
+```csharp
+/// <summary>
+/// Read only numbers from specified string.
+/// </summary>
+/// <returns> Parsed number, or -1 by default. </returns>
+long ReadOnlyNumbers(this string str);
+```
 
 
 # Helpers
@@ -226,20 +289,151 @@ Start by importing the library into your project
 ## DateTime Helpers
 
 
-`DateTime ParseDateTimeOffset(string date)` - Parse DateTimeOffset from JSON format ISO 8601.
-
-`date` - Date string.
-
-`returns` - Parsed DateTimeOffset.
+```csharp
+/// <summary>
+/// Parse DateTime from JSON format ISO 8601.
+/// </summary>
+/// <returns> Parsed datetime with UTC kind. </returns>
+/// <exception cref="ArgumentException"></exception>
+/// <exception cref="FormatException"></exception>
+/// <exception cref="NotSupportedException"></exception>
+DateTime ParseDateTime(string datetime);
+```
 
 ---
 
-`DateTime ParseDateTime(string time)` - Parse DateTime from JSON format ISO 8601.
+```csharp
+/// <summary>
+/// Parse DateTimeOffset from JSON format ISO 8601.
+/// </summary>
+/// <returns> Parsed datetime offset. </returns>
+/// <exception cref="ArgumentException"></exception>
+/// <exception cref="FormatException"></exception>
+DateTimeOffset ParseDateTimeOffset(string datetime);
+```
 
-`datetime` - Date string.
 
-`returns` - Parsed DateTime.
+## Reflection Helpers
 
+
+```csharp
+/// <summary>
+/// Get all types inherited from interface.
+/// </summary>
+/// <typeparam name="TInterface"> Interface type. </typeparam>
+/// <returns> All types inherited from interface. </returns>
+IEnumerable<Type> GetTypesOfInterface<TInterface>() where TInterface : class
+```
+
+
+## String Helpers
+
+
+```csharp
+/// <summary>
+/// Fast generate pseudo random string with <see cref="DefaultCharset"/> and string length.
+/// </summary>
+/// <returns> Pseudo-random string. </returns>
+string CreatePseudoRandomString();
+```
+
+---
+
+```csharp
+/// <summary>
+/// Fast generate pseudo random string with <see cref="DefaultCharset"/> and specified string length.
+/// </summary>
+/// <param name="length"> Result string length. </param>
+/// <returns> Pseudo-random string. </returns>
+string CreatePseudoRandomString(int length);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Fast generate pseudo random string with specified charset and string length.
+/// </summary>
+/// <param name="charset"> Generator charset. </param>
+/// <param name="length"> Result string length. </param>
+/// <returns> Pseudo-random string. </returns>
+string CreatePseudoRandomString(int length, string charset);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Generate random string with <see cref="DefaultCharset"/> and string length.
+/// </summary>
+/// <returns> Really random string. </returns>
+string CreateRandomString();
+```
+
+---
+
+```csharp
+/// <summary>
+/// Generate random string with <see cref="DefaultCharset"/> and specified string length.
+/// </summary>
+/// <param name="length"> Result string length. </param>
+/// <returns> Really random string. </returns>
+string CreateRandomString(int length);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Generate random string with specified charset and string length.
+/// </summary>
+/// <param name="charset"> Generator charset. </param>
+/// <param name="length"> Result string length. </param>
+/// <returns> Really random string. </returns>
+string CreateRandomString(int length, string charset);
+```
+
+
+# Quartz Extensions
+
+## ServiceCollection Extensions
+
+
+```csharp
+/// <summary>
+/// Adds Quartz jobs with <see cref="JobTriggerAttribute"/> to the <see cref="IServiceCollection"/>.
+/// </summary>
+/// <param name="services">IServiceCollection instance.</param>
+/// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+IServiceCollection AddQuartzJobs(this IServiceCollection services);
+```
+
+example of usage:
+
+```csharp
+builder.Services.AddQuartzJobs();
+```
+
+---
+
+## Attributes
+
+### JobTriggerAttribute
+
+Example of usage:
+
+```csharp
+[JobTrigger(minutes: 1)]
+[DisallowConcurrentExecution]
+public class TestJob : IJob
+{
+    public Task Execute(IJobExecutionContext context)
+    {
+        Console.WriteLine("Test job executed.");
+        return Task.CompletedTask;
+    }
+}
+```
 
 # Contributing
 

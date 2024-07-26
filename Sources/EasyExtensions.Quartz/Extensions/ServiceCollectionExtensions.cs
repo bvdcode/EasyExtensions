@@ -18,7 +18,9 @@ namespace EasyExtensions.Quartz
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         public static IServiceCollection AddQuartzJobs(this IServiceCollection services)
         {
-            return services.AddQuartz(SetupQuartz).AddQuartzHostedService();
+            return services
+                .AddQuartz(SetupQuartz)
+                .AddQuartzHostedService();
         }
 
         private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator)

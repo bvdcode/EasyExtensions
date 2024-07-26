@@ -15,10 +15,8 @@ namespace EasyExtensions.Helpers
                                       "abcdefghijklmnopqrstuvwxyz" +
                                       "0123456789";
 
-        #region Pseudo-random generation
-
         /// <summary>
-        /// Fast generate pseudo random string with default charset and string length.
+        /// Fast generate pseudo random string with <see cref="DefaultCharset"/> and string length.
         /// </summary>
         /// <returns> Pseudo-random string. </returns>
         public static string CreatePseudoRandomString()
@@ -28,7 +26,7 @@ namespace EasyExtensions.Helpers
         }
 
         /// <summary>
-        /// Fast generate pseudo random string with default charset and specified string length.
+        /// Fast generate pseudo random string with <see cref="DefaultCharset"/> and specified string length.
         /// </summary>
         /// <param name="length"> Result string length. </param>
         /// <returns> Pseudo-random string. </returns>
@@ -48,12 +46,8 @@ namespace EasyExtensions.Helpers
             return GetRandomString(length, charset, true);
         }
 
-        #endregion
-
-        #region Really random generation
-
         /// <summary>
-        /// Generate random string with default charset and string length.
+        /// Generate random string with <see cref="DefaultCharset"/> and string length.
         /// </summary>
         /// <returns> Really random string. </returns>
         public static string CreateRandomString()
@@ -62,7 +56,7 @@ namespace EasyExtensions.Helpers
         }
 
         /// <summary>
-        /// Generate random string with default charset and specified string length.
+        /// Generate random string with <see cref="DefaultCharset"/> and specified string length.
         /// </summary>
         /// <param name="length"> Result string length. </param>
         /// <returns> Really random string. </returns>
@@ -82,17 +76,15 @@ namespace EasyExtensions.Helpers
             return GetRandomString(length, charset, true);
         }
 
-        #endregion
-
         private static string GetRandomString(int length, string charset, bool useCryptoRandomNumberGenerator)
         {
-            Random random = new System.Random();
+            Random? random = useCryptoRandomNumberGenerator ? null : new Random();
             var stringChars = new char[length];
             for (int i = 0; i < stringChars.Length; i++)
             {
                 int randomIndex = useCryptoRandomNumberGenerator ?
                 RandomNumberGenerator.GetInt32(charset.Length) :
-                random.Next(charset.Length);
+                random!.Next(charset.Length);
                 stringChars[i] = charset[randomIndex];
             }
 
