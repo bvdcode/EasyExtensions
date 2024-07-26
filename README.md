@@ -28,32 +28,67 @@ Ready-to-use **.NET Standard** library for convenient development.
 - Start by importing the library into your project
 
 ```bash
-dotnet add package EasyExtensions --version 0.1.13
+dotnet add package EasyExtensions --version 0.1.14
 ```
 
 - Add Quartz package if you want to use Quartz extensions
 
 ```bash
-dotnet add package EasyExtensions.Quartz --version 0.1.13
+dotnet add package EasyExtensions.Quartz --version 0.1.14
 ```
 
 - Add Entity Framework Core package if you want to use Entity Framework extensions
 
 ```bash
-dotnet add package EasyExtensions.EntityFrameworkCore --version 0.1.13
+dotnet add package EasyExtensions.EntityFrameworkCore --version 0.1.14
 ```
 
 - Add Drawing package if you want to use Drawing extensions
 
 ```bash
-dotnet add package EasyExtensions.Drawing --version 0.1.13
+dotnet add package EasyExtensions.Drawing --version 0.1.14
 ```
 
 - Add Authorization package if you want to use Authorization extensions
 
 ```bash
-dotnet add package EasyExtensions.Authorization --version 0.1.13
+dotnet add package EasyExtensions.Authorization --version 0.1.14
 ```
+
+
+# Contents
+
+- [Extensions](#extensions)
+  * [Byte Array Extensions](#byte-array-extensions)
+  * [Claims Principal Extensions](#claims-principal-extensions)
+  * [DateTime Extensions](#datetime-extensions)
+  * [Enumerable Extensions](#enumerable-extensions)
+  * [Exception Extensions](#exception-extensions)
+  * [HttpRequest Extensions](#httprequest-extensions)
+  * [Math Extensions](#math-extensions)
+  * [Object Extensions](#object-extensions)
+  * [ServiceCollection Extensions](#servicecollection-extensions)
+  * [Stream Extensions](#stream-extensions)
+  * [String Extensions](#string-extensions)
+
+- [Helpers](#helpers)
+
+- [Quartz Extensions](#quartz-extensions)
+  * [ServiceCollection Extensions](#servicecollection-extensions)
+  * [Attributes](#attributes)
+	+ [JobTriggerAttribute](#jobtriggerattribute)
+
+- [Authorization Extensions](#authorization-extensions)
+  * [ServiceCollection Extensions](#servicecollection-extensions)
+
+- [Drawing Extensions](#drawing-extensions)
+
+- [Entity Framework Extensions](#entity-framework-extensions)
+  * [ServiceCollection Extensions](#servicecollection-extensions)
+  * [Host Extensions](#host-extensions)
+
+- [Sentry Extensions](#sentry-extensions)
+
 
 # Extensions
 
