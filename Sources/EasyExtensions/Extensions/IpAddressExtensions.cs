@@ -1,6 +1,7 @@
-﻿using EasyExtensions.Helpers;
-using System;
+﻿using System;
 using System.Net;
+using System.Net.Sockets;
+using EasyExtensions.Helpers;
 
 namespace EasyExtensions
 {
@@ -17,9 +18,9 @@ namespace EasyExtensions
         /// <returns> Network address. </returns>
         public static IPAddress GetNetwork(this IPAddress address, IPAddress subnetMask)
         {
-            if (address.AddressFamily != subnetMask.AddressFamily)
+            if (address.AddressFamily == AddressFamily.InterNetwork && subnetMask.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                throw new ArgumentException("Address and mask should be of the same type.");
+                throw new ArgumentException("IPv6 mask cannot be used with IPv4 address.");
             }
             byte[] ipBytes = address.GetAddressBytes();
             byte[] maskBytes = subnetMask.GetAddressBytes();
@@ -39,9 +40,9 @@ namespace EasyExtensions
         /// <returns> Broadcast address. </returns>
         public static IPAddress GetBroadcast(this IPAddress address, IPAddress subnetMask)
         {
-            if (address.AddressFamily != subnetMask.AddressFamily)
+            if (address.AddressFamily == AddressFamily.InterNetwork && subnetMask.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                throw new ArgumentException("Address and mask should be of the same type.");
+                throw new ArgumentException("IPv6 mask cannot be used with IPv4 address.");
             }
             byte[] ipBytes = address.GetAddressBytes();
             byte[] maskBytes = subnetMask.GetAddressBytes();
