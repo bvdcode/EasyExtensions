@@ -51,5 +51,25 @@ namespace EasyExtensions.Helpers
             }
             return result.Distinct();
         }
+
+        /// <summary>
+        /// Copy matching properties from source to destination.
+        /// </summary>
+        /// <param name="source"> Source object. </param>
+        /// <param name="destination"> Destination object. </param>
+        public static void CopyMatchingProperties(object source, object destination)
+        {
+            if (source == null || destination == null)
+            {
+                return;
+            }
+            var sourceProperties = source.GetType().GetProperties();
+            var destinationProperties = destination.GetType().GetProperties();
+            foreach (var sourceProperty in sourceProperties)
+            {
+                var destinationProperty = destinationProperties.FirstOrDefault(x => x.Name == sourceProperty.Name);
+                destinationProperty?.SetValue(destination, sourceProperty.GetValue(source));
+            }
+        }
     }
 }
