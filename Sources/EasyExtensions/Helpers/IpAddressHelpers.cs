@@ -68,5 +68,28 @@ namespace EasyExtensions.Helpers
             }
             return new IPAddress(maskBytes);
         }
+
+        /// <summary>
+        /// Extract subnet mask from IP address.
+        /// </summary>
+        /// <param name="ip"> IP address. </param>
+        /// <returns> Subnet mask, or null if not found. </returns>
+        public static int? ExtractMask(string ip)
+        {
+            if (string.IsNullOrWhiteSpace(ip))
+            {
+                return null;
+            }
+            string[] parts = ip.Split('/');
+            if (parts.Length != 2)
+            {
+                return null;
+            }
+            if (!int.TryParse(parts[1], out int mask))
+            {
+                return null;
+            }
+            return mask;
+        }
     }
 }
