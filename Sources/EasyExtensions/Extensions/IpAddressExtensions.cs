@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EasyExtensions.Helpers;
+using System;
 using System.Net;
 
 namespace EasyExtensions
@@ -16,6 +17,10 @@ namespace EasyExtensions
         /// <returns> Network address. </returns>
         public static IPAddress GetNetwork(this IPAddress address, IPAddress subnetMask)
         {
+            if (address.AddressFamily != subnetMask.AddressFamily)
+            {
+                throw new ArgumentException("Address and mask should be of the same type.");
+            }
             byte[] ipBytes = address.GetAddressBytes();
             byte[] maskBytes = subnetMask.GetAddressBytes();
             byte[] networkBytes = new byte[ipBytes.Length];
@@ -34,6 +39,10 @@ namespace EasyExtensions
         /// <returns> Broadcast address. </returns>
         public static IPAddress GetBroadcast(this IPAddress address, IPAddress subnetMask)
         {
+            if (address.AddressFamily != subnetMask.AddressFamily)
+            {
+                throw new ArgumentException("Address and mask should be of the same type.");
+            }
             byte[] ipBytes = address.GetAddressBytes();
             byte[] maskBytes = subnetMask.GetAddressBytes();
             byte[] broadcastBytes = new byte[ipBytes.Length];
@@ -53,7 +62,7 @@ namespace EasyExtensions
         /// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
         public static IPAddress GetNetwork(this IPAddress address, int subnetMask)
         {
-            return GetNetwork(address, GetMaskAddress(subnetMask));
+            return GetNetwork(address, IpAddressHelpers.GetMaskAddress(subnetMask));
         }
 
         /// <summary>
@@ -65,7 +74,7 @@ namespace EasyExtensions
         /// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
         public static IPAddress GetBroadcast(this IPAddress address, int subnetMask)
         {
-            return GetBroadcast(address, GetMaskAddress(subnetMask));
+            return GetBroadcast(address, IpAddressHelpers.GetMaskAddress(subnetMask));
         }
 
         /// <summary>
@@ -90,37 +99,6 @@ namespace EasyExtensions
                 System.Net.Sockets.AddressFamily.InterNetworkV6 => BitConverter.ToUInt64(ipBytes, 0),
                 _ => throw new ArgumentException("Invalid IP address family: " + ipAddress.AddressFamily),
             };
-        }
-
-        /// <summary>
-        /// Get subnet mask address.
-        /// </summary>
-        /// <param name="subnetMask"> Subnet mask. </param>
-        /// <returns> Subnet address. </returns>
-        /// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
-
-        private static IPAddress GetMaskAddress(int subnetMask)
-        {
-            if (subnetMask < 0 || subnetMask > 128)
-            {
-                throw new ArgumentOutOfRangeException(nameof(subnetMask), "Invalid subnet mask.");
-            }
-            bool is64 = subnetMask > 32;
-            byte[] maskBytes = new byte[is64 ? 16 : 4];
-            for (int i = 0; i < maskBytes.Length; i++)
-            {
-                if (subnetMask >= 8)
-                {
-                    maskBytes[i] = 0xFF;
-                    subnetMask -= 8;
-                }
-                else
-                {
-                    maskBytes[i] = (byte)(0xFF << (8 - subnetMask));
-                    subnetMask = 0;
-                }
-            }
-            return new IPAddress(maskBytes);
         }
     }
 }

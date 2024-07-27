@@ -60,5 +60,81 @@ namespace EasyExtensions.Tests
             string actual = iPAddress.GetBroadcast(subnetMask).ToString();
             Assert.That(actual, Is.EqualTo(expected));
         }
+        
+        [Test]
+        public void GetNetwork_ReturnsCorrectNetworkAddress()
+        {
+            // Arrange
+            IPAddress ipAddress = IPAddress.Parse("192.168.0.100");
+            IPAddress subnetMask = IPAddress.Parse("255.255.255.0");
+            IPAddress expectedNetworkAddress = IPAddress.Parse("192.168.0.0");
+
+            // Act
+            IPAddress actualNetworkAddress = ipAddress.GetNetwork(subnetMask);
+
+            // Assert
+            Assert.That(actualNetworkAddress, Is.EqualTo(expectedNetworkAddress));
+        }
+
+        [Test]
+        public void GetBroadcast_ReturnsCorrectBroadcastAddress()
+        {
+            // Arrange
+            IPAddress ipAddress = IPAddress.Parse("192.168.0.100");
+            IPAddress subnetMask = IPAddress.Parse("255.255.255.0");
+            IPAddress expectedBroadcastAddress = IPAddress.Parse("192.168.0.255");
+
+            // Act
+            IPAddress actualBroadcastAddress = ipAddress.GetBroadcast(subnetMask);
+
+            // Assert
+            Assert.That(actualBroadcastAddress, Is.EqualTo(expectedBroadcastAddress));
+        }
+
+        [Test]
+        public void GetNetwork_WithInvalidSubnetMask_ThrowsArgumentOutOfRangeException()
+        {
+            // Arrange
+            IPAddress ipAddress = IPAddress.Parse("192.168.0.100");
+            int invalidSubnetMask = 33;
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => ipAddress.GetNetwork(invalidSubnetMask));
+        }
+
+        [Test]
+        public void GetBroadcast_WithInvalidSubnetMask_ThrowsArgumentOutOfRangeException()
+        {
+            // Arrange
+            IPAddress ipAddress = IPAddress.Parse("192.168.0.100");
+            int invalidSubnetMask = 33;
+
+            // Act & Assert
+            Assert.Throws<ArgumentException>(() => ipAddress.GetBroadcast(invalidSubnetMask));
+        }
+
+        [Test]
+        public void ToNumber_ReturnsCorrectNumber()
+        {
+            // Arrange
+            IPAddress ipAddress = IPAddress.Parse("192.168.0.100");
+            ulong expectedNumber = 3232235620;
+
+            // Act
+            ulong actualNumber = ipAddress.ToNumber();
+
+            // Assert
+            Assert.That(actualNumber, Is.EqualTo(expectedNumber));
+        }
+
+        [Test]
+        public void GetMaskAddress_WithInvalidSubnetMask_ThrowsArgumentOutOfRangeException()
+        {
+            // Arrange
+            int invalidSubnetMask = 129;
+
+            // Act & Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() => IpAddressHelpers.GetMaskAddress(invalidSubnetMask));
+        }
     }
 }
