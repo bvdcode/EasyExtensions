@@ -200,14 +200,14 @@ namespace EasyExtensions.EntityFrameworkCore.Database
                 .Entries()
                 .Where(e => e.Entity is BaseEntity &&
                 (e.State == EntityState.Modified || e.State == EntityState.Added));
-
+            DateTime now = DateTime.UtcNow;
             foreach (var entityEntry in auditableEntries)
             {
                 BaseEntity entity = (BaseEntity)entityEntry.Entity;
-                entity.UpdatedAtUtc = DateTime.UtcNow.DropMicroseconds();
+                entity.UpdatedAtUtc = now;
                 if (entityEntry.State == EntityState.Added && entity.CreatedAtUtc == default)
                 {
-                    entity.CreatedAtUtc = DateTime.UtcNow.DropMicroseconds();
+                    entity.CreatedAtUtc = now;
                 }
             }
         }
