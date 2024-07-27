@@ -409,6 +409,16 @@ DateTimeOffset ParseDateTimeOffset(string datetime);
 IEnumerable<Type> GetTypesOfInterface<TInterface>() where TInterface : class
 ```
 
+---
+
+```csharp
+/// <summary>
+/// Copy matching properties from source to destination.
+/// </summary>
+/// <param name="source"> Source object. </param>
+/// <param name="destination"> Destination object. </param>
+void CopyMatchingProperties(object source, object destination);
+```
 
 ## String Helpers
 
