@@ -8,19 +8,19 @@ namespace EasyExtensions
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// Remove microseconds from <see cref="DateTime"/>.
+        /// Remove milliseconds from <see cref="DateTime"/>.
         /// </summary>
-        /// <returns> DateTime without microseconds. </returns>
-        public static DateTime DropMicroseconds(this DateTime value)
+        /// <returns> DateTime without milliseconds. </returns>
+        public static DateTime DropMilliseconds(this DateTime value)
         {
             return new DateTime(value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Kind);
         }
 
         /// <summary>
-        /// Remove microseconds from <see cref="DateTime"/>.
+        /// Remove milliseconds from <see cref="DateTime"/>.
         /// </summary>
-        /// <returns> DateTime without microseconds. </returns>
-        public static DateTimeOffset DropMicroseconds(this DateTimeOffset value)
+        /// <returns> DateTime without milliseconds. </returns>
+        public static DateTimeOffset DropMilliseconds(this DateTimeOffset value)
         {
             return new DateTimeOffset(value.Year, value.Month, value.Day, value.Hour, value.Minute, value.Second, value.Offset);
         }
