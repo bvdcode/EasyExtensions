@@ -45,7 +45,6 @@ namespace EasyExtensions.Helpers
         /// <param name="subnetMask"> Subnet mask. </param>
         /// <returns> Subnet address. </returns>
         /// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
-
         public static IPAddress GetMaskAddress(int subnetMask)
         {
             if (subnetMask < 0 || subnetMask > 128)

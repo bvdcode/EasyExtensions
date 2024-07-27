@@ -76,11 +76,13 @@ dotnet add package EasyExtensions.Authorization --version 0.1.16
   * [ServiceCollection Extensions](#servicecollection-extensions)
   * [Stream Extensions](#stream-extensions)
   * [String Extensions](#string-extensions)
+  * [IP Address Extensions](#ip-address-extensions)
 
 - [Helpers](#helpers)
   * [DateTime Helpers](#datetime-helpers)
   * [Reflection Helpers](#reflection-helpers)
   * [String Helpers](#string-helpers)
+  * [IP Address Helpers](#ip-address-helpers)
 
 - [Quartz Extensions](#quartz-extensions)
   * [ServiceCollection Extensions](#servicecollection-extensions)
@@ -368,7 +370,60 @@ long ReadOnlyNumbers(this string str);
 ```
 
 
+## IP Address Extensions
+
+
+```csharp
+/// <summary>
+/// Get network address.
+/// </summary>
+/// <param name="address"> IP address. </param>
+/// <param name="subnetMask"> Subnet mask. </param>
+/// <returns> Network address. </returns>
+IPAddress GetNetwork(this IPAddress address, IPAddress subnetMask);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Get broadcast address.
+/// </summary>
+/// <param name="address"> IP address. </param>
+/// <param name="subnetMask"> Subnet mask. </param>
+/// <returns> Broadcast address. </returns>
+IPAddress GetBroadcast(this IPAddress address, IPAddress subnetMask);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Get network address.
+/// </summary>
+/// <param name="address"> IP address. </param>
+/// <param name="subnetMask"> Subnet mask. </param>
+/// <returns> Network address. </returns>
+/// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
+IPAddress GetNetwork(this IPAddress address, int subnetMask);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Get broadcast address.
+/// </summary>
+/// <param name="address"> IP address. </param>
+/// <param name="subnetMask"> Subnet mask. </param>
+/// <returns> Broadcast address. </returns>
+/// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
+IPAddress GetBroadcast(this IPAddress address, int subnetMask);
+```
+
+
 # Helpers
+
 
 ## DateTime Helpers
 
@@ -496,6 +551,42 @@ string CreateRandomString(int length, string charset);
 /// <param name="comment"></param>
 /// <returns></returns>
 string RemoveSpaces(string? comment);
+```
+
+
+## IP Address Helpers
+
+
+```csharp
+/// <summary>
+/// Convert IP address to number.
+/// </summary>
+/// <param name="ipAddress"> IP address. </param>
+/// <returns> IP address as number. </returns>
+ulong IpToNumber(string ipAddress);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Convert number to IP address.
+/// </summary>
+/// <param name="ipNumber"> IP address as number. </param>
+/// <returns> IP address. </returns>
+IPAddress NumberToIp(ulong ipNumber);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Get subnet mask address.
+/// </summary>
+/// <param name="subnetMask"> Subnet mask. </param>
+/// <returns> Subnet address. </returns>
+/// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
+IPAddress GetMaskAddress(int subnetMask);
 ```
 
 
