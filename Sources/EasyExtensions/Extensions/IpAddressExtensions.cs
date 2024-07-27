@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using EasyExtensions.Helpers;
 
 namespace EasyExtensions
@@ -18,7 +19,7 @@ namespace EasyExtensions
         /// <returns> Network address. </returns>
         public static IPAddress GetNetwork(this IPAddress address, IPAddress subnetMask)
         {
-            if (address.AddressFamily == AddressFamily.InterNetwork && subnetMask.AddressFamily == AddressFamily.InterNetworkV6)
+            if (address.AddressFamily != subnetMask.AddressFamily)
             {
                 throw new ArgumentException("IPv6 mask cannot be used with IPv4 address.");
             }
@@ -63,7 +64,7 @@ namespace EasyExtensions
         /// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
         public static IPAddress GetNetwork(this IPAddress address, int subnetMask)
         {
-            return GetNetwork(address, IpAddressHelpers.GetMaskAddress(subnetMask));
+            return GetNetwork(address, IpAddressHelpers.GetMaskAddress(subnetMask, address.AddressFamily));
         }
 
         /// <summary>
@@ -75,7 +76,7 @@ namespace EasyExtensions
         /// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
         public static IPAddress GetBroadcast(this IPAddress address, int subnetMask)
         {
-            return GetBroadcast(address, IpAddressHelpers.GetMaskAddress(subnetMask));
+            return GetBroadcast(address, IpAddressHelpers.GetMaskAddress(subnetMask, address.AddressFamily));
         }
 
         /// <summary>
@@ -84,20 +85,21 @@ namespace EasyExtensions
         /// <param name="ipAddress"> IP address. </param>
         /// <returns> IP address as number. </returns>
         /// <exception cref="ArgumentException"> Invalid IP address family. </exception>
-        public static ulong ToNumber(this IPAddress ipAddress)
+        public static BigInteger ToNumber(this IPAddress ipAddress)
         {
-            // convert the IP address to bytes - ipv4 or ipv6
             byte[] ipBytes = ipAddress.GetAddressBytes();
-            // ensure correct endianness
             if (BitConverter.IsLittleEndian)
             {
-                // reverse the bytes
                 Array.Reverse(ipBytes);
+            }
+            if (ipBytes.Length != 4 && ipBytes.Length != 16)
+            {
+                throw new ArgumentOutOfRangeException(nameof(ipAddress), "Invalid IP address length: " + ipBytes.Length);
             }
             return ipAddress.AddressFamily switch
             {
-                System.Net.Sockets.AddressFamily.InterNetwork => BitConverter.ToUInt32(ipBytes, 0),
-                System.Net.Sockets.AddressFamily.InterNetworkV6 => BitConverter.ToUInt64(ipBytes, 0),
+                AddressFamily.InterNetwork => BitConverter.ToUInt32(ipBytes, 0),
+                AddressFamily.InterNetworkV6 => new BigInteger(ipBytes),
                 _ => throw new ArgumentException("Invalid IP address family: " + ipAddress.AddressFamily),
             };
         }

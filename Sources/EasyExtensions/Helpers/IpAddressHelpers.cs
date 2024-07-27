@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Numerics;
+using System.Net.Sockets;
 
 namespace EasyExtensions.Helpers
 {
@@ -13,7 +15,7 @@ namespace EasyExtensions.Helpers
         /// </summary>
         /// <param name="ipAddress"> IP address. </param>
         /// <returns> IP address as number. </returns>
-        public static ulong IpToNumber(string ipAddress)
+        public static BigInteger IpToNumber(string ipAddress)
         {
             return IPAddress.Parse(ipAddress).ToNumber();
         }
@@ -22,19 +24,31 @@ namespace EasyExtensions.Helpers
         /// Convert number to IP address.
         /// </summary>
         /// <param name="ipNumber"> IP address as number. </param>
+        /// <param name="addressFamily"> Address family. </param>
         /// <returns> IP address. </returns>
-        public static IPAddress NumberToIp(ulong ipNumber)
+        public static IPAddress NumberToIp(BigInteger ipNumber, AddressFamily addressFamily)
         {
             if (ipNumber < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(ipNumber), "IP number cannot be negative.");
             }
-            byte[] ipBytes = ipNumber <= uint.MaxValue ?
-                BitConverter.GetBytes((uint)ipNumber) :
-                BitConverter.GetBytes(ipNumber);
+            if (addressFamily == AddressFamily.InterNetwork && ipNumber > uint.MaxValue)
+            {
+                throw new ArgumentOutOfRangeException(nameof(ipNumber), "Invalid IP number for IPv4.");
+            }
+            byte[] ipBytes = addressFamily switch
+            {
+                AddressFamily.InterNetwork => BitConverter.GetBytes((uint)ipNumber),
+                AddressFamily.InterNetworkV6 => ipNumber.ToByteArray(),
+                _ => throw new ArgumentOutOfRangeException(nameof(addressFamily), "Invalid address family."),
+            };
             if (BitConverter.IsLittleEndian)
             {
                 Array.Reverse(ipBytes);
+            }
+            if (ipBytes.Length != 4 && ipBytes.Length != 16)
+            {
+                throw new ArgumentOutOfRangeException(nameof(ipNumber), "Invalid IP address length: " + ipBytes.Length);
             }
             return new IPAddress(ipBytes);
         }
@@ -43,16 +57,30 @@ namespace EasyExtensions.Helpers
         /// Get subnet mask address.
         /// </summary>
         /// <param name="subnetMask"> Subnet mask. </param>
+        /// <param name="addressFamily"> Address family. </param>
         /// <returns> Subnet address. </returns>
         /// <exception cref="ArgumentOutOfRangeException"> Thrown when subnet mask is invalid. </exception>
-        public static IPAddress GetMaskAddress(int subnetMask)
+        public static IPAddress GetMaskAddress(int subnetMask, AddressFamily addressFamily)
         {
-            if (subnetMask < 0 || subnetMask > 128)
+            switch (addressFamily)
             {
-                throw new ArgumentOutOfRangeException(nameof(subnetMask), "Invalid subnet mask.");
+                case AddressFamily.InterNetwork:
+                    if (subnetMask < 0 || subnetMask > 32)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(subnetMask), "Invalid subnet mask.");
+                    }
+                    break;
+                case AddressFamily.InterNetworkV6:
+                    if (subnetMask < 0 || subnetMask > 128)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(subnetMask), "Invalid subnet mask.");
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(addressFamily), "Invalid address family.");
             }
-            bool is64 = subnetMask > 32;
-            byte[] maskBytes = new byte[is64 ? 16 : 4];
+
+            byte[] maskBytes = new byte[addressFamily == AddressFamily.InterNetworkV6 ? 16 : 4];
             for (int i = 0; i < maskBytes.Length; i++)
             {
                 if (subnetMask >= 8)
@@ -74,7 +102,7 @@ namespace EasyExtensions.Helpers
         /// </summary>
         /// <param name="ip"> IP address. </param>
         /// <returns> Subnet mask, or null if not found. </returns>
-        public static int? ExtractMask(string ip)
+        public static IPAddress? ExtractMask(string ip)
         {
             if (string.IsNullOrWhiteSpace(ip))
             {
@@ -89,7 +117,12 @@ namespace EasyExtensions.Helpers
             {
                 return null;
             }
-            return mask;
+            bool parsed = IPAddress.TryParse(parts[0], out IPAddress? ipAddress);
+            if (!parsed)
+            {
+                return null;
+            }
+            return GetMaskAddress(mask, ipAddress.AddressFamily);
         }
     }
 }
