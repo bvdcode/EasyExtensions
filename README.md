@@ -589,6 +589,17 @@ IPAddress NumberToIp(ulong ipNumber);
 IPAddress GetMaskAddress(int subnetMask);
 ```
 
+---
+
+```csharp
+/// <summary>
+/// Extract subnet mask from IP address.
+/// </summary>
+/// <param name="ip"> IP address. </param>
+/// <returns> Subnet mask, or null if not found. </returns>
+int? ExtractMask(string ip);
+```
+
 
 # Quartz Extensions
 
