@@ -563,7 +563,7 @@ string RemoveSpaces(string? comment);
 /// </summary>
 /// <param name="ipAddress"> IP address. </param>
 /// <returns> IP address as number. </returns>
-ulong IpToNumber(string ipAddress);
+BigInteger IpToNumber(string ipAddress);
 ```
 
 ---
@@ -574,7 +574,7 @@ ulong IpToNumber(string ipAddress);
 /// </summary>
 /// <param name="ipNumber"> IP address as number. </param>
 /// <returns> IP address. </returns>
-IPAddress NumberToIp(ulong ipNumber);
+IPAddress NumberToIp(BigInteger ipNumber);
 ```
 
 ---
