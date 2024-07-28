@@ -1,5 +1,6 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using System.IO;
 
 namespace EasyExtensions.Drawing.Extensions
 {
@@ -36,6 +37,18 @@ namespace EasyExtensions.Drawing.Extensions
             Point point = new(x, y);
             template.Mutate(x => x.DrawImage(cloned, point, 1F));
             return template;
+        }
+
+        /// <summary>
+        /// Save image as JPEG.
+        /// </summary>
+        /// <param name="image">Target image.</param>
+        /// <returns>Byte array of image.</returns>
+        public static byte[] SaveAsJpeg(this Image image)
+        {
+            using var stream = new MemoryStream();
+            image.SaveAsJpeg(stream);
+            return stream.ToArray();
         }
     }
 }
