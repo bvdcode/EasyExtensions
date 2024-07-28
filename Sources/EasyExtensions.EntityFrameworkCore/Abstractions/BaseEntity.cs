@@ -28,9 +28,14 @@ namespace EasyExtensions.EntityFrameworkCore.Database.Abstractions
         public DateTime UpdatedAtUtc { get; set; }
 
         /// <summary>
-        /// Update entity method which called on <see cref="BaseRepository{TItem}.UpdateAsync(TItem)"/>.
+        /// Update entity method is calling in <see cref="BaseRepository{TItem}.UpdateAsync(TItem)"/>.
+        /// Do not call this method from overriden method.
         /// </summary>
-        /// <param name="entity"></param>
-        public abstract void Update(BaseEntity entity);
+        /// <param name="entity">Entity to update.</param>
+        /// <exception cref="NotImplementedException">Update method is not overriden in inherited class.</exception>
+        public virtual void Update(BaseEntity entity)
+        {
+            throw new NotImplementedException("Update method is not overriden in inherited class.");
+        }
     }
 }
