@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using EasyExtensions.EntityFrameworkCore.Database.Repository;
 
-namespace EasyExtensions.EntityFrameworkCore.Database.Abstractions
+namespace EasyExtensions.EntityFrameworkCore.Abstractions
 {
     /// <summary>
     /// Base entity.
