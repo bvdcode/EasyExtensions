@@ -700,6 +700,17 @@ IServiceCollection AllowAnonymousOnDevelopment(this IServiceCollection services)
 Image FitBluredBackground(this Image image, int targetWidth, int targetHeight, float gaussianBlurLevel = 8F);
 ```
 
+---
+
+```csharp
+/// <summary>
+/// Save image as JPEG to byte array.
+/// </summary>
+/// <param name="image">Target image.</param>
+/// <returns>Byte array of image.</returns>
+byte[] SaveAsJpegToArray(this Image image);
+```
+
 
 # Entity Framework Extensions
 

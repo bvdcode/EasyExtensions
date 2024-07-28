@@ -40,11 +40,11 @@ namespace EasyExtensions.Drawing.Extensions
         }
 
         /// <summary>
-        /// Save image as JPEG.
+        /// Save image as JPEG to byte array.
         /// </summary>
         /// <param name="image">Target image.</param>
         /// <returns>Byte array of image.</returns>
-        public static byte[] SaveAsJpeg(this Image image)
+        public static byte[] SaveAsJpegToArray(this Image image)
         {
             using var stream = new MemoryStream();
             image.SaveAsJpeg(stream);
