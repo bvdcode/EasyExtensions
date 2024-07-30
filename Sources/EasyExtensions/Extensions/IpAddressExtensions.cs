@@ -25,6 +25,10 @@ namespace EasyExtensions
             }
             byte[] ipBytes = address.GetAddressBytes();
             byte[] maskBytes = subnetMask.GetAddressBytes();
+            if (ipBytes.Length != maskBytes.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(subnetMask), "Invalid subnet mask length.");
+            }
             byte[] networkBytes = new byte[ipBytes.Length];
             for (int i = 0; i < ipBytes.Length; i++)
             {

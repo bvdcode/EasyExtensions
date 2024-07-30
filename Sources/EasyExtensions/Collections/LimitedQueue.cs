@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EasyExtensions.Collections.Concurrent
+namespace EasyExtensions.Collections
 {
     /// <summary>
     /// Provides a first in-first out (FIFO) collection with a limit.

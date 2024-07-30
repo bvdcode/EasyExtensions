@@ -275,5 +275,31 @@ namespace EasyExtensions.Tests
             string actual = IpAddressHelpers.NumberToIp(num, AddressFamily.InterNetworkV6).ToString();
             Assert.That(actual, Is.EqualTo(expected));
         }
+
+        [Test]
+        public void CalculateV4_WithValidInput_ValidOutput()
+        {
+            string ip = "2.125.53.1";
+            IPAddress iPAddress = IPAddress.Parse(ip);
+            string network = "2.125.52.0/22";
+            BigInteger expectedNetwork = 41759744;
+            BigInteger expectedBroadcast = 41760767;
+
+            string networkAddress = "2.125.52.0";
+            BigInteger forceParsed = IpAddressHelpers.IpToNumber(networkAddress);
+            Assert.That(forceParsed, Is.EqualTo(expectedNetwork));
+
+            string broadcastAddress = "2.125.55.255";
+            forceParsed = IpAddressHelpers.IpToNumber(broadcastAddress);
+            Assert.That(forceParsed, Is.EqualTo(expectedBroadcast));
+
+
+            var subnet = IpAddressHelpers.ExtractMask(network);
+            Assert.That(subnet?.ToString(), Is.EqualTo("255.255.252.0"));
+            var actualNetwork = iPAddress.GetNetwork(subnet).ToNumber();
+            Assert.That(actualNetwork, Is.EqualTo(expectedNetwork));
+            var actualBroadcast = iPAddress.GetBroadcast(subnet).ToNumber();
+            Assert.That(actualBroadcast, Is.EqualTo(expectedBroadcast));
+        }
     }
 }
