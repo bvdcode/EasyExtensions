@@ -8,6 +8,7 @@ using Gridify.EntityFramework;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using EasyExtensions.EntityFrameworkCore.Exceptions;
+using EasyExtensions.EntityFrameworkCore.Abstractions;
 using EasyExtensions.EntityFrameworkCore.Database.Abstractions;
 
 namespace EasyExtensions.EntityFrameworkCore.Database.Repository

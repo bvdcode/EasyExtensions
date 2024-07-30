@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Collections.Generic;
-using EasyExtensions.EntityFrameworkCore.Database.Abstractions;
+using EasyExtensions.EntityFrameworkCore.Abstractions;
 
 namespace EasyExtensions.EntityFrameworkCore.Database.Repository
 {

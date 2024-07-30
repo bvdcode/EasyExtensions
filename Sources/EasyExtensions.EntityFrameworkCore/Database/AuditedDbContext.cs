@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using EasyExtensions.EntityFrameworkCore.Database.Abstractions;
+using EasyExtensions.EntityFrameworkCore.Abstractions;
 
 namespace EasyExtensions.EntityFrameworkCore.Database
 {
