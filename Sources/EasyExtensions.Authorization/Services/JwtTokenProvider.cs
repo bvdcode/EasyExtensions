@@ -10,6 +10,7 @@ namespace EasyExtensions.Authorization.Services
 {
     internal class JwtTokenProvider(IConfiguration _configuration) : ITokenProvider
     {
+        private const int defaultLifetimeMinutes = 30;
         private readonly JwtSettings _jwtSettings = _configuration.GetJwtSettings();
 
         public string CreateToken(Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null)
@@ -28,7 +29,7 @@ namespace EasyExtensions.Authorization.Services
             var credentials = new SigningCredentials(securityKey, algorithm);
             var expirationDate = _jwtSettings.LifetimeMinutes.HasValue
                 ? DateTime.UtcNow.AddMinutes(_jwtSettings.LifetimeMinutes.Value)
-                : DateTime.UtcNow.AddMinutes(30);
+                : DateTime.UtcNow.AddMinutes(defaultLifetimeMinutes);
             var tokenDescriptor = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
