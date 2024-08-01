@@ -42,6 +42,25 @@ namespace EasyExtensions.Authorization.Builders
         }
 
         /// <summary>
+        /// Adds a range of claims to the builder.
+        /// </summary>
+        /// <param name="claims"> Claims to add. </param>
+        /// <returns> Current <see cref="ClaimBuilder"/> instance. </returns>
+        /// <exception cref="ArgumentNullException"> When <paramref name="claims"/> is null or any of the claims is null or <see cref="Claim.Type"/> or <see cref="Claim.Value"/> is empty. </exception>
+        public ClaimBuilder AddRange(IEnumerable<Claim> claims)
+        {
+            ArgumentNullException.ThrowIfNull(claims, nameof(claims));
+            foreach (var claim in claims)
+            {
+                ArgumentNullException.ThrowIfNull(claim, nameof(claim));
+                ArgumentNullException.ThrowIfNull(claim.Type, nameof(claim.Type));
+                ArgumentNullException.ThrowIfNull(claim.Value, nameof(claim.Value));
+            }
+            _claims.AddRange(claims);
+            return this;
+        }
+
+        /// <summary>
         /// Builds the claims.
         /// </summary>
         /// <returns> Array of claims. </returns>
