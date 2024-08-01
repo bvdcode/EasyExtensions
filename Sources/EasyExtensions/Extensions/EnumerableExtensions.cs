@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace EasyExtensions
@@ -9,23 +10,40 @@ namespace EasyExtensions
     public static class EnumerableExtensions
     {
         /// <summary>
-        /// Randomizes the order of the elements in the collection.
+        /// Shuffles the elements of the <see cref="IEnumerable{T}"/>.
         /// </summary>
-        /// <typeparam name="TItem"> Type of the items in the collection. </typeparam>
-        /// <param name="enumerable"> Collection to randomize. </param>
-        /// <returns> Randomized collection. </returns>
-        public static IEnumerable<TItem> Random<TItem>(this IEnumerable<TItem> enumerable)
+        /// <typeparam name="T">The type of the elements in the <see cref="IEnumerable{T}"/>.</typeparam>
+        /// <param name="source">The <see cref="IEnumerable{T}"/> to shuffle.</param>
+        /// <returns>A shuffled <see cref="IEnumerable{T}"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is null.</exception>
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source)
         {
-            Random random = new Random();
-            List<TItem> list = new List<TItem>(enumerable);
-            int count = list.Count;
-            for (int i = 0; i < count; i++)
+            var random = new Random();
+            T[] elements = source.ToArray();
+            for (int i = elements.Length - 1; i >= 0; i--)
             {
-                int index = random.Next(count);
-                yield return list[index];
-                list.RemoveAt(index);
-                count--;
+                int swapIndex = random.Next(i + 1);
+                yield return elements[swapIndex];
+                elements[swapIndex] = elements[i];
             }
+        }
+
+        /// <summary>
+        /// Gets a random element from the <see cref="IEnumerable{T}"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in the <see cref="IEnumerable{T}"/>.</typeparam>
+        /// <param name="enumerable">The <see cref="IEnumerable{T}"/> to get a random element from.</param>
+        /// <returns>A random element from the <see cref="IEnumerable{T}"/>.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="enumerable"/> is null.</exception>
+        public static T Random<T>(this IEnumerable<T> enumerable)
+        {
+            if (enumerable == null)
+            {
+                throw new ArgumentNullException(nameof(enumerable));
+            }
+            var random = new Random();
+            var list = enumerable as IList<T> ?? enumerable.ToList();
+            return list.Count == 0 ? default! : list[random.Next(0, list.Count)];
         }
     }
 }

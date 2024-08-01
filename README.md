@@ -200,12 +200,26 @@ DateTime? ToNullable(this DateTime value);
 
 ```csharp
 /// <summary>
-/// Randomizes the order of the elements in the collection.
+/// Shuffles the elements of the <see cref="IEnumerable{T}"/>.
 /// </summary>
-/// <typeparam name="TItem"> Type of the items in the collection. </typeparam>
-/// <param name="enumerable"> Collection to randomize. </param>
-/// <returns> Randomized collection. </returns>
-IEnumerable<TItem> Random<TItem>(this IEnumerable<TItem> enumerable);
+/// <typeparam name="T">The type of the elements in the <see cref="IEnumerable{T}"/>.</typeparam>
+/// <param name="source">The <see cref="IEnumerable{T}"/> to shuffle.</param>
+/// <returns>A shuffled <see cref="IEnumerable{T}"/>.</returns>
+/// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is null.</exception>
+IEnumerable<T> Shuffle<T>(this IEnumerable<T> source);
+```
+
+---
+
+```csharp
+/// <summary>
+/// Gets a random element from the <see cref="IEnumerable{T}"/>.
+/// </summary>
+/// <typeparam name="T">The type of the elements in the <see cref="IEnumerable{T}"/>.</typeparam>
+/// <param name="enumerable">The <see cref="IEnumerable{T}"/> to get a random element from.</param>
+/// <returns>A random element from the <see cref="IEnumerable{T}"/>.</returns>
+/// <exception cref="ArgumentNullException">Thrown when <paramref name="enumerable"/> is null.</exception>
+T Random<T>(this IEnumerable<T> enumerable);
 ```
 
 
