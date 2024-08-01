@@ -1,5 +1,6 @@
 ﻿using System;
 using EasyExtensions.Authorization.Builders;
+using EasyExtensions.Authorization.Abstractions;
 
 namespace EasyExtensions.Authorization.Services
 {
@@ -14,5 +15,12 @@ namespace EasyExtensions.Authorization.Services
         /// <param name="claimBuilder"> Optional claim builder. </param>
         /// <returns> Token. </returns>
         string CreateToken(Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null);
+
+        /// <summary>
+        /// Creates a token with claims.
+        /// </summary>
+        /// <param name="claimProvider"> Claim provider. </param>
+        /// <returns> Token. </returns>
+        string CreateToken(IClaimProvider claimProvider);
     }
 }

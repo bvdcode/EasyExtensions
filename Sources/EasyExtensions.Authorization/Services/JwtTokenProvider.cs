@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using EasyExtensions.Authorization.Models;
 using EasyExtensions.Authorization.Builders;
+using EasyExtensions.Authorization.Abstractions;
 
 namespace EasyExtensions.Authorization.Services
 {
@@ -12,6 +13,11 @@ namespace EasyExtensions.Authorization.Services
     {
         private const int defaultLifetimeMinutes = 30;
         private readonly JwtSettings _jwtSettings = _configuration.GetJwtSettings();
+
+        public string CreateToken(IClaimProvider claimProvider)
+        {
+            return CreateToken(x => x.AddRange(claimProvider.GetClaims()));
+        }
 
         public string CreateToken(Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null)
         {
