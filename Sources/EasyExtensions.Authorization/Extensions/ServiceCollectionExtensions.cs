@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using EasyExtensions.Authorization.Handlers;
+using EasyExtensions.Authorization.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -48,29 +49,21 @@ namespace EasyExtensions.Authorization.Extensions
         /// <exception cref="KeyNotFoundException"> When JwtSettings section is not set. </exception>
         public static IServiceCollection AddJwt(this IServiceCollection services, IConfiguration configuration)
         {
-            var jwtSettings = configuration.GetSection("JwtSettings");
+            var jwtSettings = configuration.GetJwtSettings();
 
-            string secret = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"])
-                ?? throw new KeyNotFoundException("JwtSettings.Key or JwtKey is not set");
-
-            string issuer = (!jwtSettings.Exists() ? configuration["JwtIssuer"] : jwtSettings["Issuer"])
-                ?? throw new KeyNotFoundException("JwtSettings.Issuer or JwtIssuer is not set");
-
-            string audience = (!jwtSettings.Exists() ? configuration["JwtAudience"] : jwtSettings["Audience"]) 
-                ?? throw new KeyNotFoundException("JwtSettings.Audience or JwtAudience is not set");
-
+            services.AddScoped<ITokenProvider, JwtTokenProvider>();
             services.AddAuthentication("Bearer")
                 .AddJwtBearer(options =>
                 {
-                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(secret);
+                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(jwtSettings.Key);
                     var key = new SymmetricSecurityKey(bytes);
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
-                        ValidIssuer = issuer,
+                        ValidIssuer = jwtSettings.Issuer,
                         ValidateAudience = true,
-                        ValidAudience = audience,
+                        ValidAudience = jwtSettings.Audience,
                         ValidateLifetime = true,
                         IssuerSigningKey = key,
                         ValidateIssuerSigningKey = true,
