@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Tests", "Eas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Sentry", "EasyExtensions.Sentry\EasyExtensions.Sentry.csproj", "{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.AspNetCore", "EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj", "{F6DDCB86-FDD9-423A-AE38-6D857CA2AE05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.AspNetCore", "EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj", "{F6DDCB86-FDD9-423A-AE38-6D857CA2AE05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
