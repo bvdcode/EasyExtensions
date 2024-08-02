@@ -5,17 +5,17 @@
 		<Nullable>enable</Nullable>
 		<Authors>Vadim Belov</Authors>
 		<Company>bvdcode</Company>
-		<Product>EasyExtensions.Sentry</Product>
+		<Product>EasyExtensions.AspNetCore.Authorization</Product>
 		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
 		<Copyright>Copyright © Vadim Belov 2024</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Title>EasyExtensions.Sentry</Title>
-		<PackageId>EasyExtensions.Sentry</PackageId>
-		<PackageTags>ASP.NET,EFCore,Sentry,Database,Extensions</PackageTags>
+		<Title>EasyExtensions.AspNetCore.Authorization</Title>
+		<PackageId>EasyExtensions.AspNetCore.Authorization</PackageId>
+		<PackageTags>ASP.NET,EFCore,Authorization,Database,Extensions,JWT</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>packageIcon.png</PackageIcon>
-		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Sentry/packageIcon.png</PackageIconUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.AspNetCore.Authorization/packageIcon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -29,8 +29,10 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<PackageReference Include="Sentry.AspNetCore" Version="2.1.8" />
-		<ProjectReference Include="..\EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj" />
+		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
+		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions", "EasyExten
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Quartz", "EasyExtensions.Quartz\EasyExtensions.Quartz.csproj", "{364EC487-85F8-4CFE-92C1-2E7303082F97}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Authorization", "EasyExtensions.Authorization\EasyExtensions.Authorization.csproj", "{D7463A1F-138A-4CD9-B0B7-C2C7B0D9BC52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.AspNetCore.Authorization", "EasyExtensions.AspNetCore.Authorization\EasyExtensions.AspNetCore.Authorization.csproj", "{D7463A1F-138A-4CD9-B0B7-C2C7B0D9BC52}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Drawing", "EasyExtensions.Drawing\EasyExtensions.Drawing.csproj", "{09EB9C06-E11C-4583-A092-E73BBCEBF1D3}"
 EndProject
@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.EntityFramew
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Tests", "EasyExtensions.Tests\EasyExtensions.Tests.csproj", "{578C727F-EC7A-49F9-8F99-F9238349D3F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Sentry", "EasyExtensions.Sentry\EasyExtensions.Sentry.csproj", "{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.AspNetCore.Sentry", "EasyExtensions.AspNetCore.Sentry\EasyExtensions.AspNetCore.Sentry.csproj", "{72C9DD2F-FCB6-471B-B0E2-D3F4171A24D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.AspNetCore", "EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj", "{F6DDCB86-FDD9-423A-AE38-6D857CA2AE05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.AspNetCore", "EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj", "{F6DDCB86-FDD9-423A-AE38-6D857CA2AE05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

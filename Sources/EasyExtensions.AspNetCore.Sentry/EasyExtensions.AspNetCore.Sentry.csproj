@@ -5,17 +5,17 @@
 		<Nullable>enable</Nullable>
 		<Authors>Vadim Belov</Authors>
 		<Company>bvdcode</Company>
-		<Product>EasyExtensions.Authorization</Product>
+		<Product>EasyExtensions.AspNetCore.Sentry</Product>
 		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
 		<Copyright>Copyright © Vadim Belov 2024</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Title>EasyExtensions.Authorization</Title>
-		<PackageId>EasyExtensions.Authorization</PackageId>
-		<PackageTags>ASP.NET,EFCore,Authorization,Database,Extensions,JWT</PackageTags>
+		<Title>EasyExtensions.AspNetCore.Sentry</Title>
+		<PackageId>EasyExtensions.AspNetCore.Sentry</PackageId>
+		<PackageTags>ASP.NET,EFCore,Sentry,Database,Extensions</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>packageIcon.png</PackageIcon>
-		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Authorization/packageIcon.png</PackageIconUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.AspNetCore.Sentry/packageIcon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -29,10 +29,8 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
-		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
+		<PackageReference Include="Sentry.AspNetCore" Version="2.1.8" />
+		<ProjectReference Include="..\EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
