@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EasyExtensions.EntityFrameworkCore.Exceptions
+namespace EasyExtensions.Models
 {
     /// <summary>
     /// Error model.

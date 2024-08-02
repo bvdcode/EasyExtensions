@@ -11,7 +11,7 @@ namespace EasyExtensions.AspNetCore
     /// </summary>
     public static class HttpRequestExtensions
     {
-        private static readonly ConcurrentDictionary<string, List<DateTime>> _accesses = new ConcurrentDictionary<string, List<DateTime>>();
+        private static readonly ConcurrentDictionary<string, List<DateTime>> _accesses = new();
 
         /// <summary>
         /// Get remote host IP address using proxy "X-Real-IP", "CF-Connecting-IP", "X-Forwarded-For" headers, or connection remote IP address.
@@ -20,7 +20,7 @@ namespace EasyExtensions.AspNetCore
         public static string GetRemoteAddress(this HttpRequest request)
         {
             const string defaultResponce = "Unknown";
-            string[] addressHeaders = new string[] { "CF-Connecting-IP", "X-Real-IP", "X-Forwarded-For" };
+            string[] addressHeaders = ["CF-Connecting-IP", "X-Real-IP", "X-Forwarded-For"];
             if (request == null || request.HttpContext == null || request.HttpContext.Request == null)
             {
                 return defaultResponce;
@@ -91,10 +91,7 @@ namespace EasyExtensions.AspNetCore
 
             if (!_accesses.TryGetValue(ip, out var dateTimes))
             {
-                _accesses[ip] = new List<DateTime>()
-                { 
-                    DateTime.UtcNow
-                };
+                _accesses[ip] = [ DateTime.UtcNow ];
                 return false;
             }
             dateTimes.Add(DateTime.UtcNow);

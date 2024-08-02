@@ -2,14 +2,10 @@
 using System;
 using Gridify;
 using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.EntityFrameworkCore.Exceptions;
 
 namespace EasyExtensions.EntityFrameworkCore.Extensions
 {
@@ -18,17 +14,6 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
-        /// <summary>
-        /// Adds exception handler for EasyExtensions.EntityFrameworkCore.Exceptions to the <see cref="IServiceCollection"/>.
-        /// </summary>
-        /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
-        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        public static IServiceCollection AddExceptionHandler(this IServiceCollection services)
-        {
-            services.AddExceptionHandler(o => o.ExceptionHandler = HandleException);
-            return services;
-        }
-
         /// <summary>
         /// Sets up Gridify.
         /// </summary>
@@ -72,7 +57,8 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
             }
             var settings = configuration.GetSection("DatabaseSettings");
             string server = (!settings.Exists() ? configuration["DatabaseServer"] : settings["Server"]) ?? throw new KeyNotFoundException("DatabaseSettings.Server or DatabaseServer is not set");
-            int port = (!settings.Exists() ? configuration.GetValue<ushort>("DatabasePort") : settings.GetValue<ushort>("Port"));
+            string databasePortStr = (!settings.Exists() ? configuration["DatabasePort"] : settings["Port"]) ?? throw new KeyNotFoundException("DatabaseSettings.Port or DatabasePort is not set");
+            int port = int.TryParse(databasePortStr, out int parsedPort) ? parsedPort : throw new KeyNotFoundException("DatabaseSettings.Port or DatabasePort is not set");
             if (port == default)
             {
                 throw new KeyNotFoundException("DatabaseSettings.Port or DatabasePort is not set");
@@ -103,17 +89,6 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
                 CommandTimeout = timeout_s
             };
             return builder.ConnectionString;
-        }
-
-        private static async Task HandleException(HttpContext context)
-        {
-            var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>()!;
-            var exception = exceptionHandlerPathFeature.Error;
-            if (exception is IHttpError httpError)
-            {
-                context.Response.StatusCode = (int)httpError.StatusCode;
-                await context.Response.WriteAsJsonAsync(httpError.GetErrorModel());
-            }
         }
     }
 }

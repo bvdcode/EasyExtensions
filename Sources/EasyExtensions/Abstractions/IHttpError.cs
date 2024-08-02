@@ -1,6 +1,7 @@
 ﻿using System.Net;
+using EasyExtensions.Models;
 
-namespace EasyExtensions.EntityFrameworkCore.Exceptions
+namespace EasyExtensions.Abstractions
 {
     /// <summary>
     /// Interface for HTTP error.
