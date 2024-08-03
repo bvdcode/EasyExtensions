@@ -6,5 +6,6 @@
         internal string Key { get; set; } = string.Empty;
         internal string Issuer { get; set; } = string.Empty;
         internal string Audience { get; set; } = string.Empty;
+        internal string Algorithm { get; set; } = string.Empty;
     }
 }

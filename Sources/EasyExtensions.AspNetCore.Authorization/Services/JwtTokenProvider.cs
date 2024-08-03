@@ -23,16 +23,7 @@ namespace EasyExtensions.Authorization.Services
         {
             var claims = claimBuilder == null ? [] : claimBuilder(new ClaimBuilder()).Build();
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-#pragma warning disable CA2208 // Instantiate argument exceptions correctly
-            string algorithm = _jwtSettings.Key.Length switch
-            {
-                128 / 8 => SecurityAlgorithms.HmacSha256,
-                192 / 8 => SecurityAlgorithms.HmacSha384,
-                256 / 8 => SecurityAlgorithms.HmacSha512,
-                _ => throw new ArgumentOutOfRangeException(nameof(_jwtSettings), "Key length must be 128, 192 or 256 bits"),
-            };
-#pragma warning restore CA2208 // Instantiate argument exceptions correctly
-            var credentials = new SigningCredentials(securityKey, algorithm);
+            var credentials = new SigningCredentials(securityKey, _jwtSettings.Algorithm);
             var expirationDate = _jwtSettings.LifetimeMinutes.HasValue
                 ? DateTime.UtcNow.AddMinutes(_jwtSettings.LifetimeMinutes.Value)
                 : DateTime.UtcNow.AddMinutes(defaultLifetimeMinutes);
