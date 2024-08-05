@@ -1,21 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 		<Authors>Vadim Belov</Authors>
 		<Company>bvdcode</Company>
-		<Product>EasyExtensions.EntityFrameworkCore</Product>
+		<Product>EasyExtensions.EntityFrameworkCore.Npgsql</Product>
 		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
 		<Copyright>Copyright © Vadim Belov 2024</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Title>EasyExtensions.EntityFrameworkCore</Title>
-		<PackageId>EasyExtensions.EntityFrameworkCore</PackageId>
-		<PackageTags>ASP.NET,EFCore,EntityFrameworkCore,Database,Extensions</PackageTags>
+		<Title>EasyExtensions.EntityFrameworkCore.Npgsql</Title>
+		<PackageId>EasyExtensions.EntityFrameworkCore.Npgsql</PackageId>
+		<PackageTags>ASP.NET,EFCore,EntityFrameworkCore,Database,Extensions,Npgsql,Posgres</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>packageIcon.png</PackageIcon>
-		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.EntityFrameworkCore/packageIcon.png</PackageIconUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.EntityFrameworkCore.Npgsql/packageIcon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -28,11 +28,9 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
-		<PackageReference Include="Gridify" Version="2.14.2" />
-		<PackageReference Include="Gridify.EntityFramework" Version="2.14.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+		<PackageReference Include="NpgSql" Version="8.0.3" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.7" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 </Project>
