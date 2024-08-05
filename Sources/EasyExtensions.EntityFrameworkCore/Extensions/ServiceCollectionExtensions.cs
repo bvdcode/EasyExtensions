@@ -27,16 +27,16 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
 
         /// <summary>
         /// Adds a <see cref="DbContext"/> to the <see cref="IServiceCollection"/> using the 
-        /// <see cref="IConfigurationRoot"/> to build the connection string from DatabaseSettings section.
+        /// <see cref="IConfiguration"/> to build the connection string from DatabaseSettings section.
         /// </summary>
         /// <typeparam name="TContext"> The type of <see cref="DbContext"/> to add. </typeparam>
         /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
-        /// <param name="configuration"> The <see cref="IConfigurationRoot"/> instance. </param>
+        /// <param name="configuration"> The <see cref="IConfiguration"/> instance. </param>
         /// <param name="maxPoolSize"> The maximum pool size, default is 100. </param>
         /// <param name="timeout_s"> The connection timeout in seconds, default is 60. </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         /// <exception cref="KeyNotFoundException"> When DatabaseSettings section is not set. </exception>
-        public static IServiceCollection AddDbContext<TContext>(this IServiceCollection services, IConfigurationRoot configuration, int maxPoolSize = 100, int timeout_s = 60)
+        public static IServiceCollection AddDbContext<TContext>(this IServiceCollection services, IConfiguration configuration, int maxPoolSize = 100, int timeout_s = 60)
             where TContext : DbContext
         {
             string connectionString = BuildConnectionString(configuration, maxPoolSize, timeout_s);
@@ -48,7 +48,7 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
             });
         }
 
-        private static string BuildConnectionString(IConfigurationRoot configuration, int maxPoolSize, int timeout_s = 60)
+        private static string BuildConnectionString(IConfiguration configuration, int maxPoolSize, int timeout_s = 60)
         {
             bool isDevelopment = (Environment.GetEnvironmentVariable("ENVIRONMENT") ?? string.Empty) == "Development";
             if (!isDevelopment)
