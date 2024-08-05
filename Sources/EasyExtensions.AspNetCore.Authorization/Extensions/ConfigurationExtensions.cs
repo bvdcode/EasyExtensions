@@ -10,8 +10,15 @@ namespace EasyExtensions.Authorization.Services
     {
         internal static JwtSettings GetJwtSettings(this IConfiguration configuration)
         {
+            const int defaultLifetimeMinutes = 60;
+
             var jwtSettings = configuration.GetSection("JwtSettings");
-            int lifetimeMinutes = jwtSettings.Exists() ? int.Parse(jwtSettings["LifetimeMinutes"]!) : int.Parse(configuration["JwtLifetimeMinutes"]!);
+            string? lifetimeMinutesStr = jwtSettings.Exists() 
+                ? jwtSettings["LifetimeMinutes"]
+                : configuration["JwtLifetimeMinutes"];
+            int lifetimeMinutes = int.TryParse(lifetimeMinutesStr, out int parsedLifetimeMinutes)
+                ? parsedLifetimeMinutes
+                : defaultLifetimeMinutes;
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lifetimeMinutes, nameof(lifetimeMinutes));
 
             string key = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"])
