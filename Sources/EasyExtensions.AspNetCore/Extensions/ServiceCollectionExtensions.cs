@@ -16,6 +16,52 @@ namespace EasyExtensions.AspNetCore
     public static class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Adds CORS policy with origins.
+        /// </summary>
+        /// <param name="services"> <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="policyName"> Name of the policy. </param>
+        /// <param name="origins"> Origins to add to the policy. </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        public static IServiceCollection AddCorsWithOrigins(this IServiceCollection services, string policyName, params string[] origins)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: policyName,
+                    policy =>
+                    {
+                        policy.WithOrigins(origins)
+                            .AllowAnyHeader()
+                            .AllowCredentials()
+                            .AllowAnyMethod()
+                            .WithExposedHeaders("*");
+                    });
+            });
+            return services;
+        }
+
+        /// <summary>
+        /// Adds default CORS policy with origins.
+        /// </summary>
+        /// <param name="services"> <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="origins"> Origins to add to the policy. </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        public static IServiceCollection AddDefaultCorsWithOrigins(this IServiceCollection services, params string[] origins)
+        {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.WithOrigins(origins)
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                        .AllowAnyMethod()
+                        .WithExposedHeaders("*");
+                });
+            });
+            return services;
+        }
+
+        /// <summary>
         /// Adds exception handler for EasyExtensions.EntityFrameworkCore.Exceptions to the <see cref="IServiceCollection"/>.
         /// </summary>
         /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>

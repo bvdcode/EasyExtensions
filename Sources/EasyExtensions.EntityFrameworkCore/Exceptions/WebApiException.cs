@@ -1,8 +1,6 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Diagnostics;
 using EasyExtensions.Models;
-using System.Collections.Generic;
 using EasyExtensions.Abstractions;
 
 namespace EasyExtensions.EntityFrameworkCore.Exceptions

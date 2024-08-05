@@ -17,30 +17,6 @@ namespace EasyExtensions.Authorization.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds CORS policy with origins.
-        /// </summary>
-        /// <param name="services"> <see cref="IServiceCollection"/> instance. </param>
-        /// <param name="policyName"> Name of the policy. </param>
-        /// <param name="origins"> Origins to add to the policy. </param>
-        /// <returns></returns>
-        public static IServiceCollection AddCorsWithOrigins(this IServiceCollection services, string policyName, params string[] origins)
-        {
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: policyName,
-                    policy =>
-                    {
-                        policy.WithOrigins(origins)
-                        .AllowAnyHeader()
-                        .AllowCredentials()
-                        .AllowAnyMethod()
-                        .WithExposedHeaders("*");
-                    });
-            });
-            return services;
-        }
-
-        /// <summary>
         /// Adds JWT authentication from JwtSettings section or Jwt[Key] configuration values.
         /// </summary>
         /// <param name="services"> <see cref="IServiceCollection"/> instance. </param>
