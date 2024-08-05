@@ -2,8 +2,9 @@
 [![Nuget](https://img.shields.io/nuget/dt/EasyExtensions?color=%239100ff)](https://www.nuget.org/packages/EasyExtensions/)
 [![Static Badge](https://img.shields.io/badge/fuget-f88445?logo=readme&logoColor=white)](https://www.fuget.org/packages/EasyExtensions)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/bvdcode/EasyExtensions/.github%2Fworkflows%2Fpublish-release.yml)](https://github.com/bvdcode/EasyExtensions/actions)
-[![NuGet version (EasyExtensions)](https://img.shields.io/nuget/vpre/EasyExtensions.svg?style=flat-square&label=latest&color=yellowgreen)](https://www.nuget.org/packages/EasyExtensions/)
-[![NuGet version (EasyExtensions)](https://img.shields.io/nuget/v/EasyExtensions.svg?style=flat-square&label=stable)](https://www.nuget.org/packages/EasyExtensions/)
+[![NuGet version (EasyExtensions)](https://img.shields.io/nuget/v/EasyExtensions.svg?label=stable)](https://www.nuget.org/packages/EasyExtensions/)
+[![CodeFactor](https://www.codefactor.io/repository/github/bvdcode/EasyExtensions/badge)](https://www.codefactor.io/repository/github/bvdcode/EasyExtensions)
+![GitHub repo size](https://img.shields.io/github/repo-size/bvdcode/EasyExtensions)
 
 
 # EasyExtensions
