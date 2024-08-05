@@ -33,7 +33,6 @@ namespace EasyExtensions.EntityFrameworkCore.Exceptions
         {
             return new()
             {
-
                 Status = (int)StatusCode,
                 Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                 Title = "Web API actions errors occurred.",

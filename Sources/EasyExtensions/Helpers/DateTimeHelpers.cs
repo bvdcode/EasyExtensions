@@ -68,7 +68,7 @@ namespace EasyExtensions.Helpers
                 return TimeSpan.Zero;
             }
             timePart = timePart.Trim().Replace(' ', '+');
-            int index = timePart.IndexOfAny(new char[] { '+', '-' });
+            int index = timePart.IndexOfAny(DateTimeHelpersSearchValues.OffsetSymbols);
             if (index <= 0)
             {
                 return TimeSpan.Zero;
@@ -121,7 +121,7 @@ namespace EasyExtensions.Helpers
                 return TimeSpan.Zero;
             }
             string ms = timePart[(index + 1)..];
-            index = ms.IndexOfAny(new char[] { '.', '.', '+', '-', ' ', 'Z', 'z' });
+            index = ms.IndexOfAny(DateTimeHelpersSearchValues.DateDelimiters);
             if (index > 0)
             {
                 ms = ms[0..index];
@@ -148,7 +148,7 @@ namespace EasyExtensions.Helpers
                 throw new FormatException($"Minute was incorrect format: {timePart} ({parts[1]}).");
             }
             string secondsStr = parts[2];
-            int index = secondsStr.IndexOfAny(new char[] { '.', '.', '+', '-', ' ', 'Z', 'z' });
+            int index = secondsStr.IndexOfAny(DateTimeHelpersSearchValues.DateDelimiters);
             if (index > 0)
             {
                 secondsStr = secondsStr[0..index];
