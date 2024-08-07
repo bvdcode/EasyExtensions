@@ -29,7 +29,7 @@ namespace EasyExtensions.Authorization.Services
                 256 / 8 => SecurityAlgorithms.HmacSha256,
                 384 / 8 => SecurityAlgorithms.HmacSha384,
                 512 / 8 => SecurityAlgorithms.HmacSha512,
-                _ => throw new ArgumentOutOfRangeException(nameof(key), "Key length must be 128, 192 or 256 bits (16, 24 or 32 symbols)")
+                _ => throw new ArgumentOutOfRangeException(nameof(key), "Key length must be 128, 192 or 256 bits (16, 24 or 32 symbols), but was " + key.Length + " symbols.")
             };
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
 
