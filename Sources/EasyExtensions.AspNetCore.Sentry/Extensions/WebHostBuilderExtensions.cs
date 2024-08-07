@@ -2,10 +2,10 @@
 using Sentry.AspNetCore;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using EasyExtensions.Sentry.Factories;
 using Microsoft.Extensions.DependencyInjection;
+using EasyExtensions.AspNetCore.Sentry.Factories;
 
-namespace EasyExtensions.Sentry.Extensions
+namespace EasyExtensions.AspNetCore.Sentry.Extensions
 {
     /// <summary>
     /// <see cref="IWebHostBuilder"/> extensions.
