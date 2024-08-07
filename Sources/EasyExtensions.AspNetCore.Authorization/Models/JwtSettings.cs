@@ -1,4 +1,4 @@
-﻿namespace EasyExtensions.Authorization.Models
+﻿namespace EasyExtensions.AspNetCore.Authorization.Models
 {
     internal class JwtSettings
     {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
-using EasyExtensions.Authorization.Models;
+using EasyExtensions.AspNetCore.Authorization.Models;
 
-namespace EasyExtensions.Authorization.Services
+namespace EasyExtensions.AspNetCore.Authorization.Services
 {
     internal static class ConfigurationExtensions
     {

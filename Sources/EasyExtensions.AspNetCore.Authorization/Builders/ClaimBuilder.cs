@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Collections.Generic;
 
-namespace EasyExtensions.Authorization.Builders
+namespace EasyExtensions.AspNetCore.Authorization.Builders
 {
     /// <summary>
     /// Claim builder.

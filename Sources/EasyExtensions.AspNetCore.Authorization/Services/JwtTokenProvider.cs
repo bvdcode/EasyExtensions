@@ -3,11 +3,11 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
-using EasyExtensions.Authorization.Models;
-using EasyExtensions.Authorization.Builders;
-using EasyExtensions.Authorization.Abstractions;
+using EasyExtensions.AspNetCore.Authorization.Models;
+using EasyExtensions.AspNetCore.Authorization.Builders;
+using EasyExtensions.AspNetCore.Authorization.Abstractions;
 
-namespace EasyExtensions.Authorization.Services
+namespace EasyExtensions.AspNetCore.Authorization.Services
 {
     internal class JwtTokenProvider(IConfiguration _configuration) : ITokenProvider
     {

@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Collections.Generic;
 
-namespace EasyExtensions.Authorization.Abstractions
+namespace EasyExtensions.AspNetCore.Authorization.Abstractions
 {
     /// <summary>
     /// Claim provider.

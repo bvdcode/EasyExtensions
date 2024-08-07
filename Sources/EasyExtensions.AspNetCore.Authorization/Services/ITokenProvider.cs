@@ -1,8 +1,8 @@
 ﻿using System;
-using EasyExtensions.Authorization.Builders;
-using EasyExtensions.Authorization.Abstractions;
+using EasyExtensions.AspNetCore.Authorization.Builders;
+using EasyExtensions.AspNetCore.Authorization.Abstractions;
 
-namespace EasyExtensions.Authorization.Services
+namespace EasyExtensions.AspNetCore.Authorization.Services
 {
     /// <summary>
     /// Provides token creation with claims.

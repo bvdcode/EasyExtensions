@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
-using EasyExtensions.Authorization.Handlers;
-using EasyExtensions.Authorization.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using EasyExtensions.AspNetCore.Authorization.Handlers;
+using EasyExtensions.AspNetCore.Authorization.Services;
 
-namespace EasyExtensions.Authorization.Extensions
+namespace EasyExtensions.AspNetCore.Authorization.Extensions
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
-namespace EasyExtensions.Authorization.Handlers
+namespace EasyExtensions.AspNetCore.Authorization.Handlers
 {
     /// <summary>
     /// This authorization handler will bypass all requirements
