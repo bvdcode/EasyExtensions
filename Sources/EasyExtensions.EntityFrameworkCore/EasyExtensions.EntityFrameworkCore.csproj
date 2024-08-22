@@ -31,7 +31,7 @@
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
 		<PackageReference Include="Gridify" Version="2.14.2" />
 		<PackageReference Include="Gridify.EntityFramework" Version="2.14.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
