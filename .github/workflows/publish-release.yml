@@ -43,7 +43,7 @@ jobs:
           dotnet build --configuration Release
           dotnet pack --configuration Release --output nupkg -p:Version='${{ steps.gitversion.outputs.SemVer }}' 
     - name: Upload NuGet package to GitHub
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: nupkg
         path: Sources/nupkg
