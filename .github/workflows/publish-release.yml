@@ -56,7 +56,7 @@ jobs:
     steps:  
     #Push NuGet package to GitHub packages
     - name: Download nuget package artifact
-      uses: actions/download-artifact@v1.0.0
+      uses: actions/download-artifact@v4.0.0
       with:
         name: nupkg
     - name: Prep packages
