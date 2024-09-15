@@ -4,7 +4,7 @@ using EasyExtensions.Helpers;
 using EasyExtensions.Quartz.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EasyExtensions.Quartz
+namespace EasyExtensions.Quartz.Extensions
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.
