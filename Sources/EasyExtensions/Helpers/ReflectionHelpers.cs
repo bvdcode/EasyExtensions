@@ -29,7 +29,7 @@ namespace EasyExtensions.Helpers
                 .ToList();
             foreach (Assembly assembly in assemblies)
             {
-                Type[] types = new Type[0];
+                Type[] types = Array.Empty<Type>();
                 try
                 {
                     types = assembly.GetTypes();
