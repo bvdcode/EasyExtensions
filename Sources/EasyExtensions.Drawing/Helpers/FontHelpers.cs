@@ -1,10 +1,8 @@
-﻿using EasyExtensions.Drawing.Properties;
-using SixLabors.Fonts;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
+using SixLabors.Fonts;
+using System.Globalization;
+
 namespace EasyExtensions.Drawing.Helpers
 {
     /// <summary>
@@ -27,7 +25,7 @@ namespace EasyExtensions.Drawing.Helpers
                 return found.CreateFont(size);
             }
             FontCollection collection = new();
-            using Stream fontStream = new MemoryStream(Resources.Consola);
+            using Stream fontStream = new MemoryStream(Resources.Fonts.Consola);
             return collection.Add(fontStream).CreateFont(size);
         }
     }
