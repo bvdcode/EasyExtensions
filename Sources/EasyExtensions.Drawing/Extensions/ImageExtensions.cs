@@ -1,6 +1,9 @@
-﻿using SixLabors.ImageSharp;
+﻿using System.IO;
+using SixLabors.ImageSharp;
+using System.Collections.Generic;
 using SixLabors.ImageSharp.Processing;
-using System.IO;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.Fonts;
 
 namespace EasyExtensions.Drawing.Extensions
 {
@@ -9,6 +12,17 @@ namespace EasyExtensions.Drawing.Extensions
     /// </summary>
     public static class ImageExtensions
     {
+        /// <summary>
+        /// Draw text on image.
+        /// </summary>
+        public static Image<Rgba32> DrawText(this Image<Rgba32> image, string text)
+        {
+            Font font = GetAnyFont(24);
+            PointF pointf = new(5, 5);
+            image.Mutate(x => x.DrawText(text, font, Color.Purple, pointf));
+            return image;
+        }
+
         /// <summary>
         /// Fit image to target size and copy and blur it to background.
         /// </summary>
@@ -49,6 +63,75 @@ namespace EasyExtensions.Drawing.Extensions
             using var stream = new MemoryStream();
             image.SaveAsJpeg(stream);
             return stream.ToArray();
+        }
+
+        /// <summary>
+        /// Set image brightness automatically.
+        /// </summary>
+        public static void ApplyAutoLight(this Image<Rgba32> image)
+        {
+            IEnumerable<Rgba32> colors = ToColors(image);
+            double average = CalculateAverageBrightness(colors);
+            double brightnessRate = 100 / average;
+            for (int i = 0; i < image.Width; i++)
+            {
+                for (int j = 0; j < image.Height; j++)
+                {
+                    var pixel = image[i, j];
+                    int R = (int)(pixel.R * brightnessRate);
+                    int G = (int)(pixel.G * brightnessRate);
+                    int B = (int)(pixel.B * brightnessRate);
+                    if (R > 255)
+                    {
+                        R = 255;
+                    }
+                    if (G > 255)
+                    {
+                        G = 255;
+                    }
+                    if (B > 255)
+                    {
+                        B = 255;
+                    }
+
+                    Rgba32 newPixel = new((byte)R, (byte)G, (byte)B, pixel.A);
+                    image[i, j] = newPixel;
+                }
+            }
+        }
+
+        private static List<Rgba32> ToColors(Image<Rgba32> img)
+        {
+            List<Rgba32> currentColors = new();
+            for (int i = 0; i < img.Width; i++)
+            {
+                for (int j = 0; j < img.Height; j++)
+                {
+                    currentColors.Add(img[i, j]);
+                }
+            }
+            return currentColors;
+        }
+
+        private static double GetBrightness(Rgba32 pixel)
+        {
+            const double redMultiplier = 0.2126;
+            const double greenMultiplier = 0.7152;
+            const double blueMultiplier = 0.0722;
+            double result = redMultiplier * pixel.R + greenMultiplier * pixel.G + blueMultiplier * pixel.B;
+            return result;
+        }
+
+        private static double CalculateAverageBrightness(IEnumerable<Rgba32> pixels)
+        {
+            int count = 0;
+            double sumBrightness = 0;
+            foreach (var pixel in pixels)
+            {
+                count++;
+                sumBrightness += GetBrightness(pixel);
+            }
+            return sumBrightness / count;
         }
     }
 }
