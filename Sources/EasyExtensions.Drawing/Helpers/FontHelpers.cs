@@ -13,9 +13,9 @@ namespace EasyExtensions.Drawing.Helpers
         /// <summary>
         /// Get any font from system or get default library font.
         /// </summary>
-        /// <param name="size"></param>
-        /// <returns></returns>
-        public static Font GetAnyFont(float size)
+        /// <param name="size">Font size, default is 12.</param>
+        /// <returns>Font.</returns>
+        public static Font GetAnyFont(float size = 12)
         {
             var found = SystemFonts.Collection
                 .GetByCulture(CultureInfo.InvariantCulture)
