@@ -1,9 +1,11 @@
 ﻿using System.IO;
+using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using System.Collections.Generic;
+using EasyExtensions.Drawing.Helpers;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Fonts;
+using SixLabors.ImageSharp.Drawing.Processing;
 
 namespace EasyExtensions.Drawing.Extensions
 {
@@ -17,8 +19,9 @@ namespace EasyExtensions.Drawing.Extensions
         /// </summary>
         public static Image<Rgba32> DrawText(this Image<Rgba32> image, string text)
         {
-            Font font = GetAnyFont(24);
-            PointF pointf = new(5, 5);
+            Font font = FontHelpers.GetAnyFont(24);
+            const int offset = 5;
+            PointF pointf = new(offset, offset);
             image.Mutate(x => x.DrawText(text, font, Color.Purple, pointf));
             return image;
         }
