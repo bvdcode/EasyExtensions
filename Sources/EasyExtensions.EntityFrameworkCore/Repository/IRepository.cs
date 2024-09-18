@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using EasyExtensions.EntityFrameworkCore.Abstractions;
 
-namespace EasyExtensions.EntityFrameworkCore.Database.Repository
+namespace EasyExtensions.EntityFrameworkCore.Repository
 {
     /// <summary>
     /// Represents a generic repository interface for accessing and manipulating entities of type TItem.

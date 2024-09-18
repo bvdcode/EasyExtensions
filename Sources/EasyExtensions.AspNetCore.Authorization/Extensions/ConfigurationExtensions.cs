@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using EasyExtensions.AspNetCore.Authorization.Models;
 
-namespace EasyExtensions.AspNetCore.Authorization.Services
+namespace EasyExtensions.AspNetCore.Authorization.Extensions
 {
     internal static class ConfigurationExtensions
     {

@@ -8,7 +8,7 @@ using EasyExtensions.Abstractions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EasyExtensions.AspNetCore
+namespace EasyExtensions.AspNetCore.Extensions
 {
     /// <summary>
     /// <see cref="IServiceCollection"/> extensions.

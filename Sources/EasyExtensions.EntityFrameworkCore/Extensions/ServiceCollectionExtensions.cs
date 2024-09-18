@@ -2,7 +2,7 @@
 using System.Reflection;
 using EasyExtensions.Helpers;
 using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.EntityFrameworkCore.Database.Repository;
+using EasyExtensions.EntityFrameworkCore.Repository;
 
 namespace EasyExtensions.EntityFrameworkCore.Extensions
 {

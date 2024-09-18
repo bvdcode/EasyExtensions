@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace EasyExtensions
+namespace EasyExtensions.Extensions
 {
     /// <summary>
     /// <see cref="IEnumerable{T}"/> extensions."/>

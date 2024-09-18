@@ -1,17 +1,12 @@
-﻿using System;
-using Gridify;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Gridify;
 using System.Linq.Expressions;
 using Gridify.EntityFramework;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using EasyExtensions.EntityFrameworkCore.Exceptions;
 using EasyExtensions.EntityFrameworkCore.Abstractions;
 using EasyExtensions.EntityFrameworkCore.Database.Abstractions;
 
-namespace EasyExtensions.EntityFrameworkCore.Database.Repository
+namespace EasyExtensions.EntityFrameworkCore.Repository
 {
     /// <summary>
     /// Create base repository based on database entity set with autosaving.

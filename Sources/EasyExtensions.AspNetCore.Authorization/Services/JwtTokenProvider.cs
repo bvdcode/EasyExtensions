@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using EasyExtensions.AspNetCore.Authorization.Models;
 using EasyExtensions.AspNetCore.Authorization.Builders;
+using EasyExtensions.AspNetCore.Authorization.Extensions;
 using EasyExtensions.AspNetCore.Authorization.Abstractions;
 
 namespace EasyExtensions.AspNetCore.Authorization.Services

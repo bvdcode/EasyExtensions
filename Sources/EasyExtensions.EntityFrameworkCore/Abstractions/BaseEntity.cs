@@ -1,6 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using EasyExtensions.EntityFrameworkCore.Database.Repository;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using EasyExtensions.EntityFrameworkCore.Repository;
 
 namespace EasyExtensions.EntityFrameworkCore.Abstractions
 {
