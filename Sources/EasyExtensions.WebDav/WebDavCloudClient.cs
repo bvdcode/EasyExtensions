@@ -9,7 +9,7 @@ namespace EasyExtensions.WebDav
     /// <summary>
     /// WebDAV cloud client.
     /// </summary>
-    public class WebDavCloudClient : IDisposable
+    public class WebDavCloudClient : IWebDavCloudClient, IDisposable
     {
         private readonly string _baseAddress;
         private readonly WebDavClient _client;
@@ -64,19 +64,12 @@ namespace EasyExtensions.WebDav
         }
 
         /// <summary>
-        /// Disposes the <see cref="WebDavCloudClient"/> instance.
-        /// </summary>
-        public void Dispose()
-        {
-            _client.Dispose();
-        }
-
-        /// <summary>
         /// Uploads a file to the WebDAV server.
         /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="filename"></param>
-        /// <returns></returns>
+        /// <param name="bytes"> The file bytes. </param>
+        /// <param name="filename"> The filename. </param>
+        /// <returns> The HTTP status code. </returns>
+        /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
         public async Task UploadFileAsync(byte[] bytes, string filename)
         {
             var stream = new MemoryStream(bytes);
@@ -90,7 +83,7 @@ namespace EasyExtensions.WebDav
         /// <param name="filename"> The filename. </param>
         /// <returns> The HTTP status code. </returns>
         /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
-        public async Task<HttpStatusCode> UploadFileAsync(Stream fileStream, string filename)
+        public async Task UploadFileAsync(Stream fileStream, string filename)
         {
             string url = ConcatUris(_baseAddress, filename).ToString();
             var result = await _client.PutFile(url, fileStream);
@@ -117,7 +110,6 @@ namespace EasyExtensions.WebDav
             {
                 throw new WebException($"Failed to upload file {url} with code {result.StatusCode}.");
             }
-            return (HttpStatusCode)result.StatusCode;
         }
 
         /// <summary>
@@ -157,6 +149,14 @@ namespace EasyExtensions.WebDav
             {
                 throw new WebException($"Failed to create folder {url} with code {result.StatusCode}.");
             }
+        }
+
+        /// <summary>
+        /// Disposes the <see cref="WebDavCloudClient"/> instance.
+        /// </summary>
+        public void Dispose()
+        {
+            _client.Dispose();
         }
     }
 }
