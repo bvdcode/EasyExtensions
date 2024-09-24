@@ -132,22 +132,25 @@ namespace EasyExtensions.WebDav
         /// <exception cref="WebException"> When the folder cannot be created. </exception>
         public async Task CreateFolderAsync(string folder)
         {
-            string url = ConcatUris(_baseAddress, folder).ToString();
-            var result = await _client.Mkcol(url);
-            if ((result.StatusCode == (int)HttpStatusCode.NotFound || result.StatusCode == (int)HttpStatusCode.Conflict) && folder.Contains('/'))
+            var parts = folder.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            string currentUrl = _baseAddress;
+            foreach (var part in parts)
             {
-                string parentFolder = folder[..folder.LastIndexOf('/')];
-                if (!string.IsNullOrEmpty(parentFolder))
+                if (string.IsNullOrEmpty(part))
                 {
-                    await CreateFolderAsync(parentFolder);
-                    result = await _client.Mkcol(url);
+                    continue;
                 }
+                if (currentUrl.EndsWith('/'))
+                {
+                    currentUrl = currentUrl[..^1];
+                }
+                currentUrl += '/' + part;
+                await _client.Mkcol(currentUrl);
             }
-            if (result.StatusCode != (int)HttpStatusCode.Created
-                && result.StatusCode != (int)HttpStatusCode.NoContent
-                && result.StatusCode != (int)HttpStatusCode.MultiStatus)
+            bool exists = await ExistsAsync(folder);
+            if (!exists)
             {
-                throw new WebException($"Failed to create folder {url} with code {result.StatusCode}.");
+                throw new WebException($"Failed to create folder {folder}.");
             }
         }
 
