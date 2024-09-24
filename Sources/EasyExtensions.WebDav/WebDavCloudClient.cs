@@ -72,7 +72,7 @@ namespace EasyExtensions.WebDav
         /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
         public async Task UploadFileAsync(byte[] bytes, string filename)
         {
-            var stream = new MemoryStream(bytes);
+            using var stream = new MemoryStream(bytes);
             await UploadFileAsync(stream, filename);
         }
 
@@ -85,8 +85,10 @@ namespace EasyExtensions.WebDav
         /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
         public async Task UploadFileAsync(Stream fileStream, string filename)
         {
+            using var memoryStream = new MemoryStream();
+            await fileStream.CopyToAsync(memoryStream);
             string url = ConcatUris(_baseAddress, filename).ToString();
-            var result = await _client.PutFile(url, fileStream);
+            var result = await _client.PutFile(url, memoryStream);
             if (result.StatusCode == (int)HttpStatusCode.NotFound)
             {
                 if (filename.Contains('/'))
@@ -95,12 +97,8 @@ namespace EasyExtensions.WebDav
                     if (!string.IsNullOrEmpty(folder))
                     {
                         await CreateFolderAsync(folder);
-                        if (fileStream.CanSeek)
-                        {
-                            // Reset the stream position to the beginning (if possible)
-                            fileStream.Seek(0, SeekOrigin.Begin);
-                        }
-                        result = await _client.PutFile(url, fileStream);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        result = await _client.PutFile(url, memoryStream);
                     }
                 }
             }
