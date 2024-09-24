@@ -134,7 +134,7 @@ namespace EasyExtensions.WebDav
         {
             string url = ConcatUris(_baseAddress, folder).ToString();
             var result = await _client.Mkcol(url);
-            if (result.StatusCode == (int)HttpStatusCode.NotFound && folder.Contains('/'))
+            if ((result.StatusCode == (int)HttpStatusCode.NotFound || result.StatusCode == (int)HttpStatusCode.Conflict) && folder.Contains('/'))
             {
                 string parentFolder = folder[..folder.LastIndexOf('/')];
                 if (!string.IsNullOrEmpty(parentFolder))
