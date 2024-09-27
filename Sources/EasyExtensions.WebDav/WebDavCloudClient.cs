@@ -85,8 +85,9 @@ namespace EasyExtensions.WebDav
         /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
         public async Task UploadFileAsync(Stream fileStream, string filename)
         {
-            MemoryStream memoryStream = new MemoryStream();
+            using MemoryStream memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
+            byte[] bytes = memoryStream.ToArray();
             string url = ConcatUris(_baseAddress, filename).ToString();
             var result = await _client.PutFile(url, memoryStream);
             if (result.StatusCode == (int)HttpStatusCode.NotFound)
@@ -97,8 +98,8 @@ namespace EasyExtensions.WebDav
                     if (!string.IsNullOrEmpty(folder))
                     {
                         await CreateFolderAsync(folder);
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-                        result = await _client.PutFile(url, memoryStream);
+                        using MemoryStream newMemoryStream = new MemoryStream(bytes);
+                        result = await _client.PutFile(url, newMemoryStream);
                     }
                 }
             }
