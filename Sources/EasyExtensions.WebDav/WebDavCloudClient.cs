@@ -87,6 +87,7 @@ namespace EasyExtensions.WebDav
         {
             using MemoryStream memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
             byte[] bytes = memoryStream.ToArray();
             string url = ConcatUris(_baseAddress, filename).ToString();
             var result = await _client.PutFile(url, memoryStream);
