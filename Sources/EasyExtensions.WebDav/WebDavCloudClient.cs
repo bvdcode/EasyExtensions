@@ -85,7 +85,7 @@ namespace EasyExtensions.WebDav
         /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
         public async Task UploadFileAsync(Stream fileStream, string filename)
         {
-            using var memoryStream = new MemoryStream();
+            MemoryStream memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
             string url = ConcatUris(_baseAddress, filename).ToString();
             var result = await _client.PutFile(url, memoryStream);
@@ -108,6 +108,7 @@ namespace EasyExtensions.WebDav
             {
                 throw new WebException($"Failed to upload file {url} with code {result.StatusCode}.");
             }
+            memoryStream.Dispose();
         }
 
         /// <summary>
