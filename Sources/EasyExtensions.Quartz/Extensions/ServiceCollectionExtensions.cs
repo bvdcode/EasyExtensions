@@ -42,6 +42,10 @@ namespace EasyExtensions.Quartz.Extensions
                         .WithSimpleSchedule(x => x
                         .WithInterval(jobTriggerAttribute.Interval)
                         .RepeatForever());
+                    if (jobTriggerAttribute.StartNow)
+                    {
+                        opts.StartNow();
+                    }
                 });
             }
         }
