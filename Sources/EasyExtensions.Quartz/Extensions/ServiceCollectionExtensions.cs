@@ -34,18 +34,20 @@ namespace EasyExtensions.Quartz.Extensions
                     continue;
                 }
                 var jobKey = new JobKey(job.Name);
-                configurator.AddJob(job, jobKey, x => x.WithIdentity(jobKey));
+                configurator.AddJob(job, jobKey, x => x
+                    .WithIdentity(jobKey)
+                    .DisallowConcurrentExecution());
                 configurator.AddTrigger(opts =>
                 {
+                    if (jobTriggerAttribute.StartNow)
+                    {
+                        opts.StartNow();
+                    }
                     opts.ForJob(jobKey)
                         .WithIdentity(job.Name + "Trigger")
                         .WithSimpleSchedule(x => x
                         .WithInterval(jobTriggerAttribute.Interval)
                         .RepeatForever());
-                    if (jobTriggerAttribute.StartNow)
-                    {
-                        opts.StartNow();
-                    }
                 });
             }
         }
