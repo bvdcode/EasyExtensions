@@ -3,6 +3,7 @@ using WebDav;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace EasyExtensions.WebDav
 {
@@ -153,6 +154,22 @@ namespace EasyExtensions.WebDav
             {
                 throw new WebException($"Failed to create folder {folder}.");
             }
+        }
+
+        /// <summary>
+        /// Lists the files in a folder on the WebDAV server.
+        /// </summary>
+        /// <param name="folder"> The folder name. </param>
+        /// <returns> The list of files. </returns>
+        public async Task<IEnumerable<WebDavResource>> GetFilesAsync(string folder)
+        {
+            string url = ConcatUris(_baseAddress, folder).ToString();
+            var result = await _client.Propfind(url);
+            if (!result.IsSuccessful || result.StatusCode != (int)HttpStatusCode.MultiStatus)
+            {
+                return Array.Empty<WebDavResource>();
+            }
+            return result.Resources;
         }
 
         /// <summary>

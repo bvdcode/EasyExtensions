@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using WebDav;
 
 namespace EasyExtensions.WebDav
 {
@@ -37,5 +39,12 @@ namespace EasyExtensions.WebDav
         /// <param name="filename"> The filename. </param>
         /// <returns> The HTTP status code. </returns>
         Task UploadFileAsync(Stream fileStream, string filename);
+
+        /// <summary>
+        /// Lists the files in a folder on the WebDAV server.
+        /// </summary>
+        /// <param name="folder"> The folder name. </param>
+        /// <returns> The list of files. </returns>
+        Task<IEnumerable<WebDavResource>> GetFilesAsync(string folder);
     }
 }
