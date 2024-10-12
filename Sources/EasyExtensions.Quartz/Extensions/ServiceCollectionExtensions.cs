@@ -25,7 +25,7 @@ namespace EasyExtensions.Quartz.Extensions
                 .AddQuartzHostedService();
         }
 
-        private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, Action<Type>? jobAdded = null)
+        private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, Action<Type>? jobAdded)
         {
             var jobs = ReflectionHelpers.GetTypesOfInterface<IJob>();
             foreach (var job in jobs)
