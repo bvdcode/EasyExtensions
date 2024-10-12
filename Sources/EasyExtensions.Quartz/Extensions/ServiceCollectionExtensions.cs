@@ -1,7 +1,7 @@
 ﻿using Quartz;
+using System;
 using System.Reflection;
 using EasyExtensions.Helpers;
-using Microsoft.Extensions.Logging;
 using EasyExtensions.Quartz.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,16 +16,16 @@ namespace EasyExtensions.Quartz.Extensions
         /// Adds Quartz jobs with <see cref="JobTriggerAttribute"/> to the <see cref="IServiceCollection"/>.
         /// </summary>
         /// <param name="services">IServiceCollection instance.</param>
-        /// <param name="logger">Logger instance if you want to see jobs registration in the log.</param>
+        /// <param name="jobAdded">Action to be executed when a job is added.</param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        public static IServiceCollection AddQuartzJobs(this IServiceCollection services, ILogger? logger = null)
+        public static IServiceCollection AddQuartzJobs(this IServiceCollection services, Action<Type>? jobAdded)
         {
             return services
-                .AddQuartz(x => SetupQuartz(x, logger))
+                .AddQuartz(x => SetupQuartz(x, jobAdded))
                 .AddQuartzHostedService();
         }
 
-        private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, ILogger? logger)
+        private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, Action<Type>? jobAdded)
         {
             var jobs = ReflectionHelpers.GetTypesOfInterface<IJob>();
             foreach (var job in jobs)
@@ -50,7 +50,7 @@ namespace EasyExtensions.Quartz.Extensions
                         .WithSimpleSchedule(x => x
                         .WithInterval(jobTriggerAttribute.Interval)
                         .RepeatForever());
-                    logger?.LogInformation($"Job {job.Name} with trigger {job.Name + "Trigger"} added, interval: {jobTriggerAttribute.Interval}, job key: {jobKey.Name}");
+                    jobAdded?.Invoke(job);
                 });
             }
         }
