@@ -18,14 +18,14 @@ namespace EasyExtensions.Quartz.Extensions
         /// <param name="services">IServiceCollection instance.</param>
         /// <param name="jobAdded">Action to be executed when a job is added.</param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        public static IServiceCollection AddQuartzJobs(this IServiceCollection services, Action<Type>? jobAdded)
+        public static IServiceCollection AddQuartzJobs(this IServiceCollection services, Action<Type>? jobAdded = null)
         {
             return services
                 .AddQuartz(x => SetupQuartz(x, jobAdded))
                 .AddQuartzHostedService();
         }
 
-        private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, Action<Type>? jobAdded)
+        private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, Action<Type>? jobAdded = null)
         {
             var jobs = ReflectionHelpers.GetTypesOfInterface<IJob>();
             foreach (var job in jobs)
