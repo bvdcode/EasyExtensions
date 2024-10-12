@@ -11,6 +11,12 @@ namespace EasyExtensions.WebDav
     public interface IWebDavCloudClient
     {
         /// <summary>
+        /// Gets the underlying <see cref="WebDavClient"/>.
+        /// </summary>
+        /// <returns> The <see cref="WebDavClient"/>. </returns>
+        WebDavClient GetWebDavClient();
+
+        /// <summary>
         /// Creates a folder on the WebDAV server if it does not exist.
         /// </summary>
         /// <param name="folder"> The folder name. </param>

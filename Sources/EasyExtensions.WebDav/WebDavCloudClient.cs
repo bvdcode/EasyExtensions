@@ -173,6 +173,15 @@ namespace EasyExtensions.WebDav
         }
 
         /// <summary>
+        /// Gets the underlying <see cref="WebDavClient"/>.
+        /// </summary>
+        /// <returns> The <see cref="WebDavClient"/>. </returns>
+        public WebDavClient GetWebDavClient()
+        {
+            return _client;
+        }
+
+        /// <summary>
         /// Disposes the <see cref="WebDavCloudClient"/> instance.
         /// </summary>
         public void Dispose()
