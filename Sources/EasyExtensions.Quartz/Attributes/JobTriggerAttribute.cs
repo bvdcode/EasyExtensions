@@ -20,6 +20,11 @@ namespace EasyExtensions.Quartz.Attributes
         public bool StartNow { get; }
 
         /// <summary>
+        /// Repeat the job forever.
+        /// </summary>
+        public bool RepeatForever { get; set; }
+
+        /// <summary>
         /// Create a new instance of <see cref="JobTriggerAttribute"/>.
         /// </summary>
         /// <param name="days"> Days. </param>
@@ -27,7 +32,9 @@ namespace EasyExtensions.Quartz.Attributes
         /// <param name="minutes"> Minutes. </param>
         /// <param name="seconds"> Seconds. </param>
         /// <param name="startNow"> Start now. </param>
-        public JobTriggerAttribute(int days = 0, int hours = 0, int minutes = 0, int seconds = 0, bool startNow = true)
+        /// <param name="repeatForever"> Repeat forever. </param>
+        public JobTriggerAttribute(int days = 0, int hours = 0, int minutes = 0, int seconds = 0,
+            bool startNow = true, bool repeatForever = true)
         {
             if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0)
             {
@@ -35,6 +42,7 @@ namespace EasyExtensions.Quartz.Attributes
             }
             Interval = new TimeSpan(days, hours, minutes, seconds);
             StartNow = startNow;
+            RepeatForever = repeatForever;
         }
     }
 }

@@ -47,9 +47,14 @@ namespace EasyExtensions.Quartz.Extensions
                     }
                     opts.ForJob(jobKey)
                         .WithIdentity(job.Name + "Trigger")
-                        .WithSimpleSchedule(x => x
-                        .WithInterval(jobTriggerAttribute.Interval)
-                        .RepeatForever());
+                        .WithSimpleSchedule(x =>
+                        {
+                            x.WithInterval(jobTriggerAttribute.Interval);
+                            if (jobTriggerAttribute.RepeatForever)
+                            {
+                                x.RepeatForever();
+                            }
+                        });
                     jobAdded?.Invoke(job);
                 });
             }
