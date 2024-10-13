@@ -17,6 +17,12 @@ namespace EasyExtensions.WebDav
         WebDavClient GetWebDavClient();
 
         /// <summary>
+        /// Gets the base address.
+        /// </summary>
+        /// <returns> The base address. </returns>
+        string GetBaseAddress();
+
+        /// <summary>
         /// Creates a folder on the WebDAV server if it does not exist.
         /// </summary>
         /// <param name="folder"> The folder name. </param>
@@ -59,13 +65,5 @@ namespace EasyExtensions.WebDav
         /// <param name="filePath"> The file path. </param>
         /// <returns> The file bytes. </returns>
         Task<byte[]> GetFileBytesAsync(string filePath);
-
-        /// <summary>
-        /// Substracts the base address from the given URL.
-        /// </summary>
-        /// <param name="fullUrl"> The full URL. </param>
-        /// <returns> The relative URL. </returns>
-        /// <remarks> The full URL must start with the base address. </remarks>
-        string GetRelativeUrl(string fullUrl);
     }
 }
