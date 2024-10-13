@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EasyExtensions.WebDav
 {
@@ -163,6 +164,36 @@ namespace EasyExtensions.WebDav
         /// <returns> The list of files. </returns>
         public async Task<IEnumerable<WebDavResource>> GetFilesAsync(string folder)
         {
+            var resources = await GetResourcesAsync(folder);
+            if (resources.Count() == 1 && resources.First().IsCollection == false)
+            {
+                throw new InvalidOperationException("The folder does not exist - it is a file.");
+            }
+            return resources.Where(r => r.IsCollection == false);
+        }
+
+        /// <summary>
+        /// Lists the directories in a folder on the WebDAV server.
+        /// </summary>
+        /// <param name="folder"> The folder name. </param>
+        /// <returns> The list of directories. </returns>
+        public async Task<IEnumerable<WebDavResource>> GetDirectoriesAsync(string folder)
+        {
+            var resources = await GetResourcesAsync(folder);
+            if (resources.Count() == 1 && resources.First().IsCollection == false)
+            {
+                throw new InvalidOperationException("The folder does not exist - it is a file.");
+            }
+            return resources.Where(r => r.IsCollection == true);
+        }
+
+        /// <summary>
+        /// Lists all resources in a folder on the WebDAV server or gets the file if the path is a file.
+        /// </summary>
+        /// <param name="folder"> The folder or file path. </param>
+        /// <returns> The list of resources - files and directories. </returns>
+        public async Task<IEnumerable<WebDavResource>> GetResourcesAsync(string folder)
+        {
             string url = ConcatUris(_baseAddress, folder).ToString();
             var result = await _client.Propfind(url);
             if (!result.IsSuccessful || result.StatusCode != (int)HttpStatusCode.MultiStatus)
@@ -170,6 +201,21 @@ namespace EasyExtensions.WebDav
                 return Array.Empty<WebDavResource>();
             }
             return result.Resources;
+        }
+
+        /// <summary>
+        /// Loads a file from the WebDAV server.
+        /// </summary>
+        /// <param name="filePath"> The file path. </param>
+        /// <returns> The file bytes. </returns>
+        public async Task<byte[]> GetFileBytesAsync(string filePath)
+        {
+            string url = ConcatUris(_baseAddress, filePath).ToString();
+            var file = await _client.GetRawFile(url);
+            using MemoryStream memoryStream = new MemoryStream();
+            await file.Stream.CopyToAsync(memoryStream);
+            byte[] bytes = memoryStream.ToArray();
+            return bytes;
         }
 
         /// <summary>
