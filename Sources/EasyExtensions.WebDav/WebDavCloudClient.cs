@@ -165,10 +165,6 @@ namespace EasyExtensions.WebDav
         public async Task<IEnumerable<WebDavResource>> GetFilesAsync(string folder)
         {
             var resources = await GetResourcesAsync(folder);
-            if (resources.Count() == 1 && resources.First().IsCollection == false)
-            {
-                throw new InvalidOperationException("The folder does not exist - it is a file.");
-            }
             return resources.Where(r => r.IsCollection == false);
         }
 
@@ -180,10 +176,6 @@ namespace EasyExtensions.WebDav
         public async Task<IEnumerable<WebDavResource>> GetDirectoriesAsync(string folder)
         {
             var resources = await GetResourcesAsync(folder);
-            if (resources.Count() == 1 && resources.First().IsCollection == false)
-            {
-                throw new InvalidOperationException("The folder does not exist - it is a file.");
-            }
             return resources.Where(r => r.IsCollection == true);
         }
 
