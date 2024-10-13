@@ -47,20 +47,6 @@ namespace EasyExtensions.WebDav
         Task UploadFileAsync(Stream fileStream, string filename);
 
         /// <summary>
-        /// Lists the files in a folder on the WebDAV server.
-        /// </summary>
-        /// <param name="folder"> The folder name. </param>
-        /// <returns> The list of files. </returns>
-        Task<IEnumerable<WebDavResource>> GetFilesAsync(string folder);
-
-        /// <summary>
-        /// Lists the directories in a folder on the WebDAV server.
-        /// </summary>
-        /// <param name="folder"> The folder name. </param>
-        /// <returns> The list of directories. </returns>
-        Task<IEnumerable<WebDavResource>> GetDirectoriesAsync(string folder);
-
-        /// <summary>
         /// Lists all resources in a folder on the WebDAV server.
         /// </summary>
         /// <param name="folder"> The folder name. </param>
