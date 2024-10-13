@@ -201,7 +201,7 @@ namespace EasyExtensions.WebDav
         /// Substracts the base address from the full URL.
         /// </summary>
         /// <returns> The path without the base address if it starts with the base address. If not, the full URL is returned. </returns>
-        private string GetBaseAddress(string fullUrl)
+        private string SubstractBaseAddress(string fullUrl)
         {
             if (string.IsNullOrEmpty(fullUrl))
             {
