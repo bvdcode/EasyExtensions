@@ -59,5 +59,13 @@ namespace EasyExtensions.WebDav
         /// <param name="filePath"> The file path. </param>
         /// <returns> The file bytes. </returns>
         Task<byte[]> GetFileBytesAsync(string filePath);
+
+        /// <summary>
+        /// Substracts the base address from the given URL.
+        /// </summary>
+        /// <param name="fullUrl"> The full URL. </param>
+        /// <returns> The relative URL. </returns>
+        /// <remarks> The full URL must start with the base address. </remarks>
+        string GetRelativeUrl(string fullUrl);
     }
 }
