@@ -198,6 +198,23 @@ namespace EasyExtensions.WebDav
         }
 
         /// <summary>
+        /// Substracts the base address from the full URL.
+        /// </summary>
+        /// <returns> The path without the base address if it starts with the base address. If not, the full URL is returned. </returns>
+        private string GetBaseAddress(string fullUrl)
+        {
+            if (string.IsNullOrEmpty(fullUrl))
+            {
+                return _baseAddress;
+            }
+            if (fullUrl.StartsWith(_baseAddress))
+            {
+                return fullUrl[_baseAddress.Length..];
+            }
+            return fullUrl;
+        }
+
+        /// <summary>
         /// Disposes the <see cref="WebDavCloudClient"/> instance.
         /// </summary>
         public void Dispose()
