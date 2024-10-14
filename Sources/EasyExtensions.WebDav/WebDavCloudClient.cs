@@ -198,6 +198,15 @@ namespace EasyExtensions.WebDav
         }
 
         /// <summary>
+        /// Gets the base address.
+        /// </summary>
+        /// <returns> The base address. </returns>
+        public string GetBaseAddress()
+        {
+            return _baseAddress;
+        }
+
+        /// <summary>
         /// Disposes the <see cref="WebDavCloudClient"/> instance.
         /// </summary>
         public void Dispose()
