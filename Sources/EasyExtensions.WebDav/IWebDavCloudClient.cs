@@ -60,6 +60,21 @@ namespace EasyExtensions.WebDav
         Task<IEnumerable<WebDavResource>> GetResourcesAsync(string folder);
 
         /// <summary>
+        /// Lists all files in a folder on the WebDAV server.
+        /// </summary>
+        /// <param name="folder"> The folder name. </param>
+        /// <returns> The list of resources - files only. </returns>
+        Task<IEnumerable<WebDavResource>> GetFilesAsync(string folder);
+
+
+        /// <summary>
+        /// Lists all directories in a folder on the WebDAV server.
+        /// </summary>
+        /// <param name="folder"> The folder name. </param>
+        /// <returns> The list of resources - directories only. </returns>
+        Task<IEnumerable<WebDavResource>> GetDirectoriesAsync(string folder);
+
+        /// <summary>
         /// Loads a file from the WebDAV server.
         /// </summary>
         /// <param name="filePath"> The file path. </param>
