@@ -171,7 +171,7 @@ namespace EasyExtensions.WebDav
             {
                 return Array.Empty<WebDavResource>();
             }
-            return result.Resources;
+            return result.Resources.Where(x => x.Uri != url);
         }
 
         /// <summary>
