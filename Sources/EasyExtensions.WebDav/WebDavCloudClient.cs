@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using EasyExtensions.WebDav.Extensions;
 
 namespace EasyExtensions.WebDav
 {
@@ -171,6 +172,28 @@ namespace EasyExtensions.WebDav
                 return Array.Empty<WebDavResource>();
             }
             return result.Resources;
+        }
+
+        /// <summary>
+        /// Lists all files in a folder on the WebDAV server.
+        /// </summary>
+        /// <param name="folder"> The folder name. </param>
+        /// <returns> The list of resources - files only. </returns>
+        public async Task<IEnumerable<WebDavResource>> GetFilesAsync(string folder)
+        {
+            var resources = await GetFilesAsync(folder);
+            return resources;
+        }
+
+        /// <summary>  
+        /// Lists all directories in a folder on the WebDAV server.
+        /// </summary>
+        /// <param name="folder"> The folder name. </param>
+        /// <returns> The list of resources - directories only. </returns>
+        public async Task<IEnumerable<WebDavResource>> GetDirectoriesAsync(string folder)
+        {
+            var resources = await GetDirectoriesAsync(folder);
+            return resources;
         }
 
         /// <summary>
