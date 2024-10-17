@@ -171,7 +171,7 @@ namespace EasyExtensions.WebDav
             {
                 return Array.Empty<WebDavResource>();
             }
-            return result.Resources;
+            return result.Resources.Where(x => x.Uri != url);
         }
 
         /// <summary>
@@ -180,14 +180,20 @@ namespace EasyExtensions.WebDav
         /// <param name="filePath"> The file path. </param>
         /// <returns> The file bytes. </returns>
         public async Task<byte[]> GetFileBytesAsync(string filePath)
+    {
+        if (!await ExistsAsync(filePath))
         {
-            string url = ConcatUris(_baseAddress, filePath).ToString();
-            var file = await _client.GetRawFile(url);
-            using MemoryStream memoryStream = new MemoryStream();
-            await file.Stream.CopyToAsync(memoryStream);
-            byte[] bytes = memoryStream.ToArray();
-            return bytes;
+            throw new FileNotFoundException("File not found.", filePath);
         }
+        else
+        {
+            string requestUri = ConcatUris(_baseAddress, filePath).ToString();
+            WebDavStreamResponse webDavStreamResponse = await _client.GetRawFile(requestUri);
+            using MemoryStream memoryStream = new MemoryStream();
+            await webDavStreamResponse.Stream.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
+        }
+    }
 
         /// <summary>
         /// Gets the underlying <see cref="WebDavClient"/>.
