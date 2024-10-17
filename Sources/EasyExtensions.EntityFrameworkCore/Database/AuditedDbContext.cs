@@ -204,10 +204,10 @@ namespace EasyExtensions.EntityFrameworkCore.Database
             foreach (var entityEntry in auditableEntries)
             {
                 BaseEntity entity = (BaseEntity)entityEntry.Entity;
-                entity.UpdatedAtUtc = now;
-                if (entityEntry.State == EntityState.Added && entity.CreatedAtUtc == default)
+                entity.UpdatedAt = now;
+                if (entityEntry.State == EntityState.Added && entity.CreatedAt == default)
                 {
-                    entity.CreatedAtUtc = now;
+                    entity.CreatedAt = now;
                 }
             }
         }
