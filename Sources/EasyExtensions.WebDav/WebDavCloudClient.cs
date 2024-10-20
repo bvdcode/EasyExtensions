@@ -219,7 +219,7 @@ namespace EasyExtensions.WebDav
         /// Gets the server URL.
         /// </summary>
         /// <returns> The server URL. </returns>
-        public string GetServer()
+        public string GetServerAddress()
         {
             return _server;
         }
