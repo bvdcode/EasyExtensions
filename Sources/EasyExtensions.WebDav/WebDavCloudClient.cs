@@ -15,6 +15,7 @@ namespace EasyExtensions.WebDav
     public class WebDavCloudClient : IWebDavCloudClient, IDisposable
     {
         private readonly string _baseAddress;
+        private readonly string _server;
         private readonly WebDavClient _client;
 
         /// <summary>
@@ -34,6 +35,7 @@ namespace EasyExtensions.WebDav
             };
             _client = new WebDavClient(parameters);
             _baseAddress = parameters.BaseAddress.ToString();
+            _server = server;
         }
 
         private Uri ConcatUris(string server, string baseAddress)
@@ -211,6 +213,15 @@ namespace EasyExtensions.WebDav
         public string GetBaseAddress()
         {
             return _baseAddress;
+        }
+
+        /// <summary>
+        /// Gets the server URL.
+        /// </summary>
+        /// <returns> The server URL. </returns>
+        public string GetServer()
+        {
+            return _server;
         }
 
         /// <summary>
