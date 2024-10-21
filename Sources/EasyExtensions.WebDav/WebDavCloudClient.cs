@@ -160,6 +160,31 @@ namespace EasyExtensions.WebDav
             }
         }
 
+        private string[] GetPathVariations(string path)
+        {
+            string[] pathvariations = new string[]
+            {
+                path,
+                GetServerAddress() + path,
+                GetBaseAddress() + path,
+                path.TrimEnd('/'),
+                GetServerAddress() + path.TrimEnd('/'),
+                GetBaseAddress() + path.TrimEnd('/'),
+                path + '/',
+                GetServerAddress() + path + '/',
+                GetBaseAddress() + path + '/',
+            };
+            return pathvariations;
+        }
+
+        private bool IsEqual(string path1, string path2)
+        {
+            var path1variations = GetPathVariations(path1);
+            var path2variations = GetPathVariations(path2);
+
+            return path1variations.Any(p1 => path2variations.Any(p2 => p1 == p2));
+        }
+
         /// <summary>
         /// Lists all resources in a folder on the WebDAV server or gets the file if the path is a file.
         /// </summary>
