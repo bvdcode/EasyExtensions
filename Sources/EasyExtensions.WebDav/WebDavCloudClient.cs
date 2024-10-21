@@ -38,21 +38,21 @@ namespace EasyExtensions.WebDav
             _server = server;
         }
 
-        private Uri ConcatUris(string server, string baseAddress)
+        private Uri ConcatUris(string part1, string part2)
         {
-            if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(baseAddress))
+            if (string.IsNullOrEmpty(part1) || string.IsNullOrEmpty(part2))
             {
-                throw new ArgumentException("Server and base address must not be null or empty.");
+                throw new ArgumentException("Path parts must not be null or empty.");
             }
-            if (server.EndsWith('/') && baseAddress.StartsWith('/'))
+            if (part1.EndsWith('/') && part2.StartsWith('/'))
             {
-                return new Uri(server + baseAddress[1..]);
+                return new Uri(part1 + part2[1..]);
             }
-            if (!server.EndsWith('/') && !baseAddress.StartsWith('/'))
+            if (!part1.EndsWith('/') && !part2.StartsWith('/'))
             {
-                return new Uri(server + '/' + baseAddress);
+                return new Uri(part1 + '/' + part2);
             }
-            return new Uri(server + baseAddress);
+            return new Uri(part1 + part2);
         }
 
         /// <summary>
@@ -173,7 +173,10 @@ namespace EasyExtensions.WebDav
             {
                 return Array.Empty<WebDavResource>();
             }
-            return result.Resources.Where(x => x.Uri != url);
+            return result.Resources.Where(x =>
+                x.Uri != url &&
+                x.DisplayName != ".." &&
+                x.DisplayName != ".");
         }
 
         /// <summary>
@@ -182,20 +185,17 @@ namespace EasyExtensions.WebDav
         /// <param name="filePath"> The file path. </param>
         /// <returns> The file bytes. </returns>
         public async Task<byte[]> GetFileBytesAsync(string filePath)
-    {
-        if (!await ExistsAsync(filePath))
         {
-            throw new FileNotFoundException("File not found.", filePath);
-        }
-        else
-        {
+            if (!await ExistsAsync(filePath))
+            {
+                throw new FileNotFoundException("File not found.", filePath);
+            }
             string requestUri = ConcatUris(_baseAddress, filePath).ToString();
             WebDavStreamResponse webDavStreamResponse = await _client.GetRawFile(requestUri);
             using MemoryStream memoryStream = new MemoryStream();
             await webDavStreamResponse.Stream.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
         }
-    }
 
         /// <summary>
         /// Gets the underlying <see cref="WebDavClient"/>.
