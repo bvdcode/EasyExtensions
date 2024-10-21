@@ -176,7 +176,8 @@ namespace EasyExtensions.WebDav
             return result.Resources.Where(x =>
                 x.Uri != url &&
                 x.DisplayName != ".." &&
-                x.DisplayName != ".");
+                x.DisplayName != "." &&
+                x.Uri != url + "/");
         }
 
         /// <summary>
