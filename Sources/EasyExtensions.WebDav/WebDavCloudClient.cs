@@ -199,11 +199,9 @@ namespace EasyExtensions.WebDav
                 return Array.Empty<WebDavResource>();
             }
             return result.Resources.Where(x =>
-                x.Uri != url &&
+                IsEqual(x.Uri, url) &&
                 x.DisplayName != ".." &&
-                x.DisplayName != "." &&
-                x.Uri != url + "/" &&
-                x.Uri + "/" != url);
+                x.DisplayName != ".");
         }
 
         /// <summary>
