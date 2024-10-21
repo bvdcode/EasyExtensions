@@ -23,6 +23,12 @@ namespace EasyExtensions.WebDav
         string GetBaseAddress();
 
         /// <summary>
+        /// Gets the server URL.
+        /// </summary>
+        /// <returns> The server. </returns>
+        string GetServerAddress();
+
+        /// <summary>
         /// Creates a folder on the WebDAV server if it does not exist.
         /// </summary>
         /// <param name="folder"> The folder name. </param>
