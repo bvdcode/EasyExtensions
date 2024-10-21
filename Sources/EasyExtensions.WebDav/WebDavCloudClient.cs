@@ -232,6 +232,24 @@ namespace EasyExtensions.WebDav
         }
 
         /// <summary>
+        /// Deletes a file or directory from the WebDAV server if it exists.
+        /// </summary>
+        /// <param name="filePath"> The file or directory path. </param>
+        public async Task DeleteAsync(string filePath)
+        {
+            if (!await ExistsAsync(filePath))
+            {
+                return;
+            }
+            string url = ConcatUris(_baseAddress, filePath).ToString();
+            var result = await _client.Delete(url);
+            if (result.StatusCode != (int)HttpStatusCode.NoContent)
+            {
+                throw new WebException($"Failed to delete file {url} with code {result.StatusCode}.");
+            }
+        }
+
+        /// <summary>
         /// Gets the underlying <see cref="WebDavClient"/>.
         /// </summary>
         /// <returns> The <see cref="WebDavClient"/>. </returns>
