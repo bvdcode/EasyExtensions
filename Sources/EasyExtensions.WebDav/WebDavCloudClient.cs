@@ -177,7 +177,8 @@ namespace EasyExtensions.WebDav
                 x.Uri != url &&
                 x.DisplayName != ".." &&
                 x.DisplayName != "." &&
-                x.Uri != url + "/");
+                x.Uri != url + "/" &&
+                x.Uri + "/" != url);
         }
 
         /// <summary>
