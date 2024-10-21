@@ -71,5 +71,11 @@ namespace EasyExtensions.WebDav
         /// <param name="filePath"> The file path. </param>
         /// <returns> The file bytes. </returns>
         Task<byte[]> GetFileBytesAsync(string filePath);
+
+        /// <summary>
+        /// Deletes a file from the WebDAV server if it exists.
+        /// </summary>
+        /// <param name="filePath"> The file path. </param>
+        Task DeleteFileAsync(string filePath);
     }
 }
