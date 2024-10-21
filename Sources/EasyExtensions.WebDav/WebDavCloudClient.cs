@@ -173,6 +173,15 @@ namespace EasyExtensions.WebDav
                 path + '/',
                 GetServerAddress() + path + '/',
                 GetBaseAddress() + path + '/',
+                '/' + path,
+                GetServerAddress() + '/' + path,
+                GetBaseAddress() + '/' + path,
+                '/' + path + '/',
+                GetServerAddress() + '/' + path + '/',
+                GetBaseAddress() + '/' + path + '/',
+                '/' + path.TrimEnd('/'),
+                GetServerAddress() + '/' + path.TrimEnd('/'),
+                GetBaseAddress() + '/' + path.TrimEnd('/'),
             };
             return pathvariations;
         }
