@@ -208,7 +208,7 @@ namespace EasyExtensions.WebDav
                 return Array.Empty<WebDavResource>();
             }
             return result.Resources.Where(x =>
-                IsEqual(x.Uri, url) &&
+                !IsEqual(x.Uri, url) &&
                 x.DisplayName != ".." &&
                 x.DisplayName != ".");
         }
@@ -229,6 +229,24 @@ namespace EasyExtensions.WebDav
             using MemoryStream memoryStream = new MemoryStream();
             await webDavStreamResponse.Stream.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        /// <summary>
+        /// Deletes a file or directory from the WebDAV server if it exists.
+        /// </summary>
+        /// <param name="filePath"> The file or directory path. </param>
+        public async Task DeleteAsync(string filePath)
+        {
+            if (!await ExistsAsync(filePath))
+            {
+                return;
+            }
+            string url = ConcatUris(_baseAddress, filePath).ToString();
+            var result = await _client.Delete(url);
+            if (result.StatusCode != (int)HttpStatusCode.NoContent)
+            {
+                throw new WebException($"Failed to delete file {url} with code {result.StatusCode}.");
+            }
         }
 
         /// <summary>
