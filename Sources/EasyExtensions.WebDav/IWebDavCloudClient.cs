@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using WebDav;
@@ -47,16 +48,18 @@ namespace EasyExtensions.WebDav
         /// </summary>
         /// <param name="bytes"> The file bytes. </param>
         /// <param name="filename"> The filename. </param>
+        /// <param name="created"> The created date. </param>
         /// <returns> The HTTP status code. </returns>
-        Task UploadFileAsync(byte[] bytes, string filename);
+        Task UploadFileAsync(byte[] bytes, string filename, DateTime? created = null);
 
         /// <summary>
         /// Uploads a file to the WebDAV server.
         /// </summary>
         /// <param name="fileStream"> The file stream. </param>
         /// <param name="filename"> The filename. </param>
+        /// <param name="created"> The created date. </param>
         /// <returns> The HTTP status code. </returns>
-        Task UploadFileAsync(Stream fileStream, string filename);
+        Task UploadFileAsync(Stream fileStream, string filename, DateTime? created = null);
 
         /// <summary>
         /// Lists all resources in a folder on the WebDAV server.

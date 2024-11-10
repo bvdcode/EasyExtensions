@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using EasyExtensions.WebDav.Extensions;
+using EasyExtensions.Extensions;
 
 namespace EasyExtensions.WebDav
 {
@@ -73,12 +74,13 @@ namespace EasyExtensions.WebDav
         /// </summary>
         /// <param name="bytes"> The file bytes. </param>
         /// <param name="filename"> The filename. </param>
+        /// <param name="created"> The creation date. </param>
         /// <returns> The HTTP status code. </returns>
         /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
-        public async Task UploadFileAsync(byte[] bytes, string filename)
+        public async Task UploadFileAsync(byte[] bytes, string filename, DateTime? created = null)
         {
             using var stream = new MemoryStream(bytes);
-            await UploadFileAsync(stream, filename);
+            await UploadFileAsync(stream, filename, created);
         }
 
         /// <summary>
@@ -86,16 +88,29 @@ namespace EasyExtensions.WebDav
         /// </summary>
         /// <param name="fileStream"> The file stream. </param>
         /// <param name="filename"> The filename. </param>
+        /// <param name="created"> The creation date. </param>
         /// <returns> The HTTP status code. </returns>
         /// <exception cref="WebException"> When the file cannot be uploaded. </exception>
-        public async Task UploadFileAsync(Stream fileStream, string filename)
+        public async Task UploadFileAsync(Stream fileStream, string filename, DateTime? created = null)
         {
+            created ??= DateTime.UtcNow;
+            if (created.Value.Kind != DateTimeKind.Utc)
+            {
+                throw new ArgumentException("The created date must be in UTC format.", nameof(created));
+            }
             using MemoryStream memoryStream = new MemoryStream();
             await fileStream.CopyToAsync(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
             byte[] bytes = memoryStream.ToArray();
             string url = ConcatUris(_baseAddress, filename).ToString();
-            var result = await _client.PutFile(url, memoryStream);
+            PutFileParameters parameters = new PutFileParameters
+            {
+                Headers = new Dictionary<string, string>
+                {
+                    { "X-OC-CTime", created.Value.ToUnixTimestampSeconds().ToString() }
+                }
+            };
+            var result = await _client.PutFile(url, memoryStream, parameters);
             if (result.StatusCode == (int)HttpStatusCode.NotFound)
             {
                 if (filename.Contains('/'))
