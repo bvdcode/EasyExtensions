@@ -31,10 +31,7 @@
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<PackageReference Include="WebDav.Client" Version="2.8.0" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
+		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
 	</ItemGroup>
 
 </Project>
