@@ -23,15 +23,13 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
 
             string key = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"])
                 ?? throw new KeyNotFoundException("JwtSettings.Key or JwtKey is not set");
-#pragma warning disable CA2208 // Instantiate argument exceptions correctly
             string algorithm = key.Length switch
             {
                 256 / 8 => SecurityAlgorithms.HmacSha256,
                 384 / 8 => SecurityAlgorithms.HmacSha384,
                 512 / 8 => SecurityAlgorithms.HmacSha512,
-                _ => throw new ArgumentOutOfRangeException(nameof(key), "Key length must be 128, 192 or 256 bits (16, 24 or 32 symbols), but was " + key.Length + " symbols.")
+                _ => throw new ArgumentOutOfRangeException(nameof(configuration), "Key length must be 128, 192 or 256 bits (16, 24 or 32 symbols), but was " + key.Length + " symbols.")
             };
-#pragma warning restore CA2208 // Instantiate argument exceptions correctly
 
             return new JwtSettings
             {
