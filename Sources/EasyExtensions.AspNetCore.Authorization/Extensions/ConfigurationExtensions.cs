@@ -23,6 +23,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
 
             string key = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"])
                 ?? throw new KeyNotFoundException("JwtSettings.Key or JwtKey is not set");
+
             string algorithm = key.Length switch
             {
                 256 / 8 => SecurityAlgorithms.HmacSha256,
