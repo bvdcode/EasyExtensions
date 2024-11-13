@@ -14,7 +14,7 @@ namespace EasyExtensions.Tests
         [Test]
         public void Pow_ValidInput_ThrowOverflowException()
         {
-            Assert.Throws(typeof(OverflowException), () => 2.Pow(31));
+            Assert.Throws<OverflowException>(() => 2.Pow(31));
         }
     }
 }

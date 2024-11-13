@@ -31,7 +31,7 @@ namespace EasyExtensions.Tests
         public void ConvertIpToNumber_InvalidInput_ThrowFormatException()
         {
             string ip = "1234.5678.90.12";
-            Assert.Throws(typeof(FormatException), () => IpAddressHelpers.IpToNumber(ip));
+            Assert.Throws<FormatException>(() => IpAddressHelpers.IpToNumber(ip));
         }
 
         [Test]
@@ -262,7 +262,7 @@ namespace EasyExtensions.Tests
         public void ConvertNumberToIpV6_InvalidInput_ThrowArgumentOutOfRangeException()
         {
             ulong ipNumber = ulong.MaxValue;
-            Assert.Throws(typeof(ArgumentOutOfRangeException), () => IpAddressHelpers.NumberToIp(ipNumber, AddressFamily.InterNetworkV6));
+            Assert.Throws<ArgumentOutOfRangeException>(() => IpAddressHelpers.NumberToIp(ipNumber, AddressFamily.InterNetworkV6));
         }
 
         [Test]
@@ -296,9 +296,9 @@ namespace EasyExtensions.Tests
 
             var subnet = IpAddressHelpers.ExtractMask(network);
             Assert.That(subnet?.ToString(), Is.EqualTo("255.255.252.0"));
-            var actualNetwork = iPAddress.GetNetwork(subnet).ToNumber();
+            var actualNetwork = iPAddress.GetNetwork(subnet!).ToNumber();
             Assert.That(actualNetwork, Is.EqualTo(expectedNetwork));
-            var actualBroadcast = iPAddress.GetBroadcast(subnet).ToNumber();
+            var actualBroadcast = iPAddress.GetBroadcast(subnet!).ToNumber();
             Assert.That(actualBroadcast, Is.EqualTo(expectedBroadcast));
         }
     }

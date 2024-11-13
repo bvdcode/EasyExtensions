@@ -113,14 +113,14 @@ namespace EasyExtensions.Tests
         public void ToUnixTimestampMilliseconds_InvalidInput_ThrowArgumentException()
         {
             var dateTime = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Local);
-            Assert.Throws(typeof(ArgumentException), () => dateTime.ToUnixTimestampMilliseconds());
+            Assert.Throws<ArgumentException>(() => dateTime.ToUnixTimestampMilliseconds());
         }
 
         [Test]
         public void ToUnixTimestampSeconds_InvalidInput_ThrowArgumentException()
         {
             var dateTime = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Local);
-            Assert.Throws(typeof(ArgumentException), () => dateTime.ToUnixTimestampSeconds());
+            Assert.Throws<ArgumentException>(() => dateTime.ToUnixTimestampSeconds());
         }
     }
 }
