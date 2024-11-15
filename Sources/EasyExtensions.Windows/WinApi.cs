@@ -34,7 +34,7 @@ namespace EasyExtensions.Windows
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         private static extern int SHFileOperation(ref SHFILEOPSTRUCT FileOp);
 
-        private static bool DeleteFileOrFolder(string path)
+        internal static bool DeleteFileOrFolder(string path)
         {
             SHFILEOPSTRUCT fileop = new SHFILEOPSTRUCT
             {
@@ -44,39 +44,6 @@ namespace EasyExtensions.Windows
             };
             var rc = SHFileOperation(ref fileop);
             return rc == 0;
-        }
-
-        /// <summary>
-        /// Move directory to recycle bin.
-        /// </summary>
-        /// <param name="dir">Directory to move.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public static bool MoveToRecycleBin(this DirectoryInfo dir)
-        {
-            dir?.Refresh();
-            if (dir is null || !dir.Exists)
-            {
-                return false;
-            }
-            else
-            {
-                return DeleteFileOrFolder(dir.FullName);
-            }
-        }
-
-        /// <summary>
-        /// Move file to recycle bin.
-        /// </summary>
-        /// <param name="file">File to move.</param>
-        /// <returns>True if successful, false otherwise.</returns>
-        public static bool MoveToRecycleBin(this FileInfo file)
-        {
-            file?.Refresh();
-            if (file is null || !file.Exists)
-            {
-                return false;
-            }
-            return DeleteFileOrFolder(file.FullName);
         }
 
         /// <summary>
