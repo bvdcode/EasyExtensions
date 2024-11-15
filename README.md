@@ -29,37 +29,31 @@ Ready-to-use **.NET Standard** library for convenient development.
 - Start by importing the library into your project
 
 ```bash
-dotnet add package EasyExtensions --version 0.1.47
-```
+# Basic package with BCL extensions
+dotnet add package EasyExtensions
 
-- Add AspNetCore package if you want to use AspNetCore extensions
+# AspNetCore package with additional features
+dotnet add package EasyExtensions.AspNetCore
+dotnet add package EasyExtensions.AspNetCore.Authorization
+dotnet add package EasyExtensions.AspNetCore.Sentry
 
-```bash
-dotnet add package EasyExtensions.AspNetCore --version 0.1.47
-```
+# Drawing package with native SixLabors.ImageSharp support
+# This package is .NET Standard 2.1 and not using System.Drawing, so it can be used in any project.
+dotnet add package EasyExtensions.Drawing
 
-- Add Quartz package if you want to use Quartz extensions
+# Entity Framework Core package with absractions and ORM features
+dotnet add package EasyExtensions.EntityFrameworkCore
+dotnet add package EasyExtensions.EntityFrameworkCore.Npgsql
 
-```bash
-dotnet add package EasyExtensions.Quartz --version 0.1.47
-```
+# Quartz package - scheduler integration and convenient reflection-based job registration
+dotnet add package EasyExtensions.Quartz
 
-- Add Entity Framework Core package if you want to use Entity Framework extensions
+# WebDav package - WebDav client with NextCloud support
+dotnet add package EasyExtensions.WebDav
 
-```bash
-dotnet add package EasyExtensions.EntityFrameworkCore --version 0.1.47
-```
+# Windows package - Windows-specific features with WinAPI
+dotnet add package EasyExtensions.Windows
 
-- Add Drawing package if you want to use Drawing extensions
-
-```bash
-dotnet add package EasyExtensions.Drawing --version 0.1.47
-```
-
-- Add Authorization package if you want to use Authorization extensions
-
-```bash
-dotnet add package EasyExtensions.Authorization --version 0.1.47
 ```
 
 
