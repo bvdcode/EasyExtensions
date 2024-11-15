@@ -8,7 +8,7 @@ namespace EasyExtensions.Windows
     /// <summary>
     /// Summary description for ShellLink.
     /// </summary>
-    public class ShellLink : IDisposable
+    internal class ShellLink : IDisposable
     {
         #region ComInterop for IShellLink
 
@@ -113,53 +113,82 @@ namespace EasyExtensions.Windows
             /// <param name="cchMaxPath">The size, in characters, of the buffer pointed to by the pszDir parameter</param>
             void GetWorkingDirectory([Out(), MarshalAs(UnmanagedType.LPStr)] StringBuilder pszDir, int cchMaxPath);
 
-            //[helpstring("Sets the name of the shell link working directory")]
-            void SetWorkingDirectory(
-                [MarshalAs(UnmanagedType.LPStr)] string pszDir);
+            /// <summary>
+            /// Sets the name of the shell link working directory.
+            /// </summary>
+            /// <param name="pszDir">The new working directory.</param>
+            void SetWorkingDirectory([MarshalAs(UnmanagedType.LPStr)] string pszDir);
 
-            //[helpstring("Retrieves the shell link command-line arguments")]
-            void GetArguments(
-                [Out(), MarshalAs(UnmanagedType.LPStr)] StringBuilder pszArgs,
-                int cchMaxPath);
+            /// <summary>
+            /// Retrieves the shell link command-line arguments.
+            /// </summary>
+            /// <param name="pszArgs">The buffer that receives the command-line arguments.</param>
+            /// <param name="cchMaxPath">The size, in characters, of the buffer pointed to by the pszArgs parameter.</param>
+            void GetArguments([Out(), MarshalAs(UnmanagedType.LPStr)] StringBuilder pszArgs, int cchMaxPath);
 
-            //[helpstring("Sets the shell link command-line arguments")]
-            void SetArguments(
-                [MarshalAs(UnmanagedType.LPStr)] string pszArgs);
+            /// <summary>
+            /// Sets the shell link command-line arguments.
+            /// </summary>
+            /// <param name="pszArgs">The new command-line arguments.</param>
+            void SetArguments([MarshalAs(UnmanagedType.LPStr)] string pszArgs);
 
-            //[propget, helpstring("Retrieves or sets the shell link hot key")]
+            /// <summary>
+            /// Retrieves the shell link hot key.
+            /// </summary>
+            /// <param name="pwHotkey">The address of a variable that receives the hot key.</param>
             void GetHotkey(out short pwHotkey);
-            //[propput, helpstring("Retrieves or sets the shell link hot key")]
+            /// <summary>
+            /// Sets the shell link hot key.
+            /// </summary>
+            /// <param name="pwHotkey">The new hot key.</param>
             void SetHotkey(short pwHotkey);
 
-            //[propget, helpstring("Retrieves or sets the shell link show command")]
+            /// <summary>
+            /// Retrieves the shell link show command.
+            /// </summary>
+            /// <param name="piShowCmd">The address of a variable that receives the show command.</param>
             void GetShowCmd(out uint piShowCmd);
-            //[propput, helpstring("Retrieves or sets the shell link show command")]
+
+            /// <summary>
+            /// Sets the shell link show command.
+            /// </summary>
+            /// <param name="piShowCmd">The new show command.</param>
             void SetShowCmd(uint piShowCmd);
 
-            //[helpstring("Retrieves the location (path and index) of the shell link icon")]
-            void GetIconLocation(
-                [Out(), MarshalAs(UnmanagedType.LPStr)] StringBuilder pszIconPath,
-                int cchIconPath,
-                out int piIcon);
+            /// <summary>
+            /// Retrieves the location (path and index) of the shell link icon.
+            /// </summary>
+            /// <param name="pszIconPath">The buffer that receives the icon path.</param>
+            /// <param name="cchIconPath">The size, in characters, of the buffer pointed to by the pszIconPath parameter.</param>
+            /// <param name="piIcon">The address of a variable that receives the icon index.</param>
+            void GetIconLocation([Out(), MarshalAs(UnmanagedType.LPStr)] StringBuilder pszIconPath, int cchIconPath, out int piIcon);
 
-            //[helpstring("Sets the location (path and index) of the shell link icon")]
-            void SetIconLocation(
-                [MarshalAs(UnmanagedType.LPStr)] string pszIconPath,
-                int iIcon);
+            /// <summary>
+            /// Sets the location (path and index) of the shell link icon.
+            /// </summary>
+            /// <param name="pszIconPath">The new icon path.</param>
+            /// <param name="iIcon">The new icon index.</param>
+            void SetIconLocation([MarshalAs(UnmanagedType.LPStr)] string pszIconPath, int iIcon);
 
-            //[helpstring("Sets the shell link relative path")]
-            void SetRelativePath(
-                [MarshalAs(UnmanagedType.LPStr)] string pszPathRel,
-                uint dwReserved);
+            /// <summary>
+            /// Sets the shell link relative path.
+            /// </summary>
+            /// <param name="pszPathRel">The new relative path.</param>
+            /// <param name="dwReserved">Reserved. Must be zero.</param>
+            void SetRelativePath([MarshalAs(UnmanagedType.LPStr)] string pszPathRel, uint dwReserved);
 
-            //[helpstring("Resolves a shell link. The system searches for the shell link object and updates the shell link path and its list of identifiers (if necessary)")]
-            void Resolve(
-                IntPtr hWnd,
-                uint fFlags);
+            /// <summary>
+            /// Resolves a shell link. The system searches for the shell link object and updates the shell link path and its list of identifiers (if necessary).
+            /// </summary>
+            /// <param name="hWnd">A handle to the window that the system uses as a parent for any dialog boxes that it displays.</param>
+            /// <param name="fFlags">Flags that control the resolution process.</param>
+            void Resolve(IntPtr hWnd, uint fFlags);
 
-            //[helpstring("Sets the shell link path and filename")]
-            void SetPath(
-                [MarshalAs(UnmanagedType.LPStr)] string pszFile);
+            /// <summary>
+            /// Sets the shell link path and filename.
+            /// </summary>
+            /// <param name="pszFile">The new path and filename.</param>
+            void SetPath([MarshalAs(UnmanagedType.LPStr)] string pszFile);
         }
 
 
