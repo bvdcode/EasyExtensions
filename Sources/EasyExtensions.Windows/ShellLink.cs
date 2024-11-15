@@ -192,85 +192,132 @@ namespace EasyExtensions.Windows
         }
 
 
+        /// <summary>
+        /// IShellLinkW interface for managing shell links (shortcuts) in Windows.
+        /// </summary>
         [ComImport()]
         [Guid("000214F9-0000-0000-C000-000000000046")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         private interface IShellLinkW
         {
-            //[helpstring("Retrieves the path and filename of a shell link object")]
-            void GetPath(
-                [Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile,
-                int cchMaxPath,
-                ref WIN32_FIND_DATAW pfd,
-                uint fFlags);
+            /// <summary>
+            /// Retrieves the path and filename of a shell link object.
+            /// </summary>
+            /// <param name="pszFile">The buffer that receives the path and filename.</param>
+            /// <param name="cchMaxPath">The size, in characters, of the buffer pointed to by the pszFile parameter.</param>
+            /// <param name="pfd">The WIN32_FIND_DATA structure that receives information about the shell link object.</param>
+            /// <param name="fFlags">Flags that specify the type of path information to retrieve.</param>
+            void GetPath([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, int cchMaxPath, ref WIN32_FIND_DATAW pfd, uint fFlags);
 
-            //[helpstring("Retrieves the list of shell link item identifiers")]
+            /// <summary>
+            /// Retrieves the list of shell link item identifiers.
+            /// </summary>
+            /// <param name="ppidl">The address of an ITEMIDLIST pointer that receives the list of item identifiers.</param>
             void GetIDList(out IntPtr ppidl);
 
-            //[helpstring("Sets the list of shell link item identifiers")]
+            /// <summary>
+            /// Sets the list of shell link item identifiers.
+            /// </summary>
+            /// <param name="pidl">The address of an ITEMIDLIST that specifies the list of item identifiers to be set.</param>
             void SetIDList(IntPtr pidl);
 
-            //[helpstring("Retrieves the shell link description string")]
-            void GetDescription(
-                [Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile,
-                int cchMaxName);
+            /// <summary>
+            /// Retrieves the shell link description string.
+            /// </summary>
+            /// <param name="pszFile">The buffer that receives the description string.</param>
+            /// <param name="cchMaxName">The size, in characters, of the buffer pointed to by the pszFile parameter.</param>
+            void GetDescription([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, int cchMaxName);
 
-            //[helpstring("Sets the shell link description string")]
-            void SetDescription(
-                [MarshalAs(UnmanagedType.LPWStr)] string pszName);
+            /// <summary>
+            /// Sets the shell link description string.
+            /// </summary>
+            /// <param name="pszName">The new description string.</param>
+            void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string pszName);
 
-            //[helpstring("Retrieves the name of the shell link working directory")]
-            void GetWorkingDirectory(
-                [Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszDir,
-                int cchMaxPath);
+            /// <summary>
+            /// Retrieves the name of the shell link working directory.
+            /// </summary>
+            /// <param name="pszDir">The buffer that receives the working directory.</param>
+            /// <param name="cchMaxPath">The size, in characters, of the buffer pointed to by the pszDir parameter.</param>
+            void GetWorkingDirectory([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszDir, int cchMaxPath);
 
-            //[helpstring("Sets the name of the shell link working directory")]
-            void SetWorkingDirectory(
-                [MarshalAs(UnmanagedType.LPWStr)] string pszDir);
+            /// <summary>
+            /// Sets the name of the shell link working directory.
+            /// </summary>
+            /// <param name="pszDir">The new working directory.</param>
+            void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string pszDir);
 
-            //[helpstring("Retrieves the shell link command-line arguments")]
-            void GetArguments(
-                [Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszArgs,
-                int cchMaxPath);
+            /// <summary>
+            /// Retrieves the shell link command-line arguments.
+            /// </summary>
+            /// <param name="pszArgs">The buffer that receives the command-line arguments.</param>
+            /// <param name="cchMaxPath">The size, in characters, of the buffer pointed to by the pszArgs parameter.</param>
+            void GetArguments([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszArgs, int cchMaxPath);
 
-            //[helpstring("Sets the shell link command-line arguments")]
-            void SetArguments(
-                [MarshalAs(UnmanagedType.LPWStr)] string pszArgs);
+            /// <summary>
+            /// Sets the shell link command-line arguments.
+            /// </summary>
+            /// <param name="pszArgs">The new command-line arguments.</param>
+            void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string pszArgs);
 
-            //[propget, helpstring("Retrieves or sets the shell link hot key")]
+            /// <summary>
+            /// Retrieves the shell link hot key.
+            /// </summary>
+            /// <param name="pwHotkey">The address of a variable that receives the hot key.</param>
             void GetHotkey(out short pwHotkey);
-            //[propput, helpstring("Retrieves or sets the shell link hot key")]
+
+            /// <summary>
+            /// Sets the shell link hot key.
+            /// </summary>
+            /// <param name="pwHotkey">The new hot key.</param>
             void SetHotkey(short pwHotkey);
 
-            //[propget, helpstring("Retrieves or sets the shell link show command")]
+            /// <summary>
+            /// Retrieves the shell link show command.
+            /// </summary>
+            /// <param name="piShowCmd">The address of a variable that receives the show command.</param>
             void GetShowCmd(out uint piShowCmd);
-            //[propput, helpstring("Retrieves or sets the shell link show command")]
+
+            /// <summary>
+            /// Sets the shell link show command.
+            /// </summary>
+            /// <param name="piShowCmd">The new show command.</param>
             void SetShowCmd(uint piShowCmd);
 
-            //[helpstring("Retrieves the location (path and index) of the shell link icon")]
-            void GetIconLocation(
-                [Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszIconPath,
-                int cchIconPath,
-                out int piIcon);
+            /// <summary>
+            /// Retrieves the location (path and index) of the shell link icon.
+            /// </summary>
+            /// <param name="pszIconPath">The buffer that receives the icon path.</param>
+            /// <param name="cchIconPath">The size, in characters, of the buffer pointed to by the pszIconPath parameter.</param>
+            /// <param name="piIcon">The address of a variable that receives the icon index.</param>
+            void GetIconLocation([Out(), MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszIconPath, int cchIconPath, out int piIcon);
 
-            //[helpstring("Sets the location (path and index) of the shell link icon")]
-            void SetIconLocation(
-                [MarshalAs(UnmanagedType.LPWStr)] string pszIconPath,
-                int iIcon);
+            /// <summary>
+            /// Sets the location (path and index) of the shell link icon.
+            /// </summary>
+            /// <param name="pszIconPath">The new icon path.</param>
+            /// <param name="iIcon">The new icon index.</param>
+            void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string pszIconPath, int iIcon);
 
-            //[helpstring("Sets the shell link relative path")]
-            void SetRelativePath(
-                [MarshalAs(UnmanagedType.LPWStr)] string pszPathRel,
-                uint dwReserved);
+            /// <summary>
+            /// Sets the shell link relative path.
+            /// </summary>
+            /// <param name="pszPathRel">The new relative path.</param>
+            /// <param name="dwReserved">Reserved. Must be zero.</param>
+            void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string pszPathRel, uint dwReserved);
 
-            //[helpstring("Resolves a shell link. The system searches for the shell link object and updates the shell link path and its list of identifiers (if necessary)")]
-            void Resolve(
-                IntPtr hWnd,
-                uint fFlags);
+            /// <summary>
+            /// Resolves a shell link. The system searches for the shell link object and updates the shell link path and its list of identifiers (if necessary).
+            /// </summary>
+            /// <param name="hWnd">A handle to the window that the system uses as a parent for any dialog boxes that it displays.</param>
+            /// <param name="fFlags">Flags that control the resolution process.</param>
+            void Resolve(IntPtr hWnd, uint fFlags);
 
-            //[helpstring("Sets the shell link path and filename")]
-            void SetPath(
-                [MarshalAs(UnmanagedType.LPWStr)] string pszFile);
+            /// <summary>
+            /// Sets the shell link path and filename.
+            /// </summary>
+            /// <param name="pszFile">The new path and filename.</param>
+            void SetPath([MarshalAs(UnmanagedType.LPWStr)] string pszFile);
         }
         #endregion
 
@@ -353,12 +400,12 @@ namespace EasyExtensions.Windows
         }
         #endregion
 
-        #region UnManaged Methods
-        private class UnManagedMethods
+        #region Unmanaged Methods
+        private class UnmanagedMethods
         {
             [DllImport("Shell32", CharSet = CharSet.Auto)]
             internal extern static int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)]
-                string lpszFile, int nIconIndex, IntPtr[] phIconLarge, IntPtr[] phIconSmall, int nIcons);
+                string lpszFile, int nIconIndex, IntPtr[]? phIconLarge, IntPtr[]? phIconSmall, int nIcons);
 
             [DllImport("user32")]
             internal static extern int DestroyIcon(IntPtr hIcon);
@@ -380,10 +427,12 @@ namespace EasyExtensions.Windows
             /// on ME/2000 or above, use the other flags instead.
             /// </summary>
             SLR_ANY_MATCH = 0x2,
+
             /// <summary>
             /// Call the Microsoft Windows Installer. 
             /// </summary>
             SLR_INVOKE_MSI = 0x80,
+
             /// <summary>
             /// Disable distributed link tracking. By default, 
             /// distributed link tracking tracks removable media 
@@ -393,6 +442,7 @@ namespace EasyExtensions.Windows
             /// SLR_NOLINKINFO disables both types of tracking.
             /// </summary>
             SLR_NOLINKINFO = 0x40,
+
             /// <summary>
             /// Do not display a dialog box if the link cannot be resolved. 
             /// When SLR_NO_UI is set, a time-out value that specifies the 
@@ -403,23 +453,28 @@ namespace EasyExtensions.Windows
             /// set to the default value of 3,000 milliseconds (3 seconds). 
             /// </summary>										    
             SLR_NO_UI = 0x1,
+
             /// <summary>
             /// Not documented in SDK.  Assume same as SLR_NO_UI but 
             /// intended for applications without a hWnd.
             /// </summary>
             SLR_NO_UI_WITH_MSG_PUMP = 0x101,
+
             /// <summary>
             /// Do not update the link information. 
             /// </summary>
             SLR_NOUPDATE = 0x8,
+
             /// <summary>
             /// Do not execute the search heuristics. 
             /// </summary>																																																																																																																																																																																																														
             SLR_NOSEARCH = 0x10,
+
             /// <summary>
             /// Do not use distributed link tracking. 
             /// </summary>
             SLR_NOTRACK = 0x20,
+
             /// <summary>
             /// If the link object has changed, update its path and list 
             /// of identifiers. If SLR_UPDATE is set, you do not need to 
@@ -432,7 +487,7 @@ namespace EasyExtensions.Windows
         /// <summary>
         /// Window Show Command enumeration
         /// </summary>
-        public enum LinkDisplayMode : uint
+        internal enum LinkDisplayMode : uint
         {
             /// <summary>
             /// Show the window in its default state
@@ -533,15 +588,15 @@ namespace EasyExtensions.Windows
         /// Gets a System.Drawing.Icon containing the icon for this
         /// ShellLink object.
         /// </summary>
-        public Icon LargeIcon => GetIcon(true);
+        public Icon? LargeIcon => GetIcon(true);
 
         /// <summary>
         /// Gets a System.Drawing.Icon containing the icon for this
         /// ShellLink object.
         /// </summary>
-        public Icon SmallIcon => GetIcon(false);
+        public Icon? SmallIcon => GetIcon(false);
 
-        private Icon GetIcon(bool large)
+        private Icon? GetIcon(bool large)
         {
             StringBuilder iconPath = new StringBuilder(260, 260);
             // Get icon index and path:
@@ -572,24 +627,14 @@ namespace EasyExtensions.Windows
                 IntPtr[] hIconEx = new IntPtr[1] { IntPtr.Zero };
                 if (large)
                 {
-                    _ = UnManagedMethods.ExtractIconEx(
-                        iconFile,
-                        iconIndex,
-                        hIconEx,
-                        null,
-                        1);
+                    _ = UnmanagedMethods.ExtractIconEx(iconFile, iconIndex, hIconEx, null, 1);
                 }
                 else
                 {
-                    _ = UnManagedMethods.ExtractIconEx(
-                        iconFile,
-                        iconIndex,
-                        null,
-                        hIconEx,
-                        1);
+                    _ = UnmanagedMethods.ExtractIconEx(iconFile, iconIndex, null, hIconEx, 1);
                 }
                 // If success then return as a GDI+ object
-                Icon icon = null;
+                Icon? icon = null;
                 if (hIconEx[0] != IntPtr.Zero)
                 {
                     icon = Icon.FromHandle(hIconEx[0]);
@@ -607,13 +652,17 @@ namespace EasyExtensions.Windows
             get
             {
                 StringBuilder iconPath = new StringBuilder(260, 260);
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.GetIconLocation(iconPath, iconPath.Capacity, out _);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.GetIconLocation(iconPath, iconPath.Capacity, out _);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to get icon location");
                 }
                 return iconPath.ToString();
             }
@@ -621,21 +670,19 @@ namespace EasyExtensions.Windows
             {
                 StringBuilder iconPath = new StringBuilder(260, 260);
                 int iconIndex;
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.GetIconLocation(iconPath, iconPath.Capacity, out iconIndex);
-                }
-                else
-                {
-                    linkA.GetIconLocation(iconPath, iconPath.Capacity, out iconIndex);
-                }
-                if (linkA == null)
-                {
                     linkW.SetIconLocation(value, iconIndex);
                 }
+                else if (linkA != null && linkW == null)
+                {
+                    linkA.GetIconLocation(iconPath, iconPath.Capacity, out iconIndex);
+                    linkA.SetIconLocation(value, iconIndex);
+                }
                 else
                 {
-                    linkA.SetIconLocation(value, iconIndex);
+                    throw new InvalidOperationException("Unable to get icon location");
                 }
             }
         }
@@ -649,33 +696,31 @@ namespace EasyExtensions.Windows
             {
                 StringBuilder iconPath = new StringBuilder(260, 260);
                 int iconIndex;
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.GetIconLocation(iconPath, iconPath.Capacity, out iconIndex);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.GetIconLocation(iconPath, iconPath.Capacity, out iconIndex);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to get icon location");
                 }
                 return iconIndex;
             }
             set
             {
                 StringBuilder iconPath = new StringBuilder(260, 260);
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.GetIconLocation(iconPath, iconPath.Capacity, out _);
-                }
-                else
-                {
-                    linkA.GetIconLocation(iconPath, iconPath.Capacity, out _);
-                }
-                if (linkA == null)
-                {
                     linkW.SetIconLocation(iconPath.ToString(), value);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
+                    linkA.GetIconLocation(iconPath, iconPath.Capacity, out _);
                     linkA.SetIconLocation(iconPath.ToString(), value);
                 }
             }
@@ -689,27 +734,35 @@ namespace EasyExtensions.Windows
             get
             {
                 StringBuilder target = new StringBuilder(260, 260);
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     WIN32_FIND_DATAW fd = new WIN32_FIND_DATAW();
                     linkW.GetPath(target, target.Capacity, ref fd, (uint)EShellLinkGP.SLGP_UNCPRIORITY);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     WIN32_FIND_DATAA fd = new WIN32_FIND_DATAA();
                     linkA.GetPath(target, target.Capacity, ref fd, (uint)EShellLinkGP.SLGP_UNCPRIORITY);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to get target path");
                 }
                 return target.ToString();
             }
             set
             {
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.SetPath(value);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.SetPath(value);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to set target path");
                 }
             }
         }
@@ -722,25 +775,33 @@ namespace EasyExtensions.Windows
             get
             {
                 StringBuilder path = new StringBuilder(260, 260);
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.GetWorkingDirectory(path, path.Capacity);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.GetWorkingDirectory(path, path.Capacity);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to get working directory");
                 }
                 return path.ToString();
             }
             set
             {
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.SetWorkingDirectory(value);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.SetWorkingDirectory(value);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to set working directory");
                 }
             }
         }
@@ -753,25 +814,33 @@ namespace EasyExtensions.Windows
             get
             {
                 StringBuilder description = new StringBuilder(1024, 1024);
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.GetDescription(description, description.Capacity);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.GetDescription(description, description.Capacity);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to get description");
                 }
                 return description.ToString();
             }
             set
             {
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.SetDescription(value);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.SetDescription(value);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to set description");
                 }
             }
         }
@@ -784,25 +853,33 @@ namespace EasyExtensions.Windows
             get
             {
                 StringBuilder arguments = new StringBuilder(260, 260);
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.GetArguments(arguments, arguments.Capacity);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.GetArguments(arguments, arguments.Capacity);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to get arguments");
                 }
                 return arguments.ToString();
             }
             set
             {
-                if (linkA == null)
+                if (linkA == null && linkW != null)
                 {
                     linkW.SetArguments(value);
                 }
-                else
+                else if (linkA != null && linkW == null)
                 {
                     linkA.SetArguments(value);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unable to set arguments");
                 }
             }
         }
@@ -851,20 +928,22 @@ namespace EasyExtensions.Windows
         /// Saves the shortcut to the specified file
         /// </summary>
         /// <param name="linkFile">The shortcut file (.lnk)</param>
-        public void Save(
-            string linkFile
-            )
+        public void Save(string linkFile)
         {
             // Save the object to disk
-            if (linkA == null)
+            if (linkA == null && linkW != null)
             {
                 ((IPersistFile)linkW).Save(linkFile, true);
                 shortcutFile = linkFile;
             }
-            else
+            else if (linkA != null && linkW == null)
             {
                 ((IPersistFile)linkA).Save(linkFile, true);
                 shortcutFile = linkFile;
+            }
+            else
+            {
+                throw new InvalidOperationException("Unable to save shortcut");
             }
         }
 
@@ -872,14 +951,9 @@ namespace EasyExtensions.Windows
         /// Loads a shortcut from the specified file
         /// </summary>
         /// <param name="linkFile">The shortcut file (.lnk) to load</param>
-        public void Open(
-            string linkFile
-            )
+        public void Open(string linkFile)
         {
-            Open(linkFile,
-                IntPtr.Zero,
-                (EShellLinkResolveFlags.SLR_ANY_MATCH | EShellLinkResolveFlags.SLR_NO_UI),
-                1);
+            Open(linkFile, IntPtr.Zero, EShellLinkResolveFlags.SLR_ANY_MATCH | EShellLinkResolveFlags.SLR_NO_UI, 1);
         }
 
         /// <summary>
@@ -889,11 +963,7 @@ namespace EasyExtensions.Windows
         /// <param name="linkFile">The shortcut file (.lnk) to load</param>
         /// <param name="hWnd">The window handle of the application's UI, if any</param>
         /// <param name="resolveFlags">Flags controlling resolution behaviour</param>
-        public void Open(
-            string linkFile,
-            IntPtr hWnd,
-            EShellLinkResolveFlags resolveFlags
-            )
+        public void Open(string linkFile, IntPtr hWnd, EShellLinkResolveFlags resolveFlags)
         {
             Open(linkFile, hWnd, resolveFlags, 1);
         }
@@ -907,12 +977,7 @@ namespace EasyExtensions.Windows
         /// <param name="hWnd">The window handle of the application's UI, if any</param>
         /// <param name="resolveFlags">Flags controlling resolution behaviour</param>
         /// <param name="timeOut">Timeout if SLR_NO_UI is specified, in ms.</param>
-        public void Open(
-            string linkFile,
-            IntPtr hWnd,
-            EShellLinkResolveFlags resolveFlags,
-            ushort timeOut
-            )
+        public void Open(string linkFile, IntPtr hWnd, EShellLinkResolveFlags resolveFlags, ushort timeOut)
         {
             uint flags;
 
@@ -930,13 +995,13 @@ namespace EasyExtensions.Windows
             {
                 ((IPersistFile)linkW).Load(linkFile, 0); //STGM_DIRECT)
                 linkW.Resolve(hWnd, flags);
-                this.shortcutFile = linkFile;
+                shortcutFile = linkFile;
             }
             else if (linkA != null && linkW == null)
             {
                 ((IPersistFile)linkA).Load(linkFile, 0); //STGM_DIRECT)
                 linkA.Resolve(hWnd, flags);
-                this.shortcutFile = linkFile;
+                shortcutFile = linkFile;
             }
             else
             {

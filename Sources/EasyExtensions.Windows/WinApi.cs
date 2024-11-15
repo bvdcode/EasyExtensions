@@ -78,5 +78,64 @@ namespace EasyExtensions.Windows
             }
             return DeleteFileOrFolder(file.FullName);
         }
+
+        /// <summary>
+        /// Create a shortcut file.
+        /// </summary>
+        /// <param name="targetFile">Target file path.</param>
+        /// <param name="linkFile">Link file path.</param>
+        /// <param name="iconFile">Icon file path.</param>
+        /// <param name="workingDirectory">Working directory path.</param>
+        /// <exception cref="FileNotFoundException">Thrown when target file or icon file not found.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown when working directory not found.</exception>
+        /// <exception cref="IOException">Thrown when cannot create link file at specified location.</exception>
+        /// <exception cref="FormatException">Thrown when link file must have .lnk extension.</exception>
+        public static void CreateLink(string targetFile, string linkFile, string? iconFile = null, string? workingDirectory = null)
+        {
+            FileInfo fileInfo = new FileInfo(targetFile);
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException("Target file not found.", targetFile);
+            }
+            if (!linkFile.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new FormatException("Link file must have .lnk extension.");
+            }
+            try
+            {
+                File.WriteAllText(linkFile, string.Empty);
+                File.Delete(linkFile);
+            }
+            catch (Exception ex)
+            {
+                throw new IOException("Cannot create link file at specified location.", ex);
+            }
+            if (iconFile != null)
+            {
+                if (!File.Exists(iconFile))
+                {
+                    throw new FileNotFoundException("Icon file not found.", iconFile);
+                }
+            }
+            if (workingDirectory != null)
+            {
+                if (!Directory.Exists(workingDirectory))
+                {
+                    throw new DirectoryNotFoundException("Working directory not found.");
+                }
+            }
+
+            workingDirectory ??= fileInfo.DirectoryName;
+            iconFile ??= targetFile;
+
+            ShellLink sl = new ShellLink
+            {
+                Target = targetFile,
+                IconPath = iconFile,
+                ShortcutFile = linkFile,
+                WorkingDirectory = workingDirectory
+            };
+            sl.Save();
+        }
     }
 }
