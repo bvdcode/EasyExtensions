@@ -54,7 +54,7 @@ namespace EasyExtensions.Debuggers
         }
 
         /// <summary>
-        /// Restart the stopwatch.
+        /// Force restart the stopwatch.
         /// </summary>
         public void Restart()
         {
