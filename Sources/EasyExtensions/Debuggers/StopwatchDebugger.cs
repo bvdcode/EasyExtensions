@@ -6,6 +6,18 @@ namespace EasyExtensions.Debuggers
     /// <summary>
     /// StopwatchDebugger class to measure elapsed time.
     /// </summary>
+    /// <remarks>
+    /// Usage example:
+    /// <code>
+    /// var debugger = new StopwatchDebugger(x =>
+    /// {
+    ///    _logger.LogInformation($"{action} took {elapsed} seconds.", x.Action, x.Elapsed.TotalSeconds);
+    /// });
+    /// debugger.Report("Started");
+    /// // Some code here
+    /// debugger.Report("Finished");
+    /// </code>
+    /// </remarks>
     public class StopwatchDebugger
     {
         private readonly Stopwatch _stopwatch;
