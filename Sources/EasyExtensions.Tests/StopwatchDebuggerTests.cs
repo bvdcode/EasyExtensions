@@ -20,7 +20,6 @@ namespace EasyExtensions.Tests
         [Test]
         public void CreateDebugger_ValidInput_ValidOutput()
         {
-            debugger.Start();
             Task.Delay(1000).Wait();
             debugger.Report("Started");
             Assert.Multiple(() =>

@@ -54,9 +54,9 @@ namespace EasyExtensions.Debuggers
         }
 
         /// <summary>
-        /// Start the stopwatch.
+        /// Restart the stopwatch.
         /// </summary>
-        public void Start()
+        public void Restart()
         {
             _stopwatch.Restart();
         }
