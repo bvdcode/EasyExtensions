@@ -14,20 +14,37 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
     {
         private const int defaultLifetimeMinutes = 30;
         private readonly JwtSettings _jwtSettings = _configuration.GetJwtSettings();
+        private readonly SymmetricSecurityKey _securityKey = new(Encoding.UTF8.GetBytes(_configuration.GetJwtSettings().Key));
 
-        public string CreateToken(IClaimProvider claimProvider)
+        public bool ValidateToken(string token)
         {
-            return CreateToken(x => x.AddRange(claimProvider.GetClaims()));
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _jwtSettings.Issuer,
+                ValidAudience = _jwtSettings.Audience,
+                IssuerSigningKey = _securityKey
+            };
+            try
+            {
+                tokenHandler.ValidateToken(token, validationParameters, out _);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public string CreateToken(Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null)
+        public string CreateToken(TimeSpan lifetime, Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null)
         {
             var claims = claimBuilder == null ? [] : claimBuilder(new ClaimBuilder()).Build();
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-            var credentials = new SigningCredentials(securityKey, _jwtSettings.Algorithm);
-            var expirationDate = _jwtSettings.LifetimeMinutes.HasValue
-                ? DateTime.UtcNow.AddMinutes(_jwtSettings.LifetimeMinutes.Value)
-                : DateTime.UtcNow.AddMinutes(defaultLifetimeMinutes);
+            var credentials = new SigningCredentials(_securityKey, _jwtSettings.Algorithm);
+            var expirationDate = DateTime.UtcNow.Add(lifetime);
             var tokenDescriptor = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
@@ -36,6 +53,19 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
                 signingCredentials: credentials);
             return new JwtSecurityTokenHandler()
                 .WriteToken(tokenDescriptor);
+        }
+
+        public string CreateToken(IClaimProvider claimProvider)
+        {
+            return CreateToken(x => x.AddRange(claimProvider.GetClaims()));
+        }
+
+        public string CreateToken(Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null)
+        {
+            TimeSpan lifetime = _jwtSettings.LifetimeMinutes.HasValue
+                ? TimeSpan.FromMinutes(_jwtSettings.LifetimeMinutes.Value)
+                : TimeSpan.FromMinutes(defaultLifetimeMinutes);
+            return CreateToken(lifetime, claimBuilder);
         }
     }
 }
