@@ -12,7 +12,6 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
 {
     internal class JwtTokenProvider(IConfiguration _configuration) : ITokenProvider
     {
-        private const int defaultLifetimeMinutes = 30;
         private readonly JwtSettings _jwtSettings = _configuration.GetJwtSettings();
         private readonly SymmetricSecurityKey _securityKey = new(Encoding.UTF8.GetBytes(_configuration.GetJwtSettings().Key));
 
@@ -62,9 +61,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
 
         public string CreateToken(Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null)
         {
-            TimeSpan lifetime = _jwtSettings.LifetimeMinutes.HasValue
-                ? TimeSpan.FromMinutes(_jwtSettings.LifetimeMinutes.Value)
-                : TimeSpan.FromMinutes(defaultLifetimeMinutes);
+            TimeSpan lifetime = TimeSpan.FromMinutes(_jwtSettings.LifetimeMinutes);
             return CreateToken(lifetime, claimBuilder);
         }
     }
