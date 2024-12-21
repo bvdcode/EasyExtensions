@@ -12,19 +12,19 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         /// Entity identifier.
         /// </summary>
         [Column("id")]
-        public int Id { get; set; }
+        public int Id { get; protected set; }
 
         /// <summary>
         /// Created at UTC.
         /// </summary>
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; internal set; }
 
         /// <summary>
         /// Updated at UTC.
         /// </summary>
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; internal set; }
 
         /// <summary>
         /// Update entity method is calling in <see cref="BaseRepository{TItem}.UpdateAsync(TItem)"/>.
