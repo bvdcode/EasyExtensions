@@ -1,7 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EasyExtensions.EntityFrameworkCore.Database.Abstractions
+namespace EasyExtensions.EntityFrameworkCore.Abstractions
 {
     /// <summary>
     /// Interface for deletable entity.
