@@ -1,30 +1,32 @@
-﻿using System.Linq;
-using Sentry.Protocol;
-using Sentry.AspNetCore;
+﻿using Sentry;
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
 namespace EasyExtensions.AspNetCore.Sentry.Factories
 {
     /// <summary>
-    /// Implementaion of <see cref="IUserFactory"/> with JWT payload parsing.
+    /// Implementaion of <see cref="ISentryUserFactory"/> with JWT payload parsing.
     /// </summary>
-    public class UserFactory : IUserFactory
+    public class UserFactory(IHttpContextAccessor httpContextAccessor) : ISentryUserFactory
     {
         /// <summary>
-        /// Create <see cref="User"/> from JWT payload information.
+        /// Create <see cref="SentryUser"/> from JWT payload information.
         /// </summary>
-        /// <param name="context"> Current <see cref="HttpContext"/> instance. </param>
-        /// <returns> <see cref="User"/> instance. </returns>
-        public User Create(HttpContext context)
+        /// <returns> <see cref="SentryUser"/> instance. </returns>
+        public SentryUser? Create()
         {
-            int userId = context.User.TryGetId();
-            return new User()
+            if (httpContextAccessor.HttpContext == null)
+            {
+                return null;
+            }
+            int userId = httpContextAccessor.HttpContext.User.TryGetId();
+            return new SentryUser()
             {
                 Id = userId.ToString(),
-                IpAddress = context.Request.GetRemoteAddress(),
-                Username = context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value,
-                Email = context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value,
+                IpAddress = httpContextAccessor.HttpContext.Request.GetRemoteAddress(),
+                Username = httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value,
+                Email = httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value,
             };
         }
     }

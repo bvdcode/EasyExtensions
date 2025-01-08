@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using EasyExtensions.AspNetCore.Sentry.Factories;
+using Sentry;
 
 namespace EasyExtensions.AspNetCore.Sentry.Extensions
 {
@@ -32,7 +33,7 @@ namespace EasyExtensions.AspNetCore.Sentry.Extensions
             {
                 throw new ArgumentNullException(nameof(dsn));
             }
-            var descriptor = new ServiceDescriptor(typeof(IUserFactory), typeof(UserFactory), ServiceLifetime.Scoped);
+            var descriptor = new ServiceDescriptor(typeof(ISentryUserFactory), typeof(UserFactory), ServiceLifetime.Scoped);
             builder.ConfigureServices(x => x.Add(descriptor));
             return builder.UseSentry(x =>
             {
