@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Sentry;
+using System;
 using Sentry.AspNetCore;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using EasyExtensions.AspNetCore.Sentry.Factories;
-using Sentry;
 
 namespace EasyExtensions.AspNetCore.Sentry.Extensions
 {
