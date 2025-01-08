@@ -22,7 +22,7 @@ namespace EasyExtensions.AspNetCore.Sentry.Extensions
         /// <param name="useInDevelopment"> Force use in development environment. </param>
         /// <returns> Current <see cref="IWebHostBuilder"/> instance. </returns>
         public static IWebHostBuilder UseSentryWithUserCapturing(this IWebHostBuilder builder, 
-            string dsn, Action<SentryAspNetCoreOptions>? setup, bool useInDevelopment = false)
+            string dsn, Action<SentryAspNetCoreOptions>? setup = null, bool useInDevelopment = false)
         {
             bool isDevelopment = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Development" || Debugger.IsAttached;
             if (isDevelopment && !useInDevelopment)
