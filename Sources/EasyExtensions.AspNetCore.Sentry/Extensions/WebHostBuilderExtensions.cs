@@ -17,12 +17,14 @@ namespace EasyExtensions.AspNetCore.Sentry.Extensions
         /// </summary>
         /// <param name="builder"> Current <see cref="IWebHostBuilder"/> instance. </param>
         /// <param name="dsn"> Sentry DSN. </param>
-        /// <param name="forceUseInDevelopment"> Force use in development environment. </param>
+        /// <param name="setup"> Optional setup action. </param>
+        /// <param name="useInDevelopment"> Force use in development environment. </param>
         /// <returns> Current <see cref="IWebHostBuilder"/> instance. </returns>
-        public static IWebHostBuilder UseSentryWithUserCapturing(this IWebHostBuilder builder, string dsn, bool forceUseInDevelopment = false)
+        public static IWebHostBuilder UseSentryWithUserCapturing(this IWebHostBuilder builder, 
+            string dsn, Action<SentryAspNetCoreOptions>? setup, bool useInDevelopment = false)
         {
             bool isDevelopment = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Development" || Debugger.IsAttached;
-            if (isDevelopment && !forceUseInDevelopment)
+            if (isDevelopment && !useInDevelopment)
             {
                 return builder;
             }
@@ -36,6 +38,7 @@ namespace EasyExtensions.AspNetCore.Sentry.Extensions
             {
                 x.Dsn = dsn;
                 x.SendDefaultPii = true;
+                setup?.Invoke(x);
             });
         }
     }
