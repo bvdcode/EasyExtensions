@@ -20,13 +20,15 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         /// <param name="maxPoolSize"> The maximum pool size, default is 100. </param>
         /// <param name="timeoutSeconds"> The connection timeout in seconds, default is 60. </param>
         /// <param name="contextLifetime"> The <see cref="ServiceLifetime"/> of the <see cref="DbContext"/>, default is Transient. </param>
+        /// <param name="setupConnectionString"> The action to setup the connection string builder. </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         /// <exception cref="KeyNotFoundException"> When DatabaseSettings section is not set. </exception>
         public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services,
-            IConfiguration configuration, int maxPoolSize = 100, int timeoutSeconds = 60, ServiceLifetime contextLifetime = ServiceLifetime.Transient)
+            IConfiguration configuration, int maxPoolSize = 100, int timeoutSeconds = 60, 
+            ServiceLifetime contextLifetime = ServiceLifetime.Transient, Action<NpgsqlConnectionStringBuilder>? setupConnectionString = null)
             where TContext : DbContext
         {
-            string connectionString = BuildConnectionString(configuration, maxPoolSize, timeoutSeconds);
+            string connectionString = BuildConnectionString(configuration, maxPoolSize, timeoutSeconds, setupConnectionString);
             return services.AddDbContext<TContext>(builder =>
             {
                 builder
@@ -35,7 +37,8 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             }, contextLifetime: contextLifetime);
         }
 
-        private static string BuildConnectionString(IConfiguration configuration, int maxPoolSize, int timeout_s = 60)
+        private static string BuildConnectionString(IConfiguration configuration, int maxPoolSize,
+            int timeoutSeconds = 60, Action<NpgsqlConnectionStringBuilder>? setupConnectionString = null)
         {
             bool isDevelopment = (Environment.GetEnvironmentVariable("ENVIRONMENT") ?? string.Empty) == "Development";
             if (!isDevelopment)
@@ -72,9 +75,11 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
                 IncludeErrorDetail = true,
                 Timezone = "UTC",
                 MaxPoolSize = maxPoolSize,
-                Timeout = timeout_s,
-                CommandTimeout = timeout_s
+                Timeout = timeoutSeconds,
+                CommandTimeout = timeoutSeconds,
+                Encoding = "UTF8",
             };
+            setupConnectionString?.Invoke(builder);
             return builder.ConnectionString;
         }
     }
