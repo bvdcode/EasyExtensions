@@ -18,20 +18,21 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
         /// <param name="configuration"> The <see cref="IConfiguration"/> instance. </param>
         /// <param name="maxPoolSize"> The maximum pool size, default is 100. </param>
-        /// <param name="timeout_s"> The connection timeout in seconds, default is 60. </param>
+        /// <param name="timeoutSeconds"> The connection timeout in seconds, default is 60. </param>
+        /// <param name="contextLifetime"> The <see cref="ServiceLifetime"/> of the <see cref="DbContext"/>, default is Scoped. </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         /// <exception cref="KeyNotFoundException"> When DatabaseSettings section is not set. </exception>
-        public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services, 
-            IConfiguration configuration, int maxPoolSize = 100, int timeout_s = 60)
+        public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services,
+            IConfiguration configuration, int maxPoolSize = 100, int timeoutSeconds = 60, ServiceLifetime contextLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
         {
-            string connectionString = BuildConnectionString(configuration, maxPoolSize, timeout_s);
+            string connectionString = BuildConnectionString(configuration, maxPoolSize, timeoutSeconds);
             return services.AddDbContext<TContext>(builder =>
             {
                 builder
                     .UseNpgsql(connectionString)
                     .UseLazyLoadingProxies();
-            });
+            }, contextLifetime: contextLifetime);
         }
 
         private static string BuildConnectionString(IConfiguration configuration, int maxPoolSize, int timeout_s = 60)
