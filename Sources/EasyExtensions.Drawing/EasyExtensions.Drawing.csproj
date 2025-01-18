@@ -30,7 +30,7 @@
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
-		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
+		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 

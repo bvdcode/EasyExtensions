@@ -4,6 +4,7 @@ using System.Reflection;
 using EasyExtensions.Helpers;
 using EasyExtensions.Quartz.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz.AspNetCore;
 
 namespace EasyExtensions.Quartz.Extensions
 {
@@ -17,12 +18,25 @@ namespace EasyExtensions.Quartz.Extensions
         /// </summary>
         /// <param name="services">IServiceCollection instance.</param>
         /// <param name="jobAdded">Action to be executed when a job is added.</param>
+        /// <param name="configureQuartz">Action to configure Quartz.</param>
+        /// <param name="configureService">Action to configure Quartz hosted service.</param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        public static IServiceCollection AddQuartzJobs(this IServiceCollection services, Action<Type>? jobAdded = null)
+        public static IServiceCollection AddQuartzJobs(this IServiceCollection services, Action<Type>? jobAdded = null,
+            Action<IServiceCollectionQuartzConfigurator>? configureQuartz = null, Action<QuartzHostedServiceOptions>? configureService = null)
         {
             return services
-                .AddQuartz(x => SetupQuartz(x, jobAdded))
-                .AddQuartzHostedService();
+                .AddQuartz(x =>
+                {
+                    SetupQuartz(x, jobAdded);
+                    configureQuartz?.Invoke(x);
+                })
+                .AddQuartzHostedService(x =>
+                {
+                    x.WaitForJobsToComplete = false;
+                    x.AwaitApplicationStarted = true;
+                    x.StartDelay = TimeSpan.FromSeconds(10);
+                    configureService?.Invoke(x);
+                });
         }
 
         private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, Action<Type>? jobAdded)

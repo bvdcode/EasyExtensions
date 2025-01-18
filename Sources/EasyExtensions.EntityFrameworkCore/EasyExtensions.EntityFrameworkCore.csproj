@@ -29,12 +29,12 @@
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
-		<PackageReference Include="Gridify" Version="2.16.0" />
-		<PackageReference Include="Gridify.EntityFramework" Version="2.16.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
+		<PackageReference Include="Gridify" Version="2.16.1" />
+		<PackageReference Include="Gridify.EntityFramework" Version="2.16.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.1" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 </Project>
