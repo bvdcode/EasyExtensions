@@ -63,7 +63,8 @@ namespace EasyExtensions.Quartz.Extensions
                         .WithIdentity(job.Name + "Trigger")
                         .WithSimpleSchedule(x =>
                         {
-                            x.WithInterval(jobTriggerAttribute.Interval);
+                            x.WithInterval(jobTriggerAttribute.Interval)
+                                .WithMisfireHandlingInstructionFireNow();
                             if (jobTriggerAttribute.RepeatForever)
                             {
                                 x.RepeatForever();
