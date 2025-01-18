@@ -30,7 +30,7 @@ namespace EasyExtensions.Quartz.Extensions
                     SetupQuartz(x, jobAdded);
                     configureQuartz?.Invoke(x);
                 })
-                .AddQuartzHostedService(x =>
+                .AddQuartzServer(x =>
                 {
                     x.WaitForJobsToComplete = false;
                     x.AwaitApplicationStarted = true;
