@@ -56,10 +56,6 @@ namespace EasyExtensions.Quartz.Extensions
                     .DisallowConcurrentExecution());
                 configurator.AddTrigger(opts =>
                 {
-                    if (jobTriggerAttribute.StartNow)
-                    {
-                        opts.StartNow();
-                    }
                     opts.ForJob(jobKey)
                         .WithIdentity(job.Name + "Trigger")
                         .WithSimpleSchedule(x =>
@@ -71,6 +67,10 @@ namespace EasyExtensions.Quartz.Extensions
                                 x.RepeatForever();
                             }
                         });
+                    if (jobTriggerAttribute.StartNow)
+                    {
+                        opts.StartNow();
+                    }
                     jobAdded?.Invoke(job);
                 });
             }
