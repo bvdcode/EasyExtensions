@@ -1,10 +1,10 @@
 ﻿using Quartz;
 using System;
+using Quartz.AspNetCore;
 using System.Reflection;
 using EasyExtensions.Helpers;
 using EasyExtensions.Quartz.Attributes;
 using Microsoft.Extensions.DependencyInjection;
-using Quartz.AspNetCore;
 
 namespace EasyExtensions.Quartz.Extensions
 {
@@ -14,7 +14,8 @@ namespace EasyExtensions.Quartz.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds Quartz jobs with <see cref="JobTriggerAttribute"/> to the <see cref="IServiceCollection"/>.
+        /// Adds Quartz jobs with <see cref="JobTriggerAttribute"/> to the <see cref="IServiceCollection"/>
+        /// and automatically configures Quartz and Quartz hosted service with default options.
         /// </summary>
         /// <param name="services">IServiceCollection instance.</param>
         /// <param name="jobAdded">Action to be executed when a job is added.</param>
