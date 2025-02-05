@@ -1,7 +1,9 @@
 ﻿using Npgsql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
+using EasyExtensions.EntityFrameworkCore.Npgsql.Migrations;
 
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 {
@@ -34,7 +36,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
                 builder
                     .UseNpgsql(connectionString)
                     .UseLazyLoadingProxies();
-            }, contextLifetime: contextLifetime);
+            }, contextLifetime: contextLifetime).AddScoped<IDesignTimeDbContextFactory<TContext>, DesignTimeDbContextFactory<TContext>>();
         }
 
         private static string BuildConnectionString(IConfiguration configuration, int maxPoolSize,
