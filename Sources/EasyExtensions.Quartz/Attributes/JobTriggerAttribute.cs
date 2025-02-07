@@ -15,6 +15,11 @@ namespace EasyExtensions.Quartz.Attributes
         public TimeSpan Interval { get; }
 
         /// <summary>
+        /// Start the job at the specified time.
+        /// </summary>
+        public TimeOfDay? StartAt { get; set; }
+
+        /// <summary>
         /// Start the job immediately.
         /// </summary>
         public bool StartNow { get; }

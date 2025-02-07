@@ -57,8 +57,10 @@ namespace EasyExtensions.Quartz.Extensions
                 configurator.AddTrigger(opts =>
                 {
                     opts.ForJob(jobKey)
-                        .WithIdentity(job.Name + "Trigger")
-                        .WithSimpleSchedule(x =>
+                        .WithIdentity(job.Name + "Trigger");
+                    if (jobTriggerAttribute.Interval > TimeSpan.Zero)
+                    {
+                        opts.WithSimpleSchedule(x =>
                         {
                             x.WithInterval(jobTriggerAttribute.Interval)
                                 .WithMisfireHandlingInstructionFireNow();
@@ -67,7 +69,15 @@ namespace EasyExtensions.Quartz.Extensions
                                 x.RepeatForever();
                             }
                         });
-                    if (jobTriggerAttribute.StartNow)
+                    }
+                    if (jobTriggerAttribute.StartAt != null)
+                    {
+                        opts.WithDailyTimeIntervalSchedule(1, IntervalUnit.Day, x =>
+                        {
+                            x.StartingDailyAt(jobTriggerAttribute.StartAt);
+                        });
+                    }
+                    else if (jobTriggerAttribute.StartNow)
                     {
                         opts.StartNow();
                     }
