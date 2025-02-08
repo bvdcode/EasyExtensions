@@ -2,11 +2,10 @@
 using WebDav;
 using System.IO;
 using System.Net;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Linq;
-using EasyExtensions.WebDav.Extensions;
+using System.Threading.Tasks;
 using EasyExtensions.Extensions;
+using System.Collections.Generic;
 
 namespace EasyExtensions.WebDav
 {
@@ -15,8 +14,8 @@ namespace EasyExtensions.WebDav
     /// </summary>
     public class WebDavCloudClient : IWebDavCloudClient, IDisposable
     {
-        private readonly string _baseAddress;
         private readonly string _server;
+        private readonly string _baseAddress;
         private readonly WebDavClient _client;
 
         /// <summary>

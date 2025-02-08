@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using WebDav;
 using System.IO;
 using System.Threading.Tasks;
-using WebDav;
+using System.Collections.Generic;
 
 namespace EasyExtensions.WebDav
 {
