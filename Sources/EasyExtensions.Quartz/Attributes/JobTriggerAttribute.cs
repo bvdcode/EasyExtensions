@@ -38,18 +38,22 @@ namespace EasyExtensions.Quartz.Attributes
         /// <param name="seconds"> Seconds. </param>
         /// <param name="startNow"> Start now. </param>
         /// <param name="repeatForever"> Repeat forever. </param>
-        /// <param name="startAt"> Start at. </param>
+        /// <param name="startAtHour"> Start at hour. </param>
+        /// <param name="startAtMinute"> Start at minute. </param>
         public JobTriggerAttribute(int days = 0, int hours = 0, int minutes = 0, int seconds = 0,
-            bool startNow = true, bool repeatForever = true, TimeOfDay? startAt = null)
+            bool startNow = true, bool repeatForever = true, int startAtHour = 0, int startAtMinute = 0)
         {
             if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0)
             {
                 throw new ArgumentException("At least one of the parameters must be greater than 0.");
             }
-            StartAt = startAt;
             StartNow = startNow;
             RepeatForever = repeatForever;
             Interval = new TimeSpan(days, hours, minutes, seconds);
+            if (startAtHour > 0 || startAtMinute > 0)
+            {
+                StartAt = new TimeOfDay(startAtHour, startAtMinute);
+            }
         }
     }
 }
