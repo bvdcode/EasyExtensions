@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 
-namespace EasyExtensions.AspNetCore
+namespace EasyExtensions.AspNetCore.Extensions
 {
     /// <summary>
     /// <see cref="HttpRequest"/> extensions.
