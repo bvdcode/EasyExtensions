@@ -8,7 +8,7 @@ namespace EasyExtensions.AspNetCore.HealthChecks
     /// <summary>
     /// Check if a web page is available.
     /// </summary>
-    public class InternetHealthCheck() : IHealthCheck
+    public class InternetHealthCheck : IHealthCheck
     {
         /// <summary>
         /// The URL to check, default is "https://example.com".

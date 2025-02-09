@@ -1,5 +1,8 @@
 ﻿namespace EasyExtensions.AspNetCore.HealthChecks
 {
+    /// <summary>
+    /// Options for health checks - you can enable or disable checks here.
+    /// </summary>
     public class HealthCheckOptions
     {
         /// <summary>
