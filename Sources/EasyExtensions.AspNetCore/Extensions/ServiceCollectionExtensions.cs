@@ -6,6 +6,7 @@ using EasyExtensions.Services;
 using Microsoft.AspNetCore.Http;
 using EasyExtensions.Abstractions;
 using Microsoft.AspNetCore.Diagnostics;
+using EasyExtensions.AspNetCore.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyExtensions.AspNetCore.Extensions
@@ -15,6 +16,42 @@ namespace EasyExtensions.AspNetCore.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds default health checks to the <see cref="IServiceCollection"/> instance.
+        /// </summary>
+        /// <param name="services"> <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="setup"> Action to setup health checks. </param>
+        /// <param name="configure"> Action to configure health check options. </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        public static IServiceCollection AddDefaultHealthChecks(this IServiceCollection services, Action<IHealthChecksBuilder>? setup = null, Action<HealthCheckOptions>? configure = null)
+        {
+            var builder = services.AddHealthChecks();
+            HealthCheckOptions options = new();
+            configure?.Invoke(options);
+            if (options.Dns)
+            {
+                builder.AddCheck<DnsHealthCheck>("DNS", tags: ["network"]);
+            }
+            if (options.Internet)
+            {
+                builder.AddCheck<InternetHealthCheck>("Internet", tags: ["network"]);
+            }
+            if (options.Network)
+            {
+                builder.AddCheck<NetworkHealthCheck>("Network", tags: ["network"]);
+            }
+            if (options.DiskSpace)
+            {
+                builder.AddCheck<DiskSpaceHealthCheck>("Disk Space", tags: ["disk"]);
+            }
+            if (options.Memory)
+            {
+                builder.AddCheck<MemoryHealthCheck>("Memory", tags: ["memory"]);
+            }
+            setup?.Invoke(builder);
+            return services;
+        }
+
         /// <summary>
         /// Adds CORS policy with origins.
         /// </summary>
