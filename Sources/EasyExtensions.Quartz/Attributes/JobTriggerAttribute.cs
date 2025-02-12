@@ -38,7 +38,8 @@ namespace EasyExtensions.Quartz.Attributes
         /// <param name="seconds"> Interval: Seconds. </param>
         /// <param name="startNow"> Start now. </param>
         /// <param name="repeatForever"> Interval: Repeat forever. </param>
-        /// <param name="cronSchedule"> Cron schedule, if specified, it will override the interval. </param>
+        /// <param name="cronSchedule"> Cron schedule, if specified, it will override the interval. <br/>
+        /// See <see href="https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html">Quartz CronTrigger Documentation</see> for more information. </param>
         public JobTriggerAttribute(int days = 0, int hours = 0, int minutes = 0, int seconds = 0,
             bool startNow = true, bool repeatForever = true, string? cronSchedule = "")
         {
