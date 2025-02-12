@@ -43,10 +43,9 @@ namespace EasyExtensions.Quartz.Attributes
             bool startNow = true, bool repeatForever = true, string? cronSchedule = "")
         {
             TimeSpan interval = new TimeSpan(days, hours, minutes, seconds);
-
-            if (interval <= TimeSpan.Zero)
+            if (interval <= TimeSpan.Zero && string.IsNullOrWhiteSpace(cronSchedule))
             {
-                throw new ArgumentException("At least one of the parameters must be greater than 0.");
+                throw new ArgumentException("At least one of the parameters must be greater than 0 or CronSchedule must be specified.");
             }
             StartNow = startNow;
             CronSchedule = cronSchedule;
