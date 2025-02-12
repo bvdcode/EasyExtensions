@@ -58,7 +58,7 @@ namespace EasyExtensions.Quartz.Extensions
                 {
                     opts.ForJob(jobKey)
                         .WithIdentity(job.Name + "Trigger");
-                    if (jobTriggerAttribute.Interval > TimeSpan.Zero)
+                    if (jobTriggerAttribute.Interval > TimeSpan.Zero && string.IsNullOrWhiteSpace(jobTriggerAttribute.CronSchedule))
                     {
                         opts.WithSimpleSchedule(x =>
                         {
@@ -70,14 +70,15 @@ namespace EasyExtensions.Quartz.Extensions
                             }
                         });
                     }
-                    if (jobTriggerAttribute.StartAt != null)
+                    else if (!string.IsNullOrWhiteSpace(jobTriggerAttribute.CronSchedule))
                     {
-                        opts.WithDailyTimeIntervalSchedule(1, IntervalUnit.Day, x =>
-                        {
-                            x.StartingDailyAt(jobTriggerAttribute.StartAt);
-                        });
+                        opts.WithCronSchedule(jobTriggerAttribute.CronSchedule);
                     }
-                    else if (jobTriggerAttribute.StartNow)
+                    else
+                    {
+                        throw new ArgumentException("At least one of the parameters must be specified - Interval or CronSchedule.");
+                    }
+                    if (jobTriggerAttribute.StartNow)
                     {
                         opts.StartNow();
                     }

@@ -15,11 +15,6 @@ namespace EasyExtensions.Quartz.Attributes
         public TimeSpan Interval { get; }
 
         /// <summary>
-        /// Start the job at the specified time.
-        /// </summary>
-        public TimeOfDay? StartAt { get; }
-
-        /// <summary>
         /// Start the job immediately.
         /// </summary>
         public bool StartNow { get; }
@@ -30,6 +25,11 @@ namespace EasyExtensions.Quartz.Attributes
         public bool RepeatForever { get; }
 
         /// <summary>
+        /// Cron schedule format. If specified, it will override the interval.
+        /// </summary>
+        public string? CronSchedule { get; }
+
+        /// <summary>
         /// Create a new instance of <see cref="JobTriggerAttribute"/>.
         /// </summary>
         /// <param name="days"> Days. </param>
@@ -38,22 +38,20 @@ namespace EasyExtensions.Quartz.Attributes
         /// <param name="seconds"> Seconds. </param>
         /// <param name="startNow"> Start now. </param>
         /// <param name="repeatForever"> Repeat forever. </param>
-        /// <param name="startAtHour"> Start at hour. </param>
-        /// <param name="startAtMinute"> Start at minute. </param>
+        /// <param name="cronSchedule"> Cron schedule. </param>
         public JobTriggerAttribute(int days = 0, int hours = 0, int minutes = 0, int seconds = 0,
-            bool startNow = true, bool repeatForever = true, int startAtHour = 0, int startAtMinute = 0)
+            bool startNow = true, bool repeatForever = true, string? cronSchedule = "")
         {
-            if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0)
+            TimeSpan interval = new TimeSpan(days, hours, minutes, seconds);
+
+            if (interval <= TimeSpan.Zero)
             {
                 throw new ArgumentException("At least one of the parameters must be greater than 0.");
             }
             StartNow = startNow;
+            CronSchedule = cronSchedule;
             RepeatForever = repeatForever;
             Interval = new TimeSpan(days, hours, minutes, seconds);
-            if (startAtHour > 0 || startAtMinute > 0)
-            {
-                StartAt = new TimeOfDay(startAtHour, startAtMinute);
-            }
         }
     }
 }
