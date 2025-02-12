@@ -32,13 +32,13 @@ namespace EasyExtensions.Quartz.Attributes
         /// <summary>
         /// Create a new instance of <see cref="JobTriggerAttribute"/>.
         /// </summary>
-        /// <param name="days"> Days. </param>
-        /// <param name="hours"> Hours. </param>
-        /// <param name="minutes"> Minutes. </param>
-        /// <param name="seconds"> Seconds. </param>
+        /// <param name="days"> Interval: Days. </param>
+        /// <param name="hours"> Interval: Hours. </param>
+        /// <param name="minutes"> Interval: Minutes. </param>
+        /// <param name="seconds"> Interval: Seconds. </param>
         /// <param name="startNow"> Start now. </param>
-        /// <param name="repeatForever"> Repeat forever. </param>
-        /// <param name="cronSchedule"> Cron schedule. </param>
+        /// <param name="repeatForever"> Interval: Repeat forever. </param>
+        /// <param name="cronSchedule"> Cron schedule, if specified, it will override the interval. </param>
         public JobTriggerAttribute(int days = 0, int hours = 0, int minutes = 0, int seconds = 0,
             bool startNow = true, bool repeatForever = true, string? cronSchedule = "")
         {
