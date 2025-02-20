@@ -14,76 +14,104 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// Retrieves an entity by its ID asynchronously.
         /// </summary>
         /// <param name="id">The ID of the entity.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the entity with the specified ID.</returns>
-        Task<TItem> GetByIdAsync(int id);
+        Task<TItem> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Creates a new entity asynchronously.
         /// </summary>
         /// <param name="item">The entity to create.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the created entity.</returns>
-        Task<TItem> CreateAsync(TItem item);
+        [Obsolete("Use AddAsync() instead.")]
+        Task<TItem> CreateAsync(TItem item, CancellationToken cancellationToken = default);
+
+
+        /// <summary>
+        /// Creates a new entity asynchronously.
+        /// </summary>
+        /// <param name="item">The entity to create.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the created entity.</returns>
+        Task<TItem> AddAsync(TItem item, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes an entity asynchronously.
         /// </summary>
         /// <param name="item">The entity to delete.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating whether the deletion was successful.</returns>
-        Task<bool> DeleteAsync(TItem item);
+        Task<bool> DeleteAsync(TItem item, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes a range of entities asynchronously.
         /// </summary>
         /// <param name="items"> The entities to delete. </param>
+        /// <param name="cancellationToken"> The cancellation token. </param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the number of state entries written to the database. </returns>
-        Task<int> DeleteRangeAsync(IEnumerable<TItem> items);
+        Task<int> DeleteRangeAsync(IEnumerable<TItem> items, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Updates an existing entity asynchronously.
         /// </summary>
         /// <param name="item">The entity to update.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the updated entity.</returns>
-        Task<TItem> UpdateAsync(TItem item);
+        Task<TItem> UpdateAsync(TItem item, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Filters and paginates the entities asynchronously based on the specified query.
         /// </summary>
         /// <param name="query">The query parameters for filtering and pagination.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the filtered and paginated entities.</returns>
-        Task<Paging<TItem>> FilterAsync(IGridifyQuery query);
+        Task<Paging<TItem>> FilterAsync(IGridifyQuery query, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Filters and paginates the entities asynchronously based on the specified query and mapper.
         /// </summary>
         /// <param name="query">The query parameters for filtering and pagination.</param>
         /// <param name="mapper">The mapper used to map the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the filtered and paginated entities.</returns>
-        Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper);
+        Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Finds entities asynchronously based on the specified predicate.
         /// </summary>
         /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a collection of entities that match the predicate.</returns>
-        Task<IEnumerable<TItem>> FindAsync(Expression<Func<TItem, bool>> predicate);
+        [Obsolete("Use ListAsync() instead.")]
+        Task<IEnumerable<TItem>> FindAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Finds entities asynchronously based on the specified predicate and returns all found entities as <see cref="IList{T}"/>.
+        /// Finds entities asynchronously based on the specified predicate and returns all found entities as <see cref="IReadOnlyList{T}"/>.
         /// </summary>
         /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a collection of entities that match the predicate.</returns>
-        Task<IList<TItem>> ListAsync(Expression<Func<TItem, bool>> predicate);
+        Task<IReadOnlyList<TItem>> ListAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets all entities asynchronously.
         /// </summary>
         /// <returns> A task that represents the asynchronous operation. The task result contains a collection of all entities. </returns>
-        Task<IList<TItem>> ListAsync();
+        [Obsolete("Use ListAllAsync() instead.")]
+        Task<IReadOnlyList<TItem>> ListAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Gets all entities asynchronously.
+        /// </summary>
+        /// <returns> A task that represents the asynchronous operation. The task result contains a collection of all entities. </returns>
+        Task<IReadOnlyList<TItem>> ListAllAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns an <see cref="IQueryable{T}"/> of entities.
         /// </summary>
         /// <returns> An <see cref="IQueryable{T}"/> of entities.</returns>
+        [Obsolete("This methos will be removed in future versions.")]
         IQueryable<TItem> Query();
     }
 
@@ -96,6 +124,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// Saves all changes made in the context to the underlying database asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the database.</returns>
+        [Obsolete("This methos will be removed in future versions.")]
         Task<int> SaveChangesAsync();
     }
 }
