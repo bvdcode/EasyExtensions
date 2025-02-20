@@ -32,7 +32,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <returns>A task that represents the asynchronous operation. The task result contains the entity with the specified ID.</returns>
         public virtual async Task<TItem> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            var found = await db.FirstOrDefaultAsync(x => x.Id == id);
+            var found = await db.FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
             return found ?? throw new EntityNotFoundException(typeof(TItem).Name + $"[id:{id}]");
         }
 
@@ -45,7 +45,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         [Obsolete("Use AddAsync() instead.")]
         public virtual async Task<TItem> CreateAsync(TItem item, CancellationToken cancellationToken = default)
         {
-            var result = await db.AddAsync(item);
+            var result = await db.AddAsync(item, cancellationToken);
             await SaveChangesAsync();
             return result.Entity;
         }
@@ -58,7 +58,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <returns>A task that represents the asynchronous operation. The task result contains the created entity.</returns>
         public virtual async Task<TItem> AddAsync(TItem item, CancellationToken cancellationToken = default)
         {
-            var result = await db.AddAsync(item);
+            var result = await db.AddAsync(item, cancellationToken);
             await SaveChangesAsync();
             return result.Entity;
         }
@@ -71,7 +71,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <returns>A task that represents the asynchronous operation. The task result contains a boolean value indicating whether the deletion was successful.</returns>
         public virtual async Task<bool> DeleteAsync(TItem item, CancellationToken cancellationToken = default)
         {
-            var found = await GetByIdAsync(item.Id);
+            var found = await GetByIdAsync(item.Id, cancellationToken);
             if (found != null)
             {
                 if (item is IDeletableEntity deletableEntity)
@@ -98,7 +98,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
             int counter = 0;
             foreach (var item in items)
             {
-                bool deleted = await DeleteAsync(item);
+                bool deleted = await DeleteAsync(item, cancellationToken);
                 if (deleted)
                 {
                     counter++;
@@ -115,7 +115,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <returns>A task that represents the asynchronous operation. The task result contains the updated entity.</returns>
         public async Task<TItem> UpdateAsync(TItem item, CancellationToken cancellationToken = default)
         {
-            var found = await GetByIdAsync(item.Id);
+            var found = await GetByIdAsync(item.Id, cancellationToken);
             found.Update(item);
             await SaveChangesAsync();
             return found;
@@ -174,7 +174,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <returns>A task that represents the asynchronous operation. The task result contains a collection of entities that match the predicate.</returns>
         public async Task<IReadOnlyList<TItem>> ListAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await db.Where(predicate).ToListAsync();
+            return await db.Where(predicate).ToListAsync(cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         [Obsolete("Use ListAllAsync() instead.")]
         public async Task<IReadOnlyList<TItem>> ListAsync(CancellationToken cancellationToken = default)
         {
-            return await db.ToListAsync();
+            return await db.ToListAsync(cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <returns> A task that represents the asynchronous operation. The task result contains a collection of all entities. </returns>
         public async Task<IReadOnlyList<TItem>> ListAllAsync(CancellationToken cancellationToken = default)
         {
-            return await db.ToListAsync();
+            return await db.ToListAsync(cancellationToken: cancellationToken);
         }
 
         /// <summary>
