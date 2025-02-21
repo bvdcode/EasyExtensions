@@ -73,9 +73,10 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// </summary>
         /// <param name="query">The query parameters for filtering and pagination.</param>
         /// <param name="mapper">The mapper used to map the entities.</param>
+        /// <param name="listBeforeFiltering">Indicates whether to list the entities before filtering. Be careful with this option, as it may lead to performance issues if the dataset is large.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the filtered and paginated entities.</returns>
-        Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper, CancellationToken cancellationToken = default);
+        Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper, bool listBeforeFiltering = false, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Finds entities asynchronously based on the specified predicate.

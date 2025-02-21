@@ -142,16 +142,22 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// </summary>
         /// <param name="query">The query parameters for filtering and pagination.</param>
         /// <param name="mapper">The mapper used to map the entities.</param>
+        /// <param name="listBeforeFiltering">Indicates whether to list the entities before filtering. Be careful with this option, as it may lead to performance issues if the dataset is large.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the filtered and paginated entities.</returns>
-        public async Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper, CancellationToken cancellationToken = default)
+        public async Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper, bool listBeforeFiltering = false, CancellationToken cancellationToken = default)
         {
             query ??= new GridifyQuery(1, 20, string.Empty, "id desc");
             if (string.IsNullOrWhiteSpace(query.OrderBy))
             {
                 query.OrderBy = "id desc";
             }
-            return await db.GridifyAsync(query, mapper);
+            if (!listBeforeFiltering)
+            {
+                return await db.GridifyAsync(query, mapper);
+            }
+            var allItems = await ListAllAsync(cancellationToken);
+            return allItems.AsQueryable().Gridify(query, mapper);
         }
 
         /// <summary>
