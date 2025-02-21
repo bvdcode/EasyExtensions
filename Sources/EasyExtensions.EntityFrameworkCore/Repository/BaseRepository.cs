@@ -46,7 +46,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         public virtual async Task<TItem> CreateAsync(TItem item, CancellationToken cancellationToken = default)
         {
             var result = await db.AddAsync(item, cancellationToken);
-            await SaveChangesAsync();
+            await SaveChangesAsync(cancellationToken);
             return result.Entity;
         }
 
@@ -59,7 +59,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         public virtual async Task<TItem> AddAsync(TItem item, CancellationToken cancellationToken = default)
         {
             var result = await db.AddAsync(item, cancellationToken);
-            await SaveChangesAsync();
+            await SaveChangesAsync(cancellationToken);
             return result.Entity;
         }
 
@@ -82,7 +82,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
                 {
                     db.Remove(found);
                 }
-                await SaveChangesAsync();
+                await SaveChangesAsync(cancellationToken);
             }
             return found != null;
         }
@@ -113,11 +113,11 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <param name="item">The entity to update.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the updated entity.</returns>
-        public async Task<TItem> UpdateAsync(TItem item, CancellationToken cancellationToken = default)
+        public virtual async Task<TItem> UpdateAsync(TItem item, CancellationToken cancellationToken = default)
         {
             var found = await GetByIdAsync(item.Id, cancellationToken);
             found.Update(item);
-            await SaveChangesAsync();
+            await SaveChangesAsync(cancellationToken);
             return found;
         }
 
@@ -127,7 +127,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <param name="query">The query parameters for filtering and pagination.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the filtered and paginated entities.</returns>
-        public async Task<Paging<TItem>> FilterAsync(IGridifyQuery query, CancellationToken cancellationToken = default)
+        public virtual async Task<Paging<TItem>> FilterAsync(IGridifyQuery query, CancellationToken cancellationToken = default)
         {
             query ??= new GridifyQuery(1, 20, string.Empty, "id desc");
             if (string.IsNullOrWhiteSpace(query.OrderBy))
@@ -145,7 +145,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <param name="listBeforeFiltering">Indicates whether to list the entities before filtering. Be careful with this option, as it may lead to performance issues if the dataset is large.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the filtered and paginated entities.</returns>
-        public async Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper, bool listBeforeFiltering = false, CancellationToken cancellationToken = default)
+        public virtual async Task<Paging<TItem>> FilterAsync(IGridifyQuery query, IGridifyMapper<TItem> mapper, bool listBeforeFiltering = false, CancellationToken cancellationToken = default)
         {
             query ??= new GridifyQuery(1, 20, string.Empty, "id desc");
             if (string.IsNullOrWhiteSpace(query.OrderBy))
@@ -178,7 +178,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <param name="predicate">The predicate used to filter the entities.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a collection of entities that match the predicate.</returns>
-        public async Task<IReadOnlyList<TItem>> ListAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
+        public virtual async Task<IReadOnlyList<TItem>> ListAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await db.Where(predicate).ToListAsync(cancellationToken: cancellationToken);
         }
@@ -189,7 +189,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns> A task that represents the asynchronous operation. The task result contains a collection of all entities. </returns>
         [Obsolete("Use ListAllAsync() instead.")]
-        public async Task<IReadOnlyList<TItem>> ListAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<IReadOnlyList<TItem>> ListAsync(CancellationToken cancellationToken = default)
         {
             return await db.ToListAsync(cancellationToken: cancellationToken);
         }
@@ -199,31 +199,62 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns> A task that represents the asynchronous operation. The task result contains a collection of all entities. </returns>
-        public async Task<IReadOnlyList<TItem>> ListAllAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<IReadOnlyList<TItem>> ListAllAsync(CancellationToken cancellationToken = default)
         {
             return await db.ToListAsync(cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Saves all changes made in the context to the underlying database asynchronously.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the database.</returns>
-        public async Task<int> SaveChangesAsync()
+        private async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             if (saveChangesCallback == null)
             {
                 return 0;
             }
-            return await saveChangesCallback.Invoke(CancellationToken.None);
+            return await saveChangesCallback.Invoke(cancellationToken);
         }
 
         /// <summary>
         /// Get queryable database set.
         /// </summary>
         /// <returns> Queryable database set. </returns>
-        public IQueryable<TItem> Query()
+        [Obsolete("This method will be removed in future versions.")]
+        public virtual IQueryable<TItem> Query()
         {
             return db;
+        }
+
+        /// <summary>
+        /// Returns a count of entities that match the specified predicate asynchronously.
+        /// </summary>
+        /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the count of entities that match the predicate.</returns>
+        public virtual Task<int> CountAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return db.CountAsync(predicate, cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the first entity that matches the specified predicate asynchronously.
+        /// </summary>
+        /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the first entity that matches the predicate.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when no entity is found that matches the predicate.</exception>
+        public virtual Task<TItem> FirstAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return db.FirstAsync(predicate, cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
+        /// Returns the first entity that matches the specified predicate asynchronously or null if no entity is found.
+        /// </summary>
+        /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the first entity that matches the predicate or null if no entity is found.</returns>
+        public virtual Task<TItem?> FirstOrDefaultAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return db.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken);
         }
     }
 }

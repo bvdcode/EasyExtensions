@@ -114,6 +114,31 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <returns> An <see cref="IQueryable{T}"/> of entities.</returns>
         [Obsolete("This methos will be removed in future versions.")]
         IQueryable<TItem> Query();
+
+        /// <summary>
+        /// Returns a count of entities that match the specified predicate asynchronously.
+        /// </summary>
+        /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the count of entities that match the predicate.</returns>
+        Task<int> CountAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Returns the first entity that matches the specified predicate asynchronously.
+        /// </summary>
+        /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the first entity that matches the predicate.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when no entity is found that matches the predicate.</exception>
+        Task<TItem> FirstAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Returns the first entity that matches the specified predicate asynchronously or null if no entity is found.
+        /// </summary>
+        /// <param name="predicate">The predicate used to filter the entities.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the first entity that matches the predicate or null if no entity is found.</returns>
+        Task<TItem?> FirstOrDefaultAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -121,11 +146,6 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
     /// </summary>
     public interface IRepository
     {
-        /// <summary>
-        /// Saves all changes made in the context to the underlying database asynchronously.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the database.</returns>
-        [Obsolete("This methos will be removed in future versions.")]
-        Task<int> SaveChangesAsync();
+
     }
 }
