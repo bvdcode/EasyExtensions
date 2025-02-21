@@ -253,9 +253,10 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the first entity that matches the predicate.</returns>
         /// <exception cref="InvalidOperationException">Thrown when no entity is found that matches the predicate.</exception>
-        public virtual Task<TItem> FirstAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
+        public virtual async Task<TItem> FirstAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return db.FirstAsync(predicate, cancellationToken: cancellationToken);
+            return await db.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken) 
+                ?? throw new EntityNotFoundException($"No entity found that matches the predicate: {predicate}");
         }
 
         /// <summary>
