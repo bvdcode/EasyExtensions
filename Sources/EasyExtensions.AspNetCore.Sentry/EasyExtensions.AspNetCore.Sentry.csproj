@@ -28,8 +28,8 @@
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Sentry.AspNetCore" Version="5.0.1" />
-		<PackageReference Include="System.Text.Encodings.Web" Version="9.0.1" />
+		<PackageReference Include="Sentry.AspNetCore" Version="5.1.1" />
+		<PackageReference Include="System.Text.Encodings.Web" Version="9.0.2" />
 		<ProjectReference Include="..\EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
