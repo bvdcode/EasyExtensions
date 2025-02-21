@@ -27,7 +27,7 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         public DateTime UpdatedAt { get; internal set; }
 
         /// <summary>
-        /// Update entity method is calling in <see cref="BaseRepository{TItem}.UpdateAsync(TItem, CancellationToken)"/>.
+        /// Update entity method is calling in <see cref="BaseDbSetRepository{TItem}.UpdateAsync(TItem, CancellationToken)"/>.
         /// Do not call this method from overriden method.
         /// </summary>
         /// <param name="entity">Entity to update.</param>
