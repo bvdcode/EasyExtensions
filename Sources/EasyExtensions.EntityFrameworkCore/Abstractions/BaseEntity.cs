@@ -18,13 +18,13 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         /// Created at UTC.
         /// </summary>
         [Column("created_at")]
-        public DateTime CreatedAt { get; internal set; }
+        public DateTime CreatedAt { get; internal set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Updated at UTC.
         /// </summary>
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; internal set; }
+        public DateTime UpdatedAt { get; internal set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Update entity method is calling in <see cref="BaseDbSetRepository{TItem}.UpdateAsync(TItem, CancellationToken)"/>.
