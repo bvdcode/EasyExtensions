@@ -133,9 +133,9 @@ namespace EasyExtensions.WebDav
         }
 
         /// <summary>
-        /// Checks if a file exists on the WebDAV server.
+        /// Checks if a file or folder exists on the WebDAV server.
         /// </summary>
-        /// <param name="filename"> The filename. </param>
+        /// <param name="filename"> The filename (or folder name). </param>
         /// <returns> True if the file exists, false otherwise. </returns>
         public async Task<bool> ExistsAsync(string filename)
         {

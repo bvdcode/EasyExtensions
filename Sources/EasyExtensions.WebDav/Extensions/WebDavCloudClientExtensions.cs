@@ -11,7 +11,7 @@ namespace EasyExtensions.WebDav.Extensions
     public static class WebDavCloudClientExtensions
     {
         /// <summary>
-        /// Lists the files in a folder on the WebDAV server.
+        /// Lists the files in a folder on the WebDAV server. Doesn't include subfolders.
         /// </summary>
         /// <param name="client"> The WebDAV cloud client. </param>
         /// <param name="folder"> The folder name. </param>
