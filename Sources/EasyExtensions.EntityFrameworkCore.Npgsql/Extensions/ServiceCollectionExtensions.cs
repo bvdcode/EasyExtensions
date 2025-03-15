@@ -23,20 +23,26 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         /// <param name="timeoutSeconds"> The connection timeout in seconds, default is 60. </param>
         /// <param name="contextLifetime"> The <see cref="ServiceLifetime"/> of the <see cref="DbContext"/>, default is Transient. </param>
         /// <param name="setupConnectionString"> The action to setup the connection string builder. </param>
+        /// <param name="addDesignTimeDbContextFactory"> Whether to add the <see cref="IDesignTimeDbContextFactory{TContext}"/> to the service collection. </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         /// <exception cref="KeyNotFoundException"> When DatabaseSettings section is not set. </exception>
         public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services,
-            IConfiguration configuration, int maxPoolSize = 100, int timeoutSeconds = 60, 
-            ServiceLifetime contextLifetime = ServiceLifetime.Transient, Action<NpgsqlConnectionStringBuilder>? setupConnectionString = null)
+            IConfiguration configuration, int maxPoolSize = 100, int timeoutSeconds = 60, ServiceLifetime contextLifetime = ServiceLifetime.Transient,
+            Action<NpgsqlConnectionStringBuilder>? setupConnectionString = null, bool addDesignTimeDbContextFactory = false)
             where TContext : DbContext
         {
             string connectionString = BuildConnectionString(configuration, maxPoolSize, timeoutSeconds, setupConnectionString);
-            return services.AddDbContext<TContext>(builder =>
+            services.AddDbContext<TContext>(builder =>
             {
                 builder
                     .UseNpgsql(connectionString)
                     .UseLazyLoadingProxies();
-            }, contextLifetime: contextLifetime).AddScoped<IDesignTimeDbContextFactory<TContext>, DesignTimeDbContextFactory<TContext>>();
+            }, contextLifetime: contextLifetime);
+            if (addDesignTimeDbContextFactory)
+            {
+                services.AddScoped<IDesignTimeDbContextFactory<TContext>, DesignTimeDbContextFactory<TContext>>();
+            }
+            return services;
         }
 
         private static string BuildConnectionString(IConfiguration configuration, int maxPoolSize,
