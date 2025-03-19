@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.EntityFrameworkCore.Npgsql.Migrations;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Factories;
+using EasyExtensions.EntityFrameworkCore.Npgsql.Migrations;
 
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 {
@@ -44,47 +44,48 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 
         private static string BuildConnectionString(IConfiguration configuration, PostgresContextFactory contextFactory)
         {
-            bool isDevelopment = (Environment.GetEnvironmentVariable("ENVIRONMENT") ?? string.Empty) == "Development";
-            if (!isDevelopment)
-            {
-                isDevelopment = (configuration["ASPNETCORE_ENVIRONMENT"] ?? string.Empty) == "Development";
-            }
+            bool isDevelopment = GetIsDevelopment(configuration);
             var settings = configuration.GetSection(contextFactory.ConfigurationSection);
-            string server = (!settings.Exists() ? configuration["DatabaseServer"] : settings["Server"]) ?? throw new KeyNotFoundException("DatabaseSettings.Server or DatabaseServer is not set");
-            string databasePortStr = (!settings.Exists() ? configuration["DatabasePort"] : settings["Port"]) ?? throw new KeyNotFoundException("DatabaseSettings.Port or DatabasePort is not set");
-            int port = int.TryParse(databasePortStr, out int parsedPort) ? parsedPort : throw new KeyNotFoundException("DatabaseSettings.Port or DatabasePort is not set");
-            if (port == default)
+            if (!settings.Exists())
             {
-                throw new KeyNotFoundException("DatabaseSettings.Port or DatabasePort is not set");
+                throw new KeyNotFoundException($"{contextFactory.ConfigurationSection} section is not set");
             }
-            string username = (!settings.Exists() ? configuration["DatabaseUsername"] : settings["Username"])
-                ?? throw new KeyNotFoundException("DatabaseSettings.Username is not set");
-
-            string password = (!settings.Exists() ? configuration["DatabasePassword"] : settings["Password"])
-                ?? throw new KeyNotFoundException("DatabaseSettings.Password is not set");
-
-            string database = (!settings.Exists() ? configuration["DatabaseName"] : settings["Database"])
-                ?? throw new KeyNotFoundException("DatabaseSettings.Database is not set");
-            if (isDevelopment)
-            {
-                database = (!settings.Exists() ? configuration["DatabaseNameDev"] : settings["DatabaseDev"]) ?? database;
-            }
+            string host = GetSetting(settings, "Host");
+            string portStr = GetSetting(settings, "Port");
+            string username = GetSetting(settings, "Username");
+            string password = GetSetting(settings, "Password");
+            string database = GetSetting(settings, isDevelopment ? "DatabaseDev" : "Database");
             NpgsqlConnectionStringBuilder builder = new()
             {
+                Host = host,
                 Username = username,
                 Password = password,
-                Host = server,
                 Database = database,
-                Port = port,
                 IncludeErrorDetail = true,
+                Port = ushort.Parse(portStr),
                 Timezone = contextFactory.Timezone,
-                MaxPoolSize = contextFactory.MaxPoolSize,
-                Timeout = contextFactory.TimeoutSeconds,
-                CommandTimeout = contextFactory.TimeoutSeconds,
                 Encoding = contextFactory.Encoding,
+                Timeout = contextFactory.TimeoutSeconds,
+                MaxPoolSize = contextFactory.MaxPoolSize,
+                CommandTimeout = contextFactory.TimeoutSeconds,
             };
             contextFactory.SetupConnectionString?.Invoke(builder);
             return builder.ConnectionString;
+        }
+
+        private static string GetSetting(IConfigurationSection settings, string key)
+        {
+            return settings[key] ?? throw new KeyNotFoundException($"{settings.Path}:{key} is not set");
+        }
+
+        private static bool GetIsDevelopment(IConfiguration configuration)
+        {
+            bool result = (Environment.GetEnvironmentVariable("ENVIRONMENT") ?? string.Empty) == "Development";
+            if (!result)
+            {
+                result = (configuration["ASPNETCORE_ENVIRONMENT"] ?? string.Empty) == "Development";
+            }
+            return result;
         }
     }
 }
