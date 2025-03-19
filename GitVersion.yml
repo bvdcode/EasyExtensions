@@ -1,0 +1,12 @@
+mode: ContinuousDeployment
+next-version: 1.0.0
+branches:
+  master:
+    increment: Major
+    prevent-increment-of-merged-branch-version: true
+    track-merge-target: false
+    regex: master
+    source-branches: ['release', 'hotfix', 'support']
+ignore:
+  sha: []
+merge-message-formats: {}
