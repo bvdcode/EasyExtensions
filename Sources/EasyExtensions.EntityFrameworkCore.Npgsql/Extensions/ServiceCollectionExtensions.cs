@@ -24,7 +24,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         /// <exception cref="KeyNotFoundException"> When DatabaseSettings section is not set. </exception>
         public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services,
-            IConfiguration configuration, Action<PostgresContextFactory>? setup) where TContext : DbContext
+            IConfiguration configuration, Action<PostgresContextFactory>? setup = null) where TContext : DbContext
         {
             PostgresContextFactory contextFactory = new();
             setup?.Invoke(contextFactory);
