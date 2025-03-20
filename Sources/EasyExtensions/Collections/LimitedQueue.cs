@@ -51,7 +51,10 @@ namespace EasyExtensions.Collections
         public new void Enqueue(T item)
         {
             base.Enqueue(item);
-            while (Count > _limit && TryDequeue(out _)) ;
+            while (Count > _limit)
+            {
+                TryDequeue(out _);
+            }
         }
     }
 }
