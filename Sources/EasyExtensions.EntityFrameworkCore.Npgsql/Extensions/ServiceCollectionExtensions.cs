@@ -50,11 +50,11 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             {
                 throw new KeyNotFoundException($"{contextFactory.ConfigurationSection} section is not set");
             }
-            string host = GetSetting(settings, "Host");
-            string portStr = GetSetting(settings, "Port");
-            string username = GetSetting(settings, "Username");
-            string password = GetSetting(settings, "Password");
-            string database = GetSetting(settings, isDevelopment ? "DatabaseDev" : "Database");
+            string host = GetSetting(settings, "Host", configuration);
+            string portStr = GetSetting(settings, "Port", configuration);
+            string username = GetSetting(settings, "Username", configuration);
+            string password = GetSetting(settings, "Password", configuration);
+            string database = GetSetting(settings, isDevelopment ? "DatabaseDev" : "Database", configuration);
             NpgsqlConnectionStringBuilder builder = new()
             {
                 Host = host,
@@ -73,8 +73,12 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return builder.ConnectionString;
         }
 
-        private static string GetSetting(IConfigurationSection settings, string key)
+        private static string GetSetting(IConfigurationSection settings, string key, IConfiguration configuration)
         {
+            if (configuration["Postgres" + key] is string value)
+            {
+                return value;
+            }
             return settings[key] ?? throw new KeyNotFoundException($"{settings.Path}:{key} is not set");
         }
 
