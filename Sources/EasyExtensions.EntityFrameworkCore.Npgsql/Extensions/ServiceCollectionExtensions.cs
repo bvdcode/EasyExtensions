@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Factories;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Migrations;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 {
@@ -46,15 +47,11 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         {
             bool isDevelopment = GetIsDevelopment(configuration);
             var settings = configuration.GetSection(contextFactory.ConfigurationSection);
-            if (!settings.Exists())
-            {
-                throw new KeyNotFoundException($"{contextFactory.ConfigurationSection} section is not set");
-            }
-            string host = GetSetting(settings, "Host", configuration);
-            string portStr = GetSetting(settings, "Port", configuration);
-            string username = GetSetting(settings, "Username", configuration);
-            string password = GetSetting(settings, "Password", configuration);
-            string database = GetSetting(settings, isDevelopment ? "DatabaseDev" : "Database", configuration);
+            string host = GetSetting(settings, "Host", configuration, contextFactory);
+            string portStr = GetSetting(settings, "Port", configuration, contextFactory);
+            string username = GetSetting(settings, "Username", configuration, contextFactory);
+            string password = GetSetting(settings, "Password", configuration, contextFactory);
+            string database = GetSetting(settings, isDevelopment ? "DatabaseDev" : "Database", configuration, contextFactory);
             NpgsqlConnectionStringBuilder builder = new()
             {
                 Host = host,
@@ -73,11 +70,15 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return builder.ConnectionString;
         }
 
-        private static string GetSetting(IConfigurationSection settings, string key, IConfiguration configuration)
+        private static string GetSetting(IConfigurationSection settings, string key, IConfiguration configuration, PostgresContextFactory contextFactory)
         {
             if (configuration["Postgres" + key] is string value)
             {
                 return value;
+            }
+            if (!settings.Exists())
+            {
+                throw new KeyNotFoundException($"{contextFactory.ConfigurationSection} section is not set");
             }
             return settings[key] ?? throw new KeyNotFoundException($"{settings.Path}:{key} is not set");
         }
