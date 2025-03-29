@@ -2,6 +2,7 @@
 using System.Linq;
 using SixLabors.Fonts;
 using System.Globalization;
+using EasyExtensions.Fonts.Resources;
 
 namespace EasyExtensions.Drawing.Helpers
 {
@@ -24,8 +25,16 @@ namespace EasyExtensions.Drawing.Helpers
             {
                 return found.CreateFont(size);
             }
+            return CreateFont(StaticFontName.Consola, size);
+        }
+
+        /// <summary>
+        /// Create a font from byte array.
+        ///     </summary>
+        public static Font CreateFont(StaticFontName fontName, float size = 12)
+        {
             FontCollection collection = new();
-            using Stream fontStream = new MemoryStream(Resources.Fonts.Consola);
+            using Stream fontStream = new MemoryStream(StaticFonts.GetFont(fontName));
             return collection.Add(fontStream).CreateFont(size);
         }
     }
