@@ -20,7 +20,7 @@ namespace EasyExtensions.Tests
         public void AllFonts_AreDifferent()
         {
             var allFonts = Enum.GetValues<StaticFontName>();
-            var fontBytesList = allFonts.Select(font => StaticFonts.GetFont(font)).ToList();
+            var fontBytesList = allFonts.Select(StaticFonts.GetFont).ToList();
 
             for (int i = 0; i < fontBytesList.Count; i++)
             {
