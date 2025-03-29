@@ -15,7 +15,7 @@ namespace EasyExtensions.Drawing.Helpers
         /// Get any font from system or get default library font.
         /// </summary>
         /// <param name="size">Font size, default is 12.</param>
-        /// <returns>Font.</returns>
+        /// <returns>Created Font instance</returns>
         public static Font GetAnyFont(float size = 12)
         {
             var found = SystemFonts.Collection
@@ -30,11 +30,12 @@ namespace EasyExtensions.Drawing.Helpers
 
         /// <summary>
         /// Create a font from byte array.
-        ///     </summary>
+        /// </summary>
         public static Font CreateFont(StaticFontName fontName, float size = 12)
         {
             FontCollection collection = new();
-            using Stream fontStream = new MemoryStream(StaticFonts.GetFont(fontName));
+            byte[] fontBytes = StaticFonts.GetFontBytes(fontName);
+            using Stream fontStream = new MemoryStream(fontBytes);
             return collection.Add(fontStream).CreateFont(size);
         }
     }
