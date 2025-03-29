@@ -144,8 +144,5 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
     /// <summary>
     /// Base repository interface for accessing and manipulating entities.
     /// </summary>
-    public interface IRepository
-    {
-
-    }
+    public interface IRepository { }
 }

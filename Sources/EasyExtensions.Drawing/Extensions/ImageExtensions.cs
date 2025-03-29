@@ -121,7 +121,7 @@ namespace EasyExtensions.Drawing.Extensions
             const double redMultiplier = 0.2126;
             const double greenMultiplier = 0.7152;
             const double blueMultiplier = 0.0722;
-            double result = redMultiplier * pixel.R + greenMultiplier * pixel.G + blueMultiplier * pixel.B;
+            double result = (redMultiplier * pixel.R) + (greenMultiplier * pixel.G) + (blueMultiplier * pixel.B);
             return result;
         }
 

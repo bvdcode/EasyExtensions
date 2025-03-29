@@ -12,18 +12,6 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
     /// </summary>
     /// <param name="db">Database set of entities.</param>
     /// <param name="saveChangesCallback">Callback for changes saving.</param>
-    [Obsolete("Use BaseDbSetRepository instead.")]
-    public abstract class BaseRepository<TItem>(DbSet<TItem> db, Func<CancellationToken, Task<int>>? saveChangesCallback)
-        : BaseDbSetRepository<TItem>(db, saveChangesCallback) where TItem : BaseEntity
-    {
-
-    }
-
-    /// <summary>
-    /// Create base repository based on database entity set with autosaving.
-    /// </summary>
-    /// <param name="db">Database set of entities.</param>
-    /// <param name="saveChangesCallback">Callback for changes saving.</param>
     public abstract class BaseDbSetRepository<TItem>(DbSet<TItem> db, Func<CancellationToken, Task<int>>? saveChangesCallback)
         : IRepository<TItem> where TItem : BaseEntity
     {

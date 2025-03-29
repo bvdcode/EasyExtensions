@@ -340,10 +340,8 @@ namespace EasyExtensions.Windows
         private enum EShowWindowFlags : uint
         {
             SW_HIDE = 0,
-            SW_SHOWNORMAL = 1,
             SW_NORMAL = 1,
             SW_SHOWMINIMIZED = 2,
-            SW_SHOWMAXIMIZED = 3,
             SW_MAXIMIZE = 3,
             SW_SHOWNOACTIVATE = 4,
             SW_SHOW = 5,
@@ -352,12 +350,10 @@ namespace EasyExtensions.Windows
             SW_SHOWNA = 8,
             SW_RESTORE = 9,
             SW_SHOWDEFAULT = 10,
-            SW_MAX = 10
         }
         #endregion
 
         #region IShellLink Private structs
-
         [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 0, CharSet = CharSet.Unicode)]
         private struct WIN32_FIND_DATAW
         {

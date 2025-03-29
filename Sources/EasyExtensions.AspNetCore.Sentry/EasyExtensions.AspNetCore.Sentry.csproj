@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
@@ -23,14 +24,16 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
+	
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="Sentry.AspNetCore" Version="5.3.0" />
+		<PackageReference Include="Sentry.AspNetCore" Version="5.4.0" />
 		<PackageReference Include="System.Text.Encodings.Web" Version="9.0.3" />
 		<ProjectReference Include="..\EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
+	
 </Project>
