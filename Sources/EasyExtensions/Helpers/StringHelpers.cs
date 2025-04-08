@@ -24,6 +24,10 @@ namespace EasyExtensions.Helpers
         /// <param name="threshold"> Similarity threshold. </param>
         public static bool IsMatch(string left, string right, double threshold = 0.8)
         {
+            if (threshold < 0 || threshold > 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(threshold), "Threshold must be between 0 and 1.");
+            }
             if (left.Trim() == right.Trim())
             {
                 return true;
