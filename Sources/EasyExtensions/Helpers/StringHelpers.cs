@@ -17,6 +17,58 @@ namespace EasyExtensions.Helpers
             "0123456789";
 
         /// <summary>
+        /// Check if two strings are similar.
+        /// </summary>
+        /// <param name="left"> The first string. </param>
+        /// <param name="right"> The second string. </param>
+        /// <param name="threshold"> Similarity threshold. </param>
+        public static bool IsMatch(string left, string right, double threshold = 0.8)
+        {
+            if (left.Trim() == right.Trim())
+            {
+                return true;
+            }
+            if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+            {
+                return false;
+            }
+            int maxLength = Math.Max(left.Length, right.Length);
+            int distance = LevenshteinDistance(left, right);
+            double similarity = 1.0 - (double)distance / maxLength;
+            return similarity >= threshold;
+        }
+
+        /// <summary>
+        /// Calculate Levenshtein distance.
+        /// </summary>
+        /// <param name="left"> The first string. </param>
+        /// <param name="right"> The second string. </param>
+        /// <returns> Levenshtein distance. </returns>
+        public static int LevenshteinDistance(string left, string right)
+        {
+            int n = left.Length;
+            int m = right.Length;
+            int[,] d = new int[n + 1, m + 1];
+            for (int i = 0; i <= n; i++)
+            {
+                d[i, 0] = i;
+            }
+            for (int j = 0; j <= m; j++)
+            {
+                d[0, j] = j;
+            }
+            for (int j = 1; j <= m; j++)
+            {
+                for (int i = 1; i <= n; i++)
+                {
+                    int cost = left[i - 1] == right[j - 1] ? 0 : 1;
+                    d[i, j] = Math.Min(Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1), d[i - 1, j - 1] + cost);
+                }
+            }
+            return d[n, m];
+        }
+
+        /// <summary>
         /// Hide email address.
         /// </summary>
         /// <param name="email">Email address.</param>
@@ -109,23 +161,28 @@ namespace EasyExtensions.Helpers
         /// <summary>
         /// Remove spaces from string - trim, replace new lines and multiple spaces.
         /// </summary>
-        /// <param name="comment"></param>
+        /// <param name="content"></param>
         /// <returns></returns>
-        public static string RemoveSpaces(string? comment)
+        public static string RemoveSpaces(string? content)
         {
-            if (string.IsNullOrWhiteSpace(comment))
+            if (string.IsNullOrWhiteSpace(content))
             {
                 return string.Empty;
             }
-            comment = comment
+            content = content
+                .Replace("\\n", "\n")
+                .Replace('\r', '\n')
                 .Replace('\n', ' ')
-                .Replace("\r", " ")
                 .Trim();
-            while (comment.Contains("  "))
+            while (content.Contains("  "))
             {
-                comment = comment.Replace("  ", " ");
+                content = content.Replace("  ", " ");
             }
-            return comment;
+            while (content.Contains("\n\n"))
+            {
+                content = content.Replace("\n\n", "\n");
+            }
+            return content.Trim();
         }
 
         private static string GetRandomString(int length, string charset, bool useCryptoRandomNumberGenerator)
