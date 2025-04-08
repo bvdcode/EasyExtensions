@@ -17,6 +17,35 @@ namespace EasyExtensions.Helpers
             "0123456789";
 
         /// <summary>
+        /// Hide email address.
+        /// </summary>
+        /// <param name="email">Email address.</param>
+        /// <param name="hiddenChar">Character used to hide email address.</param>
+        /// <returns>Hidden email address, ex. t...a@test.com</returns>
+        public static string HideEmail(string email, char hiddenChar = '*')
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return email;
+            }
+            var atIndex = email.IndexOf('@');
+            if (atIndex < 1)
+            {
+                return email;
+            }
+            // t....a@test.com
+            string firstPart = email[..atIndex];
+            string lastPart = email[atIndex..];
+            if (firstPart.Length < 3)
+            {
+                return new string(hiddenChar, firstPart.Length) + lastPart;
+            }
+            string hiddenPart = firstPart[1..^1];
+            string hidden = firstPart[0] + new string(hiddenChar, hiddenPart.Length) + firstPart[^1];
+            return hidden + lastPart;
+        }   
+
+        /// <summary>
         /// Fast generate pseudo random string with <see cref="DefaultCharset"/> and string length.
         /// </summary>
         /// <returns> Pseudo-random string. </returns>
