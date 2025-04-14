@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 
 namespace EasyExtensions.Helpers
 {
@@ -73,33 +74,47 @@ namespace EasyExtensions.Helpers
         }
 
         /// <summary>
-        /// Hide email address.
+        /// Hide email address(es).
         /// </summary>
-        /// <param name="email">Email address.</param>
+        /// <param name="emailString">One or more email addresses.</param>
         /// <param name="hiddenChar">Character used to hide email address.</param>
-        /// <returns>Hidden email address, ex. t...a@test.com</returns>
-        public static string HideEmail(string email, char hiddenChar = '*')
+        /// <returns>Hidden email address(es), ex. t***a@test.com</returns>
+        public static string HideEmail(string emailString, char hiddenChar = '*')
         {
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(emailString))
             {
-                return email;
+                return emailString;
             }
-            var atIndex = email.IndexOf('@');
-            if (atIndex < 1)
+
+            // Regex pattern to match email addresses
+            // This pattern looks for something@domain.com format
+            string emailPattern = @"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}";
+
+            return Regex.Replace(emailString, emailPattern, match =>
             {
-                return email;
-            }
-            // t....a@test.com
-            string firstPart = email[..atIndex];
-            string lastPart = email[atIndex..];
-            if (firstPart.Length < 3)
-            {
-                return new string(hiddenChar, firstPart.Length) + lastPart;
-            }
-            string hiddenPart = firstPart[1..^1];
-            string hidden = firstPart[0] + new string(hiddenChar, hiddenPart.Length) + firstPart[^1];
-            return hidden + lastPart;
-        }   
+                string email = match.Value;
+                int atIndex = email.IndexOf('@');
+
+                if (atIndex < 1)
+                {
+                    return email; // Not a valid email or @ is the first character
+                }
+
+                string firstPart = email[..atIndex];
+                string lastPart = email[atIndex..];
+
+                if (firstPart.Length < 3)
+                {
+                    // If the local part is less than 3 characters, replace all with hidden char
+                    return new string(hiddenChar, firstPart.Length) + lastPart;
+                }
+                else
+                {
+                    // Keep first and last character, replace middle with hidden char
+                    return firstPart[0] + new string(hiddenChar, firstPart.Length - 2) + firstPart[^1] + lastPart;
+                }
+            });
+        }
 
         /// <summary>
         /// Fast generate pseudo random string with <see cref="DefaultCharset"/> and string length.

@@ -77,5 +77,13 @@ namespace EasyExtensions.Tests
             const string expected = "**@gmail.com";
             Assert.That(StringHelpers.HideEmail(actual), Is.EqualTo(expected));
         }
+
+        [Test]
+        public void HideEmail_MultipleInput_ValidOutput()
+        {
+            const string actual = "ac@gmail.com <test@outlook.com>";
+            const string expected = "**@gmail.com <t**t@outlook.com>";
+            Assert.That(StringHelpers.HideEmail(actual), Is.EqualTo(expected));
+        }
     }
 }
