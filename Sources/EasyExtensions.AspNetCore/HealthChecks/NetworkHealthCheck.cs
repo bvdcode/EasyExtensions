@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using EasyExtensions.Helpers;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace EasyExtensions.AspNetCore.HealthChecks
 {
@@ -33,7 +33,8 @@ namespace EasyExtensions.AspNetCore.HealthChecks
             {
                 return HealthCheckResult.Healthy("All IP addresses are reachable");
             }
-            return HealthCheckResult.Unhealthy("Some IP addresses are unreachable");
+            return HealthCheckResult.Unhealthy("Some IP addresses are unreachable: " +
+                string.Join(", ", ipAddresses.Where((_, index) => !results[index]).Select(ip => ip.ToString())));
         }
 
         private async static Task<bool> PingAsync(IPAddress ip)

@@ -200,8 +200,13 @@ namespace EasyExtensions.WebDav
             return pathvariations;
         }
 
-        private bool IsEqual(string path1, string path2)
+        private bool IsEqual(string? path1, string? path2)
         {
+            if (path1 == null || path2 == null)
+            {
+                return false;
+            }
+
             var path1variations = GetPathVariations(path1);
             var path2variations = GetPathVariations(path2);
 
