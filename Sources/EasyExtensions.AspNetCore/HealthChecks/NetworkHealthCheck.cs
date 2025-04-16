@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EasyExtensions.Helpers;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Collections.Generic;
 
 namespace EasyExtensions.AspNetCore.HealthChecks
 {
@@ -27,14 +28,24 @@ namespace EasyExtensions.AspNetCore.HealthChecks
             {
                 return HealthCheckResult.Unhealthy("No IP addresses found");
             }
-            var tasks = ipAddresses.Select(PingAsync);
-            var results = await Task.WhenAll(tasks);
-            if (results.All(result => result))
+            List<IPAddress> unreachableIPs = [];
+            foreach (var ip in ipAddresses)
             {
-                return HealthCheckResult.Healthy("All IP addresses are reachable");
+                bool isReachable = await PingAsync(ip);
+                if (!isReachable)
+                {
+                    unreachableIPs.Add(ip);
+                }
             }
-            return HealthCheckResult.Unhealthy("Some IP addresses are unreachable: " +
-                string.Join(", ", ipAddresses.Where((_, index) => !results[index]).Select(ip => ip.ToString())));
+            if (unreachableIPs.Count == 0)
+            {
+                return HealthCheckResult.Healthy("All local network addresses are reachable");
+            }
+            else
+            {
+                string unreachableIPsString = string.Join(", ", unreachableIPs.Select(ip => ip.ToString()));
+                return HealthCheckResult.Unhealthy($"The following local network addresses are unreachable: {unreachableIPsString}");
+            }
         }
 
         private async static Task<bool> PingAsync(IPAddress ip)
