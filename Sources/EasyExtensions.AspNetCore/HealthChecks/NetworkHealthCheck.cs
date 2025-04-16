@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using EasyExtensions.Helpers;
 
 namespace EasyExtensions.AspNetCore.HealthChecks
 {
@@ -37,9 +38,7 @@ namespace EasyExtensions.AspNetCore.HealthChecks
 
         private async static Task<bool> PingAsync(IPAddress ip)
         {
-            using var ping = new System.Net.NetworkInformation.Ping();
-            var reply = await ping.SendPingAsync(ip, 10000);
-            return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
+            return await NetworkHelpers.TryPingAsync(ip);
         }
     }
 }
