@@ -42,6 +42,11 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
         public string ConfigurationSection { get; set; } = "DatabaseSettings";
 
         /// <summary>
+        /// The prefix to use for the configuration settings, default is "Postgres".
+        /// </summary>
+        public string ConfigurationPrefix { get; set; } = "Postgres";
+
+        /// <summary>
         /// Whether to add the <see cref="IDesignTimeDbContextFactory{TContext}"/> to the service collection.
         /// </summary>
         public bool AddDesignTimeDbContextFactory { get; set; } = true;
