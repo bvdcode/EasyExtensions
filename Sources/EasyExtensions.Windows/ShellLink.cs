@@ -354,25 +354,20 @@ namespace EasyExtensions.Windows
         #endregion
 
         #region IShellLink Private structs
-        [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 0, CharSet = CharSet.Unicode)]
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         private struct WIN32_FIND_DATAW
         {
-            public uint dwFileAttributes;
-            public FILETIME ftCreationTime;
-            public FILETIME ftLastAccessTime;
-            public FILETIME ftLastWriteTime;
-            public uint nFileSizeHigh;
-            public uint nFileSizeLow;
-            public uint dwReserved0;
-            public uint dwReserved1;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] // MAX_PATH
-            public string cFileName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
-            public string cAlternateFileName;
+            public WIN32_FIND_DATA_INTERNAL Data;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 0, CharSet = CharSet.Ansi)]
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
         private struct WIN32_FIND_DATAA
+        {
+            public WIN32_FIND_DATA_INTERNAL Data;
+        }
+
+        private struct WIN32_FIND_DATA_INTERNAL
         {
             public uint dwFileAttributes;
             public FILETIME ftCreationTime;
@@ -382,8 +377,10 @@ namespace EasyExtensions.Windows
             public uint nFileSizeLow;
             public uint dwReserved0;
             public uint dwReserved1;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)] // MAX_PATH
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
             public string cFileName;
+
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
             public string cAlternateFileName;
         }
