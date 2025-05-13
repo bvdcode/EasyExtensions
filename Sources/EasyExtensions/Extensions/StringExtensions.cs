@@ -46,9 +46,7 @@ namespace EasyExtensions.Extensions
             }
 
             byte[] bytes = Encoding.UTF8.GetBytes(str);
-            #pragma warning disable CA1850
             using SHA512 hash = System.Security.Cryptography.SHA512.Create();
-            #pragma warning restore CA1850
             byte[] hashedInputBytes = hash.ComputeHash(bytes);
             StringBuilder hashedInputStringBuilder = new StringBuilder(128);
             foreach (byte b in hashedInputBytes)
