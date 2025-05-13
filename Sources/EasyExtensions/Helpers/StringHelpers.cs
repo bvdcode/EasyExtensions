@@ -39,7 +39,7 @@ namespace EasyExtensions.Helpers
             }
             int maxLength = Math.Max(left.Length, right.Length);
             int distance = LevenshteinDistance(left, right);
-            double similarity = 1.0 - (double)distance / maxLength;
+            double similarity = 1.0 - ((double)distance / maxLength);
             return similarity >= threshold;
         }
 
