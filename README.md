@@ -9,7 +9,13 @@
 
 # EasyExtensions
 
-Ready-to-use **.NET Standard** library for convenient development.
+Lightweight, extensible library built on .NET Standard.
+
+Focused on clean, composable code and real-world .NET development scenarios.
+
+> EasyExtensions is a modular, open-source extension library for .NET developers, designed to reduce boilerplate and improve clarity across backend, infrastructure, and application-level codebases.  
+> Actively maintained and used in production environments.  
+> Created and maintained by [Vadim Belov](mailto:github-easy-extensions@belov.us).
 
 # Purposes
 
@@ -788,6 +794,9 @@ IWebHostBuilder UseSentryWithUserCapturing(this IWebHostBuilder builder, string 
 ```
 
 # Contributing
+
+This library is maintained as part of my effort to support the .NET developer community with practical, production-ready tools.  
+It is actively used in enterprise and internal systems, and continuously improved based on real-world needs.
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
