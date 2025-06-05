@@ -28,10 +28,10 @@
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.9" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.5" />
+		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
 		<ProjectReference Include="..\EasyExtensions.Fonts\EasyExtensions.Fonts.csproj" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>

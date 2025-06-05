@@ -74,7 +74,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
             var found = await GetByIdAsync(item.Id, cancellationToken);
             if (found != null)
             {
-                if (item is IDeletableEntity deletableEntity)
+                if (found is IDeletableEntity deletableEntity)
                 {
                     deletableEntity.Delete();
                 }
