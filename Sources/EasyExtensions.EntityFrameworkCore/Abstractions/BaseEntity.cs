@@ -4,15 +4,23 @@ using EasyExtensions.EntityFrameworkCore.Repository;
 namespace EasyExtensions.EntityFrameworkCore.Abstractions
 {
     /// <summary>
-    /// Base entity.
+    /// Base entity with <see cref="int"/> identifier.
     /// </summary>
-    public abstract class BaseEntity
+    public abstract class BaseEntity : BaseEntity<int>
+    {
+
+    }
+
+    /// <summary>
+    /// Base generic entity.
+    /// </summary>
+    public abstract class BaseEntity<TId> where TId : struct
     {
         /// <summary>
         /// Entity identifier.
         /// </summary>
         [Column("id")]
-        public int Id { get; protected set; }
+        public TId Id { get; protected set; }
 
         /// <summary>
         /// Created at UTC.
