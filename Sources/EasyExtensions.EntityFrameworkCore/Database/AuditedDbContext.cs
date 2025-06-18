@@ -194,12 +194,12 @@ namespace EasyExtensions.EntityFrameworkCore.Database
         {
             var auditableEntries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is BaseEntity &&
+                .Where(e => e.Entity is AuditableEntity &&
                 (e.State == EntityState.Modified || e.State == EntityState.Added));
             DateTime now = DateTime.UtcNow;
             foreach (var entityEntry in auditableEntries)
             {
-                BaseEntity entity = (BaseEntity)entityEntry.Entity;
+                AuditableEntity entity = (AuditableEntity)entityEntry.Entity;
                 entity.UpdatedAt = now;
                 if (entityEntry.State == EntityState.Added && entity.CreatedAt == default)
                 {
