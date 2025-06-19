@@ -28,7 +28,7 @@
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.9" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
