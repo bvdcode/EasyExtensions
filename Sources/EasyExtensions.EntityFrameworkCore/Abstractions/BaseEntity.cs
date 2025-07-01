@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using EasyExtensions.EntityFrameworkCore.Repository;
 
 namespace EasyExtensions.EntityFrameworkCore.Abstractions
@@ -19,6 +20,7 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         /// <summary>
         /// Entity identifier.
         /// </summary>
+        [Key]
         [Column("id")]
         public TId Id { get; protected set; }
 
