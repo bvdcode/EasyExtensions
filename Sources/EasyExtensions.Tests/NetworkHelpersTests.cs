@@ -26,13 +26,12 @@ namespace EasyExtensions.Tests
 
             // Act
             var result = await NetworkHelpers.PingAsync(ipAddress);
-
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 // Assert
                 Assert.That(result.Status, Is.EqualTo(IcmpStatus.Success));
                 Assert.That(result.RoundtripTime, Is.GreaterThanOrEqualTo(0));
-            });
+            }
         }
 
         [Test]
@@ -45,7 +44,7 @@ namespace EasyExtensions.Tests
             var result = await NetworkHelpers.TryPingAsync(ipAddress);
 
             // Assert
-            Assert.That(result, Is.True);
+            Assert.That(result.IsSuccess, Is.True);
         }
 
         [Test]
@@ -56,13 +55,12 @@ namespace EasyExtensions.Tests
 
             // Act
             var result = await NetworkHelpers.PingAsync(ipAddress);
-
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 // Assert
                 Assert.That(result.Status, Is.EqualTo(IcmpStatus.Success));
                 Assert.That(result.RoundtripTime, Is.GreaterThanOrEqualTo(0));
-            });
+            }
         }
 
         [Test]
@@ -75,7 +73,7 @@ namespace EasyExtensions.Tests
             var result = await NetworkHelpers.TryPingAsync(ipAddress);
 
             // Assert
-            Assert.That(result, Is.True);
+            Assert.That(result.IsSuccess, Is.True);
         }
 
         [Test]
@@ -103,7 +101,7 @@ namespace EasyExtensions.Tests
             var result = await NetworkHelpers.TryPingAsync(ipAddress, timeout: 1000);
 
             // Assert
-            Assert.That(result, Is.False);
+            Assert.That(result.IsSuccess, Is.False);
         }
 
         [Test]
@@ -169,14 +167,14 @@ namespace EasyExtensions.Tests
             // Assert
             Assert.That(packet, Is.Not.Null);
             Assert.That(packet, Has.Length.EqualTo(16));
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(packet[0], Is.EqualTo(8)); // Echo Request type
-                Assert.That(packet[1], Is.EqualTo(0)); // Code 0
+                Assert.That(packet[1], Is.Zero); // Code 0
                                                        // Don't check checksum as it varies
-                Assert.That(packet[6], Is.EqualTo(0)); // Sequence MSB
+                Assert.That(packet[6], Is.Zero); // Sequence MSB
                 Assert.That(packet[7], Is.EqualTo(1)); // Sequence LSB
-            });
+            }
         }
 
         [Test]
@@ -191,13 +189,13 @@ namespace EasyExtensions.Tests
             // Assert
             Assert.That(packet, Is.Not.Null);
             Assert.That(packet, Has.Length.EqualTo(16));
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(packet[0], Is.EqualTo(128)); // Echo Request type for IPv6
-                Assert.That(packet[1], Is.EqualTo(0)); // Code 0
-                Assert.That(packet[6], Is.EqualTo(0)); // Sequence MSB
+                Assert.That(packet[1], Is.Zero); // Code 0
+                Assert.That(packet[6], Is.Zero); // Sequence MSB
                 Assert.That(packet[7], Is.EqualTo(1)); // Sequence LSB
-            });
+            }
         }
 
         [Test]

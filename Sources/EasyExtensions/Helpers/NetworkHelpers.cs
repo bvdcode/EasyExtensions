@@ -53,22 +53,22 @@ namespace EasyExtensions.Helpers
                     {
                         return new IcmpResult(IcmpStatus.Success, elapsedMs);
                     }
-                    return new IcmpResult(IcmpStatus.Failed, elapsedMs);
+                    return new IcmpResult(IcmpStatus.Failed, elapsedMs, new Exception("Received packet is not an ICMP Echo Reply."));
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex)
                 {
-                    return new IcmpResult(IcmpStatus.Timeout, timeout);
+                    return new IcmpResult(IcmpStatus.Timeout, timeout, ex);
                 }
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
                 long elapsedMs = (long)(DateTime.UtcNow - startTime).TotalMilliseconds;
-                return new IcmpResult(IcmpStatus.Failed, elapsedMs);
+                return new IcmpResult(IcmpStatus.Failed, elapsedMs, ex);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 var elapsedMs = (long)(DateTime.UtcNow - startTime).TotalMilliseconds;
-                return new IcmpResult(IcmpStatus.Failed, elapsedMs);
+                return new IcmpResult(IcmpStatus.Failed, elapsedMs, ex);
             }
         }
 
@@ -79,10 +79,9 @@ namespace EasyExtensions.Helpers
         /// <param name="timeout">Timeout in milliseconds.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>True if ping was successful, false otherwise.</returns>
-        public static async Task<bool> TryPingAsync(IPAddress address, int timeout = 5000, CancellationToken cancellationToken = default)
+        public static Task<IcmpResult> TryPingAsync(IPAddress address, int timeout = 5000, CancellationToken cancellationToken = default)
         {
-            var result = await PingAsync(address, timeout, cancellationToken);
-            return result.Status == IcmpStatus.Success;
+            return PingAsync(address, timeout, cancellationToken);
         }
 
         /// <summary>

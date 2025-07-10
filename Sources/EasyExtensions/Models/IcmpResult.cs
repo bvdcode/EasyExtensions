@@ -1,4 +1,5 @@
-﻿using EasyExtensions.Models.Enums;
+﻿using System;
+using EasyExtensions.Models.Enums;
 
 namespace EasyExtensions.Models
 {
@@ -7,6 +8,11 @@ namespace EasyExtensions.Models
     /// </summary>
     public class IcmpResult
     {
+        /// <summary>
+        /// Gets a value indicating whether the ping operation was successful.
+        /// </summary>
+        public bool IsSuccess => Status == IcmpStatus.Success;
+
         /// <summary>
         /// Gets the status of the ICMP ping operation.
         /// </summary>
@@ -18,11 +24,17 @@ namespace EasyExtensions.Models
         public long RoundtripTime { get; }
 
         /// <summary>
+        /// Gets or sets the exception that occurred during the ping operation, if any.
+        /// </summary>
+        public Exception? Exception { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="IcmpResult"/> class.
         /// </summary>
-        public IcmpResult(IcmpStatus status, long roundtripTime)
+        public IcmpResult(IcmpStatus status, long roundtripTime, Exception? exception = null)
         {
             Status = status;
+            Exception = exception;
             RoundtripTime = roundtripTime;
         }
     }
