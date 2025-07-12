@@ -8,7 +8,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
     /// Represents a generic repository interface for accessing and manipulating entities of type TItem.
     /// </summary>
     /// <typeparam name="TItem">The type of entity.</typeparam>
-    public interface IRepository<TItem> : IRepository where TItem : BaseEntity
+    public interface IRepository<TItem> : IRepository where TItem : BaseEntity<int>
     {
         /// <summary>
         /// Retrieves an entity by its ID asynchronously.

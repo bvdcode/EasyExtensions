@@ -30,7 +30,7 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         /// </summary>
         /// <param name="entity">Entity to update.</param>
         /// <exception cref="NotImplementedException">Update method is not overriden in inherited class.</exception>
-        public virtual void Update(BaseEntity entity)
+        public virtual void Update(BaseEntity<TId> entity)
         {
             throw new NotImplementedException("Update method is not overriden in inherited class.");
         }
