@@ -1,12 +1,13 @@
 ﻿using System.Net;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using EasyExtensions.Helpers;
-using System.Collections.Generic;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Net.Sockets;
 using EasyExtensions.Models;
+using EasyExtensions.Helpers;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace EasyExtensions.AspNetCore.HealthChecks
 {
@@ -25,8 +26,9 @@ namespace EasyExtensions.AspNetCore.HealthChecks
             CancellationToken cancellationToken = default)
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
-            var ipAddresses = host.AddressList;
-            if (ipAddresses.Length == 0)
+            var ipAddresses = host.AddressList
+                .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ip));
+            if (!ipAddresses.Any())
             {
                 return HealthCheckResult.Unhealthy("No IP addresses found");
             }
