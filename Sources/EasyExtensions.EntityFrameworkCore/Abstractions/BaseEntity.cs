@@ -5,14 +5,6 @@ using EasyExtensions.EntityFrameworkCore.Repository;
 namespace EasyExtensions.EntityFrameworkCore.Abstractions
 {
     /// <summary>
-    /// Base entity with <see cref="int"/> identifier.
-    /// </summary>
-    public abstract class BaseEntity : BaseEntity<int>
-    {
-
-    }
-
-    /// <summary>
     /// Base generic entity.
     /// </summary>
     public abstract class BaseEntity<TId> : AuditableEntity where TId : struct
