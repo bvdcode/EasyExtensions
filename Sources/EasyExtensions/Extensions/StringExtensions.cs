@@ -44,16 +44,7 @@ namespace EasyExtensions.Extensions
             {
                 return string.Empty;
             }
-
-            byte[] bytes = Encoding.UTF8.GetBytes(str);
-            using SHA256 hash = SHA256.Create();
-            byte[] hashedInputBytes = hash.ComputeHash(bytes);
-            StringBuilder hashedInputStringBuilder = new StringBuilder(64);
-            foreach (byte b in hashedInputBytes)
-            {
-                hashedInputStringBuilder.Append(b.ToString("X2"));
-            }
-            return hashedInputStringBuilder.ToString().ToLower();
+            return Encoding.UTF8.GetBytes(str).Sha256();
         }
 
         /// <summary>
@@ -66,16 +57,7 @@ namespace EasyExtensions.Extensions
             {
                 return string.Empty;
             }
-
-            byte[] bytes = Encoding.UTF8.GetBytes(str);
-            using SHA512 hash = SHA512.Create();
-            byte[] hashedInputBytes = hash.ComputeHash(bytes);
-            StringBuilder hashedInputStringBuilder = new StringBuilder(128);
-            foreach (byte b in hashedInputBytes)
-            {
-                hashedInputStringBuilder.Append(b.ToString("X2"));
-            }
-            return hashedInputStringBuilder.ToString().ToLower();
+            return Encoding.UTF8.GetBytes(str).Sha512();
         }
 
         /// <summary>

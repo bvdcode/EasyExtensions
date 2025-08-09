@@ -53,13 +53,31 @@ namespace EasyExtensions
         }
 
         /// <summary>
+        /// Calculate SHA256 hash of byte stream.
+        /// </summary>
+        /// <param name="stream"> Data to calculate hash. </param>
+        /// <returns> SHA256 hash of byte stream. </returns>
+        public static string Sha256(this Stream stream)
+        {
+            using SHA256 sha = SHA256.Create();
+            byte[] array = sha.ComputeHash(stream);
+            StringBuilder stringBuilder = new StringBuilder(64);
+            byte[] array2 = array;
+            foreach (byte b in array2)
+            {
+                stringBuilder.Append(b.ToString("X2"));
+            }
+            return stringBuilder.ToString().ToLower();
+        }
+
+        /// <summary>
         /// Calculate SHA512 hash of byte stream.
         /// </summary>
         /// <param name="stream"> Data to calculate hash. </param>
         /// <returns> SHA512 hash of byte stream. </returns>
-        public static string SHA512(this Stream stream)
+        public static string Sha512(this Stream stream)
         {
-            using SHA512 sha = System.Security.Cryptography.SHA512.Create();
+            using SHA512 sha = SHA512.Create();
             byte[] array = sha.ComputeHash(stream);
             StringBuilder stringBuilder = new StringBuilder(128);
             byte[] array2 = array;
