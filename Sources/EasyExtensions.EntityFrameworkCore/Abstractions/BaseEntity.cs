@@ -7,7 +7,7 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
     /// <summary>
     /// Base generic entity.
     /// </summary>
-    public abstract class BaseEntity<TId> : AuditableEntity where TId : struct
+    public abstract class BaseEntity<TId> : IAuditableEntity where TId : struct
     {
         /// <summary>
         /// Entity identifier.
@@ -15,6 +15,30 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         [Key]
         [Column("id")]
         public TId Id { get; protected set; }
+
+        /// <summary>
+        /// Created at UTC.
+        /// </summary>
+        [Column("created_at")]
+        public DateTime CreatedAt { get; private set; }
+
+        /// <summary>
+        /// Updated at UTC.
+        /// </summary>
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; private set; }
+
+        DateTime IAuditableEntity.CreatedAt
+        {
+            get => CreatedAt;
+            set => CreatedAt = value;
+        }
+
+        DateTime IAuditableEntity.UpdatedAt
+        {
+            get => UpdatedAt;
+            set => UpdatedAt = value;
+        }
 
         /// <summary>
         /// Update entity method is calling in <see cref="BaseDbSetRepository{TItem}.UpdateAsync(TItem, CancellationToken)"/>.

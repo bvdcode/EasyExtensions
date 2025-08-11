@@ -193,13 +193,12 @@ namespace EasyExtensions.EntityFrameworkCore.Database
         private void UpdateDateTimeValues()
         {
             var auditableEntries = ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is AuditableEntity &&
-                (e.State == EntityState.Modified || e.State == EntityState.Added));
+                .Entries<IAuditableEntity>()
+                .Where(e => e.State == EntityState.Modified || e.State == EntityState.Added);
             DateTime now = DateTime.UtcNow;
             foreach (var entityEntry in auditableEntries)
             {
-                AuditableEntity entity = (AuditableEntity)entityEntry.Entity;
+                IAuditableEntity entity = entityEntry.Entity;
                 entity.UpdatedAt = now;
                 if (entityEntry.State == EntityState.Added && entity.CreatedAt == default)
                 {
