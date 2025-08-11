@@ -1,0 +1,6 @@
+﻿[*.cs]
+
+# This warning was suppressed because it is not relevant to the project.
+# But codefactor thinks anotherwise - the static method does not exist in the .NET Standard.
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1850
+dotnet_diagnostic.CA1850.severity = none

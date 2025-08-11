@@ -132,6 +132,14 @@ namespace EasyExtensions.WebDav
             memoryStream.Dispose();
         }
 
+        [Obsolete]
+        private async Task<HttpStatusCode> ExistsWithStatusAsync(string filename)
+        {
+            string url = ConcatUris(_baseAddress, filename).ToString();
+            var result = await _client.Propfind(url);
+            return (HttpStatusCode)result.StatusCode;
+        }
+
         /// <summary>
         /// Checks if a file or folder exists on the WebDAV server.
         /// </summary>
@@ -167,10 +175,11 @@ namespace EasyExtensions.WebDav
                 currentUrl += '/' + part;
                 await _client.Mkcol(currentUrl);
             }
-            bool exists = await ExistsAsync(folder);
+            var status = await ExistsWithStatusAsync(folder);
+            bool exists = status == HttpStatusCode.MultiStatus;
             if (!exists)
             {
-                throw new WebException($"Failed to create folder {folder}.");
+                throw new WebException($"Failed to create folder {folder} - it does not exist after creation attempt, status code {status}.");
             }
         }
 
@@ -200,8 +209,13 @@ namespace EasyExtensions.WebDav
             return pathvariations;
         }
 
-        private bool IsEqual(string path1, string path2)
+        private bool IsEqual(string? path1, string? path2)
         {
+            if (path1 == null || path2 == null)
+            {
+                return false;
+            }
+
             var path1variations = GetPathVariations(path1);
             var path2variations = GetPathVariations(path2);
 

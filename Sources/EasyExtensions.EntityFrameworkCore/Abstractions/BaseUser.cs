@@ -5,7 +5,7 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
     /// <summary>
     /// Base model for user.
     /// </summary>
-    public abstract class BaseUser : BaseEntity
+    public abstract class BaseUser<TId> : BaseEntity<TId> where TId : struct
     {
         /// <summary>
         /// User name.

@@ -13,7 +13,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
     /// <param name="db">Database set of entities.</param>
     /// <param name="saveChangesCallback">Callback for changes saving.</param>
     public abstract class BaseDbSetRepository<TItem>(DbSet<TItem> db, Func<CancellationToken, Task<int>>? saveChangesCallback)
-        : IRepository<TItem> where TItem : BaseEntity
+        : IRepository<TItem> where TItem : BaseEntity<int>
     {
         private readonly DbSet<TItem> db = db;
         private readonly Func<CancellationToken, Task<int>>? saveChangesCallback = saveChangesCallback;
@@ -74,7 +74,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
             var found = await GetByIdAsync(item.Id, cancellationToken);
             if (found != null)
             {
-                if (item is IDeletableEntity deletableEntity)
+                if (found is IDeletableEntity deletableEntity)
                 {
                     deletableEntity.Delete();
                 }

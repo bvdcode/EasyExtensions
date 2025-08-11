@@ -35,25 +35,29 @@ namespace EasyExtensions.Extensions
         }
 
         /// <summary>
-        /// Create SHA512 hash of specified text string.
+        /// Create SHA256 hash of specified text string.
         /// </summary>
-        /// <returns> SHA512 hash. </returns>
-        public static string SHA512(this string str)
+        /// <returns> SHA256 hash. </returns>
+        public static string Sha256(this string str)
         {
             if (string.IsNullOrWhiteSpace(str))
             {
                 return string.Empty;
             }
+            return Encoding.UTF8.GetBytes(str).Sha256();
+        }
 
-            byte[] bytes = Encoding.UTF8.GetBytes(str);
-            using SHA512 hash = System.Security.Cryptography.SHA512.Create();
-            byte[] hashedInputBytes = hash.ComputeHash(bytes);
-            StringBuilder hashedInputStringBuilder = new StringBuilder(128);
-            foreach (byte b in hashedInputBytes)
+        /// <summary>
+        /// Create SHA512 hash of specified text string.
+        /// </summary>
+        /// <returns> SHA512 hash. </returns>
+        public static string Sha512(this string str)
+        {
+            if (string.IsNullOrWhiteSpace(str))
             {
-                hashedInputStringBuilder.Append(b.ToString("X2"));
+                return string.Empty;
             }
-            return hashedInputStringBuilder.ToString().ToLower();
+            return Encoding.UTF8.GetBytes(str).Sha512();
         }
 
         /// <summary>

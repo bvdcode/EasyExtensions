@@ -10,7 +10,7 @@ namespace EasyExtensions.Tests
             var allFonts = Enum.GetValues<StaticFontName>();
             foreach (var font in allFonts)
             {
-                byte[] fontBytes = StaticFonts.GetFont(font);
+                byte[] fontBytes = StaticFonts.GetFontBytes(font);
                 Assert.That(fontBytes, Is.Not.Null);
                 Assert.That(fontBytes, Is.Not.Empty);
             }
@@ -20,7 +20,7 @@ namespace EasyExtensions.Tests
         public void AllFonts_AreDifferent()
         {
             var allFonts = Enum.GetValues<StaticFontName>();
-            var fontBytesList = allFonts.Select(StaticFonts.GetFont).ToList();
+            var fontBytesList = allFonts.Select(StaticFonts.GetFontBytes).ToList();
 
             for (int i = 0; i < fontBytesList.Count; i++)
             {

@@ -1,7 +1,12 @@
 ﻿using System.Net;
 using System.Linq;
 using System.Threading;
+using System.Net.Sockets;
+using EasyExtensions.Models;
+using EasyExtensions.Helpers;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace EasyExtensions.AspNetCore.HealthChecks
@@ -9,7 +14,7 @@ namespace EasyExtensions.AspNetCore.HealthChecks
     /// <summary>
     /// Check if local network addresses are reachable.
     /// </summary>
-    public class NetworkHealthCheck : IHealthCheck
+    public class NetworkHealthCheck(ILogger<NetworkHealthCheck> _logger) : IHealthCheck
     {
         /// <summary>
         /// Runs the health check, returning the status of the component being checked.
@@ -21,25 +26,31 @@ namespace EasyExtensions.AspNetCore.HealthChecks
             CancellationToken cancellationToken = default)
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
-            var ipAddresses = host.AddressList;
-            if (ipAddresses.Length == 0)
+            var ipAddresses = host.AddressList
+                .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ip));
+            if (!ipAddresses.Any())
             {
                 return HealthCheckResult.Unhealthy("No IP addresses found");
             }
-            var tasks = ipAddresses.Select(PingAsync);
-            var results = await Task.WhenAll(tasks);
-            if (results.All(result => result))
+            List<IPAddress> unreachableIPs = [];
+            foreach (var ip in ipAddresses)
             {
-                return HealthCheckResult.Healthy("All IP addresses are reachable");
+                IcmpResult result = await NetworkHelpers.TryPingAsync(ip, cancellationToken: cancellationToken);
+                if (!result.IsSuccess)
+                {
+                    _logger.LogWarning("Ping to {IP} failed with status {Status} and exception {Exception}", ip, result.Status, result.Exception?.Message);
+                    unreachableIPs.Add(ip);
+                }
             }
-            return HealthCheckResult.Unhealthy("Some IP addresses are unreachable");
-        }
-
-        private async static Task<bool> PingAsync(IPAddress ip)
-        {
-            using var ping = new System.Net.NetworkInformation.Ping();
-            var reply = await ping.SendPingAsync(ip, 10000);
-            return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
+            if (unreachableIPs.Count == 0)
+            {
+                return HealthCheckResult.Healthy("All local network addresses are reachable");
+            }
+            else
+            {
+                string unreachableIPsString = string.Join(", ", unreachableIPs.Select(ip => ip.ToString()));
+                return HealthCheckResult.Unhealthy($"The following local network addresses are unreachable: {unreachableIPsString}");
+            }
         }
     }
 }

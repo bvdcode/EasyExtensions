@@ -14,7 +14,7 @@ namespace EasyExtensions.Fonts.Resources
         /// <param name="fontName">The font name.</param>
         /// <returns>The font in byte array.</returns>
         /// <exception cref="ArgumentOutOfRangeException">When font name is not found.</exception>
-        public static byte[] GetFont(StaticFontName fontName)
+        public static byte[] GetFontBytes(StaticFontName fontName)
         {
             string filename = fontName.ToString() + ".ttf";
             return FontLoader.LoadFont(filename);
