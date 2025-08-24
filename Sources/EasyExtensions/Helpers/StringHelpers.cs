@@ -178,24 +178,23 @@ namespace EasyExtensions.Helpers
         }
 
         /// <summary>
-        /// Remove spaces from string - trim, replace new lines and multiple spaces.
+        /// Remove double spaces and double new lines from content.
         /// </summary>
         /// <param name="content"></param>
-        /// <returns></returns>
-        public static string RemoveSpaces(string? content)
+        /// <returns>Content without double spaces and double new lines.</returns>
+        public static string RemoveDoubleSpaces(string? content)
         {
             if (string.IsNullOrWhiteSpace(content))
             {
                 return string.Empty;
             }
-            content = content
-                .Replace("\\n", "\n")
-                .Replace('\r', '\n')
-                .Replace('\n', ' ')
-                .Trim();
             while (content.Contains("  "))
             {
                 content = content.Replace("  ", " ");
+            }
+            while (content.Contains("\r\n\r\n"))
+            {
+                content = content.Replace("\r\n\r\n", "\r\n");
             }
             while (content.Contains("\n\n"))
             {
