@@ -30,9 +30,9 @@
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
-		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.8" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 	
