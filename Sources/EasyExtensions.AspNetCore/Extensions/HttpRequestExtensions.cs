@@ -97,14 +97,12 @@ namespace EasyExtensions.AspNetCore.Extensions
             dateTimes.Add(DateTime.UtcNow);
             DateTime threshold = DateTime.UtcNow.Add(-atTime);
             var currentRequests = dateTimes.Where(x => x > threshold);
-            _accesses[ip] = currentRequests.ToList();
+            _accesses[ip] = [.. currentRequests];
             int currentCount = currentRequests.Count();
             // reduce list with old requests
             if (currentCount > requestCount)
             {
-                _accesses[ip] = currentRequests
-                    .Skip(currentCount - requestCount)
-                    .ToList();
+                _accesses[ip] = [.. currentRequests.Skip(currentCount - requestCount)];
             }
             return currentCount > maxRepeats;
         }
