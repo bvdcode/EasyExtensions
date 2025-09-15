@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using EasyExtensions.Abstractions;
 using System.Security.Cryptography;
 
 namespace EasyExtensions.Services
@@ -7,8 +8,13 @@ namespace EasyExtensions.Services
     /// <summary>
     /// PBKDF2 password hashing service using HMAC-SHA256.
     /// </summary>
-    public class Pbkdf2PasswordHashService
+    public class Pbkdf2PasswordHashService : IPasswordHashService
     {
+        /// <summary>
+        /// The version of the password hashing algorithm used. Default is 1.
+        /// </summary>
+        public int PasswordHashVersion => _version;
+
         private readonly int _version;
         private readonly string _pepper;
         private readonly int _iterations;
