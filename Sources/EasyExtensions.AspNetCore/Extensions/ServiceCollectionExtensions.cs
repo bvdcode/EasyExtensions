@@ -99,7 +99,7 @@ namespace EasyExtensions.AspNetCore.Extensions
         }
 
         /// <summary>
-        /// Adds exception handler for EasyExtensions.EntityFrameworkCore.Exceptions to the <see cref="IServiceCollection"/>.
+        /// Adds exception handler for EasyExtensions.*.Exceptions to the <see cref="IServiceCollection"/>.
         /// </summary>
         /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
