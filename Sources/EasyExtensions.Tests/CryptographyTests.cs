@@ -28,7 +28,7 @@ namespace EasyExtensions.Tests
         [Test]
         public void Hash_And_Verify_Success()
         {
-            var svc = new Pbkdf2PasswordHashService(ValidPepper, version: 1, iterations: 5_000);
+            var svc = new Pbkdf2PasswordHashService(ValidPepper, iterations: 5_000);
             var password = "SuperSecret!";
 
             var phc = svc.Hash(password);
@@ -89,7 +89,7 @@ namespace EasyExtensions.Tests
         public void Hash_Format_IsValidPHC()
         {
             var iterations = 1_500;
-            var svc = new Pbkdf2PasswordHashService(ValidPepper, version: 1, iterations: iterations);
+            var svc = new Pbkdf2PasswordHashService(ValidPepper, iterations: iterations);
             var phc = svc.Hash("abc");
 
             // $pbkdf2-sha256$v=1$i=ITER$SALT$HASH
@@ -109,28 +109,12 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        public void Verify_NeedsRehash_WhenVersionIncreased()
-        {
-            var svcV1 = new Pbkdf2PasswordHashService(ValidPepper, version: 1, iterations: 2_000);
-            var phc = svcV1.Hash("pwd");
-
-            var svcV2 = new Pbkdf2PasswordHashService(ValidPepper, version: 2, iterations: 2_000);
-            var ok = svcV2.Verify("pwd", phc, out var needsRehash);
-
-            using (Assert.EnterMultipleScope())
-            {
-                Assert.That(ok, Is.True);
-                Assert.That(needsRehash, Is.True);
-            }
-        }
-
-        [Test]
         public void Verify_NeedsRehash_WhenIterationsIncreased()
         {
-            var svcLow = new Pbkdf2PasswordHashService(ValidPepper, version: 1, iterations: 1_000);
+            var svcLow = new Pbkdf2PasswordHashService(ValidPepper, iterations: 1_000);
             var phc = svcLow.Hash("pwd");
 
-            var svcHigh = new Pbkdf2PasswordHashService(ValidPepper, version: 1, iterations: 2_000);
+            var svcHigh = new Pbkdf2PasswordHashService(ValidPepper, iterations: 2_000);
             var ok = svcHigh.Verify("pwd", phc, out var needsRehash);
 
             using (Assert.EnterMultipleScope())
@@ -146,7 +130,7 @@ namespace EasyExtensions.Tests
             // Arrange
             var password = "pwd";
             var iterations = 1_000;
-            var svc = new Pbkdf2PasswordHashService(ValidPepper, version: 1, iterations: iterations);
+            var svc = new Pbkdf2PasswordHashService(ValidPepper, iterations: iterations);
             var phc = svc.Hash(password);
 
             var parts = phc.Split('$', StringSplitOptions.RemoveEmptyEntries);
@@ -183,7 +167,7 @@ namespace EasyExtensions.Tests
         [Test]
         public void Constructor_InvalidParameters_Throw()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new Pbkdf2PasswordHashService(ValidPepper, version: 0));
+            Assert.Throws<ArgumentException>(() => new Pbkdf2PasswordHashService(string.Empty));
             Assert.Throws<ArgumentOutOfRangeException>(() => new Pbkdf2PasswordHashService(ValidPepper, iterations: 0));
         }
 

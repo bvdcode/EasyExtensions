@@ -15,7 +15,7 @@ namespace EasyExtensions.Services
         /// </summary>
         public int PasswordHashVersion => _version;
 
-        private readonly int _version;
+        private const int _version = 1;
         private readonly string _pepper;
         private readonly int _iterations;
 
@@ -28,17 +28,16 @@ namespace EasyExtensions.Services
         /// Creates a new instance of the Pbkdf2PasswordHashService.
         /// </summary>
         /// <param name="pepper">A secret value that is used in addition to the password. Must be at least 16 bytes (UTF-8).</param>
-        /// <param name="version">The version of the hashing algorithm. Must be greater than 0. Default is 1.</param>
         /// <param name="iterations">The number of iterations for the PBKDF2 algorithm. Must be greater than 0. Default is 210,000.</param>
         /// <exception cref="ArgumentException">Thrown when the pepper is null, whitespace, or less than 16 bytes (UTF-8).</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the version or iterations are less than 1.</exception>
         /// <remarks>
         /// The pepper should be a long, random string that is kept secret and not stored in the database.
         /// It is recommended to use a unique pepper for each application.
-        /// The default number of iterations is set to 210,000 as of 2025, which is a good balance between security and performance.
+        /// The default number of iterations is set to 310,000 as of 2025, which is a good balance between security and performance.
         /// Consider increasing this value as hardware capabilities improve over time.
         /// </remarks>
-        public Pbkdf2PasswordHashService(string pepper, int version = 1, int iterations = 210_000)
+        public Pbkdf2PasswordHashService(string pepper, int iterations = 310_000)
         {
             if (string.IsNullOrWhiteSpace(pepper))
             {
@@ -50,18 +49,12 @@ namespace EasyExtensions.Services
                 throw new ArgumentException("Pepper must be at least 16 bytes (UTF-8).", nameof(pepper));
             }
 
-            if (version < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(version), "Version must be greater than 0.");
-            }
-
             if (iterations < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(iterations), "Iterations must be greater than 0.");
             }
 
             _pepper = pepper;
-            _version = version;
             _iterations = iterations;
         }
 
@@ -77,7 +70,7 @@ namespace EasyExtensions.Services
             }
 
             byte[] saltBytes = new byte[SaltSize];
-            RandomNumberGenerator.Create().GetBytes(saltBytes);
+            RandomNumberGenerator.Fill(saltBytes);
             var input = DeriveInput(password, _pepper);
             using var pbkdf2 = new Rfc2898DeriveBytes(input, saltBytes, _iterations, _hashAlgorithm);
             var hash = pbkdf2.GetBytes(HashSize);
@@ -92,17 +85,16 @@ namespace EasyExtensions.Services
         public bool Verify(string password, string phc, out bool needsRehash)
         {
             needsRehash = false;
-
             if (string.IsNullOrWhiteSpace(phc))
             {
-                return false;
+                throw new ArgumentNullException(nameof(phc));
             }
             if (string.IsNullOrWhiteSpace(password))
             {
                 throw new ArgumentNullException(nameof(password));
             }
 
-            var parts = phc.Split('$', StringSplitOptions.RemoveEmptyEntries);
+            string[] parts = phc.Split('$', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length != 5 || parts[0] != Prefix)
             {
                 return false;
@@ -131,16 +123,16 @@ namespace EasyExtensions.Services
                 return false;
             }
 
-            var input = DeriveInput(password, _pepper);
+            byte[] input = DeriveInput(password, _pepper);
             using var pbkdf2 = new Rfc2898DeriveBytes(input, salt, iter, _hashAlgorithm);
-            var actual = pbkdf2.GetBytes(expected.Length);
+            byte[] actual = pbkdf2.GetBytes(expected.Length);
 
             var ok = CryptographicOperations.FixedTimeEquals(actual, expected);
 
             if (ok)
             {
                 // Check if we need to rehash (parameters changed or hash size changed)
-                if (ver < _version || iter < _iterations || expected.Length != HashSize)
+                if (ver < _version || iter < _iterations || expected.Length != HashSize || salt.Length != SaltSize)
                 {
                     needsRehash = true;
                 }
@@ -151,10 +143,10 @@ namespace EasyExtensions.Services
 
         private static byte[] DeriveInput(string password, string pepper)
         {
-            var pwdBytes = Encoding.UTF8.GetBytes(password);
-            var pepperBytes = Encoding.UTF8.GetBytes(pepper);
-            using var h = new HMACSHA256(pepperBytes);
-            return h.ComputeHash(pwdBytes);
+            byte[] pwdBytes = Encoding.UTF8.GetBytes(password);
+            byte[] pepperBytes = Encoding.UTF8.GetBytes(pepper);
+            using HMACSHA256 hmac = new HMACSHA256(pepperBytes);
+            return hmac.ComputeHash(pwdBytes);
         }
     }
 }
