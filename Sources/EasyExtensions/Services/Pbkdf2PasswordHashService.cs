@@ -28,7 +28,7 @@ namespace EasyExtensions.Services
         /// Creates a new instance of the Pbkdf2PasswordHashService.
         /// </summary>
         /// <param name="pepper">A secret value that is used in addition to the password. Must be at least 16 bytes (UTF-8).</param>
-        /// <param name="iterations">The number of iterations for the PBKDF2 algorithm. Must be greater than 0. Default is 210,000.</param>
+        /// <param name="iterations">The number of iterations for the PBKDF2 algorithm. Must be greater than 0. Default is 310,000.</param>
         /// <exception cref="ArgumentException">Thrown when the pepper is null, whitespace, or less than 16 bytes (UTF-8).</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the version or iterations are less than 1.</exception>
         /// <remarks>
@@ -60,8 +60,12 @@ namespace EasyExtensions.Services
 
         /// <summary>
         /// Creates a password hash in PHC format like:
-        /// $pbkdf2-sha256$v=1$i=210000$[saltB64]$[hashB64]
+        /// <c>$pbkdf2-sha256$v=1$i=310000$[saltB64]$[hashB64]</c>
         /// </summary>
+        /// <remarks>
+        /// Default iterations: 310,000 (2025 OWASP PBKDF2-HMAC-SHA256 guidance). <br/>
+        /// Adjust to target ~200–300 ms per hash on production hardware. <br/>
+        /// </remarks>
         public string Hash(string password)
         {
             if (string.IsNullOrWhiteSpace(password))
@@ -82,12 +86,20 @@ namespace EasyExtensions.Services
         /// <summary>
         /// Checks the password against the given PHC hash.
         /// </summary>
+        /// <remarks>
+        /// needsRehash becomes true when: <br/>
+        ///  - stored version &lt; current version <br/>
+        ///  - stored iterations &lt; current configured iterations <br/>
+        ///  - salt length != 16 <br/>
+        ///  - hash length != 32 <br/>
+        ///  </remarks>
+        ///  <exception cref="ArgumentNullException">Thrown when the password is null or whitespace.</exception>
         public bool Verify(string password, string phc, out bool needsRehash)
         {
             needsRehash = false;
             if (string.IsNullOrWhiteSpace(phc))
             {
-                throw new ArgumentNullException(nameof(phc));
+                return false;
             }
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -145,8 +157,16 @@ namespace EasyExtensions.Services
         {
             byte[] pwdBytes = Encoding.UTF8.GetBytes(password);
             byte[] pepperBytes = Encoding.UTF8.GetBytes(pepper);
-            using HMACSHA256 hmac = new HMACSHA256(pepperBytes);
-            return hmac.ComputeHash(pwdBytes);
+            try
+            {
+                using var hmac = new HMACSHA256(pepperBytes);
+                return hmac.ComputeHash(pwdBytes);
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(pwdBytes);
+                CryptographicOperations.ZeroMemory(pepperBytes);
+            }
         }
     }
 }
