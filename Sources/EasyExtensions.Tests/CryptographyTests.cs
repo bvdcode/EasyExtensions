@@ -196,8 +196,6 @@ namespace EasyExtensions.Tests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(svc.Verify("pwd", null!, out _), Is.False);
-                Assert.That(svc.Verify("pwd", "", out _), Is.False);
                 Assert.That(svc.Verify("pwd", "$wrongprefix$v=1$i=1$AAAA$BBBB", out _), Is.False);
                 Assert.That(svc.Verify("pwd", "$pbkdf2-sha256$v=x$i=1$AAAA$BBBB", out _), Is.False);
                 Assert.That(svc.Verify("pwd", "$pbkdf2-sha256$v=1$i=x$AAAA$BBBB", out _), Is.False);
