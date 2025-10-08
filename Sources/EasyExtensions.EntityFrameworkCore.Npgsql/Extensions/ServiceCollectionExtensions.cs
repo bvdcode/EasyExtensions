@@ -14,27 +14,36 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds a <see cref="DbContext"/> to the <see cref="IServiceCollection"/> using the 
-        /// <see cref="IConfiguration"/> to build the connection string from DatabaseSettings section.
+        /// Adds a <see cref="DbContext"/> to the <see cref="IServiceCollection"/> resolving <see cref="IConfiguration"/> from DI.
+        /// Builds the connection string from the configured section (default: "DatabaseSettings") and/or prefixed keys.
         /// </summary>
         /// <typeparam name="TContext"> The type of <see cref="DbContext"/> to add. </typeparam>
         /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
-        /// <param name="configuration"> The <see cref="IConfiguration"/> instance. </param>
-        /// <param name="setup"> The action to setup the <see cref="PostgresContextFactory"/>. </param>
+        /// <param name="setup"> Optional action to configure the <see cref="PostgresContextFactory"/> (section name, prefix, pool size, etc). </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        /// <exception cref="KeyNotFoundException"> When DatabaseSettings section is not set. </exception>
+        /// <exception cref="KeyNotFoundException"> When required database settings are missing. </exception>
+        /// <example>
+        /// <code>
+        /// builder.Services.AddPostgresDbContext&lt;MyDbContext&gt;(f =&gt; { f.ConfigurationSection = "Db"; });
+        /// </code>
+        /// </example>
         public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services,
-            IConfiguration configuration, Action<PostgresContextFactory>? setup = null) where TContext : DbContext
+            Action<PostgresContextFactory>? setup = null) where TContext : DbContext
         {
             PostgresContextFactory contextFactory = new();
             setup?.Invoke(contextFactory);
-            string connectionString = BuildConnectionString(configuration, contextFactory);
-            services.AddDbContext<TContext>(builder =>
+
+            services.AddDbContext<TContext>((sp, builder) =>
             {
-                builder
-                    .UseNpgsql(connectionString)
-                    .UseLazyLoadingProxies();
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                string connectionString = BuildConnectionString(configuration, contextFactory);
+                builder.UseNpgsql(connectionString);
+                if (contextFactory.UseLazyLoadingProxies)
+                {
+                    builder.UseLazyLoadingProxies();
+                }
             }, contextLifetime: contextFactory.ContextLifetime);
+
             if (contextFactory.AddDesignTimeDbContextFactory)
             {
                 services.AddScoped<IDesignTimeDbContextFactory<TContext>, DesignTimeDbContextFactory<TContext>>();
@@ -61,13 +70,13 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
                 Username = username,
                 Password = password,
                 Database = database,
-                IncludeErrorDetail = true,
                 Port = ushort.Parse(portStr),
                 Timezone = contextFactory.Timezone,
                 Encoding = contextFactory.Encoding,
                 Timeout = contextFactory.TimeoutSeconds,
                 MaxPoolSize = contextFactory.MaxPoolSize,
                 CommandTimeout = contextFactory.TimeoutSeconds,
+                IncludeErrorDetail = contextFactory.IncludeErrorDetail,
             };
             contextFactory.SetupConnectionString?.Invoke(builder);
             return builder.ConnectionString;

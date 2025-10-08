@@ -6,6 +6,7 @@ using EasyExtensions.Services;
 using Microsoft.AspNetCore.Http;
 using EasyExtensions.Abstractions;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using EasyExtensions.AspNetCore.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,28 @@ namespace EasyExtensions.AspNetCore.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds <see cref="Pbkdf2PasswordHashService"/> to the <see cref="IServiceCollection"/> resolving pepper from <see cref="IConfiguration"/> in DI.
+        /// </summary>
+        /// <param name="services"> Current <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="configurationKey"> Configuration key to resolve pepper from <see cref="IConfiguration"/>. Default is "Pepper". </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        /// <exception cref="ArgumentNullException"> Thrown when Pepper configuration value is missing or invalid. </exception>
+        /// <remarks>
+        /// Requires IConfiguration in the service provider with key "Pepper" (at least 16 UTF-8 bytes).
+        /// Example: builder.Services.AddPbkdf2PasswordHashService();
+        /// </remarks>
+        public static IServiceCollection AddPbkdf2PasswordHashService(this IServiceCollection services, string configurationKey = "Pepper")
+        {
+            return services.AddSingleton<IPasswordHashService>(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var pepper = configuration[configurationKey]
+                    ?? throw new ArgumentNullException(nameof(configurationKey), "Pepper configuration value is missing: " + configurationKey);
+                return new Pbkdf2PasswordHashService(pepper);
+            });
+        }
+
         /// <summary>
         /// Adds default health checks to the <see cref="IServiceCollection"/> instance.
         /// </summary>
@@ -127,7 +150,7 @@ namespace EasyExtensions.AspNetCore.Extensions
         /// <param name="serviceLifetime"> Service lifetime, default is Scoped. </param>
         /// <typeparam name="TInterface"> Interface type. </typeparam>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        public static IServiceCollection AddTypesOfInterface<TInterface>(this IServiceCollection services, 
+        public static IServiceCollection AddTypesOfInterface<TInterface>(this IServiceCollection services,
             ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) where TInterface : class
         {
             var types = ReflectionHelpers.GetTypesOfInterface<TInterface>();

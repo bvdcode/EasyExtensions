@@ -55,5 +55,15 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
         /// Setup action for the <see cref="NpgsqlConnectionStringBuilder"/> to customize the connection string.
         /// </summary>
         public Action<NpgsqlConnectionStringBuilder>? SetupConnectionString { get; set; }
+
+        /// <summary>
+        /// Whether to use lazy loading proxies, default is true.
+        /// </summary>
+        public bool UseLazyLoadingProxies { get; set; } = true;
+
+        /// <summary>
+        /// Whether to include error details in exceptions, default is true.
+        /// </summary>
+        public bool IncludeErrorDetail { get; set; } = true;
     }
 }
