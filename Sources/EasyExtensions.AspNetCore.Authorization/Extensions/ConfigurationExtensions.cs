@@ -10,7 +10,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
     {
         internal static JwtSettings GetJwtSettings(this IConfiguration configuration)
         {
-            const int defaultLifetimeMinutes = 60;
+            const int defaultLifetimeMinutes = 10;
             var jwtSettings = configuration.GetSection("JwtSettings");
             string? lifetimeMinutesStr = jwtSettings.Exists() 
                 ? jwtSettings["LifetimeMinutes"]

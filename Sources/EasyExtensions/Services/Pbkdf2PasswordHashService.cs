@@ -25,7 +25,7 @@ namespace EasyExtensions.Services
         private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA256;
 
         /// <summary>
-        /// Creates a new instance of the Pbkdf2PasswordHashService.
+        /// <inheritdoc/>
         /// </summary>
         /// <param name="pepper">A secret value that is used in addition to the password. Must be at least 16 bytes (UTF-8).</param>
         /// <param name="iterations">The number of iterations for the PBKDF2 algorithm. Must be greater than 0. Default is 310,000.</param>
@@ -84,7 +84,20 @@ namespace EasyExtensions.Services
         }
 
         /// <summary>
-        /// Checks the password against the given PHC hash.
+        /// <inheritdoc/>
+        /// </summary>
+        /// <remarks>
+        /// needsRehash becomes true when: <br/>
+        ///  - stored version &lt; current version <br/>
+        ///  - stored iterations &lt; current configured iterations <br/>
+        ///  - salt length != 16 <br/>
+        ///  - hash length != 32 <br/>
+        ///  </remarks>
+        ///  <exception cref="ArgumentNullException">Thrown when the password is null or whitespace.</exception>
+        public bool Verify(string password, string passwordHash) => Verify(password, passwordHash, out _);
+
+        /// <summary>
+        /// <inheritdoc/>
         /// </summary>
         /// <remarks>
         /// needsRehash becomes true when: <br/>
