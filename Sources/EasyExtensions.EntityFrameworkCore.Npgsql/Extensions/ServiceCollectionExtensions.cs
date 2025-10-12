@@ -19,7 +19,8 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         /// </summary>
         /// <typeparam name="TContext"> The type of <see cref="DbContext"/> to add. </typeparam>
         /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
-        /// <param name="setup"> Optional action to configure the <see cref="PostgresContextFactory"/> (section name, prefix, pool size, etc). </param>
+        /// <param name="setup"> Optional action to configure the <see cref="PostgresOptionsBuilder"/> (section name, prefix, pool size, etc). </param>
+        /// <param name="setupContextOptions"> Optional action to configure the <see cref="DbContextOptionsBuilder"/> (e.g. enable sensitive data logging). </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         /// <exception cref="KeyNotFoundException"> When required database settings are missing. </exception>
         /// <example>
@@ -28,9 +29,9 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         /// </code>
         /// </example>
         public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services,
-            Action<PostgresContextFactory>? setup = null) where TContext : DbContext
+            Action<PostgresOptionsBuilder>? setup = null, Action<DbContextOptionsBuilder>? setupContextOptions = null) where TContext : DbContext
         {
-            PostgresContextFactory contextFactory = new();
+            PostgresOptionsBuilder contextFactory = new();
             setup?.Invoke(contextFactory);
 
             services.AddDbContext<TContext>((sp, builder) =>
@@ -38,6 +39,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
                 var configuration = sp.GetRequiredService<IConfiguration>();
                 string connectionString = BuildConnectionString(configuration, contextFactory);
                 builder.UseNpgsql(connectionString);
+                setupContextOptions?.Invoke(builder);
                 if (contextFactory.UseLazyLoadingProxies)
                 {
                     builder.UseLazyLoadingProxies();
@@ -51,7 +53,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return services;
         }
 
-        private static string BuildConnectionString(IConfiguration configuration, PostgresContextFactory contextFactory)
+        private static string BuildConnectionString(IConfiguration configuration, PostgresOptionsBuilder contextFactory)
         {
             bool isDevelopment = GetIsDevelopment(configuration);
             var settings = configuration.GetSection(contextFactory.ConfigurationSection);
@@ -82,7 +84,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return builder.ConnectionString;
         }
 
-        private static string? TryGetSetting(IConfigurationSection settings, string key, IConfiguration configuration, PostgresContextFactory contextFactory)
+        private static string? TryGetSetting(IConfigurationSection settings, string key, IConfiguration configuration, PostgresOptionsBuilder contextFactory)
         {
             if (configuration[contextFactory.ConfigurationPrefix + key] is string value)
             {
@@ -95,7 +97,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return settings[key];
         }
 
-        private static string GetSetting(IConfigurationSection settings, string key, IConfiguration configuration, PostgresContextFactory contextFactory)
+        private static string GetSetting(IConfigurationSection settings, string key, IConfiguration configuration, PostgresOptionsBuilder contextFactory)
         {
             if (configuration[contextFactory.ConfigurationPrefix + key] is string value)
             {

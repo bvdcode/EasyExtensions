@@ -9,7 +9,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
     /// <summary>
     /// This class is used to set up the <see cref="DbContext"/> for PostgreSQL with the specified arguments.
     /// </summary>
-    public class PostgresContextFactory
+    public class PostgresOptionsBuilder
     {
         /// <summary>
         /// The maximum pool size for the database connection, default is 100.
