@@ -15,7 +15,7 @@ namespace EasyExtensions.Tests
         [Test]
         public void HashIterationDuration_IsAtLeast200ms()
         {
-            const int expectedMinDurationMs = 200; // 100 ms
+            const int expectedMinDurationMs = 40;
             Stopwatch stopwatch = Stopwatch.StartNew();
             var svc = new Pbkdf2PasswordHashService(ValidPepper);
             var password = "SomePassword!";

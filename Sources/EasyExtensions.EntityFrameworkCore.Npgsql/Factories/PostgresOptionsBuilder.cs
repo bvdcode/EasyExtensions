@@ -22,9 +22,9 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
         public int TimeoutSeconds { get; set; } = 60;
 
         /// <summary>
-        /// The lifetime of the <see cref="DbContext"/>, default is <see cref="ServiceLifetime.Transient"/>.
+        /// The lifetime of the <see cref="DbContext"/>, default is <see cref="ServiceLifetime.Scoped"/>.
         /// </summary>
-        public ServiceLifetime ContextLifetime { get; set; } = ServiceLifetime.Transient;
+        public ServiceLifetime ContextLifetime { get; set; } = ServiceLifetime.Scoped;
 
         /// <summary>
         /// The timezone to use for the database connection, default is "UTC".
