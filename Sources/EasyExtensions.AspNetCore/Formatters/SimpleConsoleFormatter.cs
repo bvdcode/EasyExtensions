@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -10,17 +11,19 @@ namespace EasyExtensions.AspNetCore.Formatters
     /// <summary>
     /// A simple console formatter that outputs log messages in a minimal format with optional color coding.
     /// </summary>
-    public class SimpleConsoleFormatter : ConsoleFormatter
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="SimpleConsoleFormatter"/> class with the name "minimal".
+    /// </remarks>
+    public class SimpleConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions> options) 
+        : ConsoleFormatter(FormatterName)
     {
         /// <summary>
         /// The name of the formatter.
         /// </summary>
         public const string FormatterName = nameof(SimpleConsoleFormatter);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SimpleConsoleFormatter"/> class with the name "minimal".
-        /// </summary>
-        public SimpleConsoleFormatter() : base(FormatterName) { }
+        private readonly IOptionsMonitor<SimpleConsoleFormatterOptions> _options = 
+            options ?? throw new ArgumentNullException(nameof(options));
 
         /// <summary>
         /// Writes a log entry to the specified <see cref="TextWriter"/> in a simple format.
@@ -38,60 +41,100 @@ namespace EasyExtensions.AspNetCore.Formatters
             string lvl = ShortLevel(levelValue);
             string msg = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception) ?? string.Empty;
 
-            bool canColor = !Console.IsOutputRedirected;
-            var originalFg = canColor ? Console.ForegroundColor : default;
-            var originalBg = canColor ? Console.BackgroundColor : default;
+            // Color policy from options
+            var opts = _options.CurrentValue;
+            bool colorsDisabled = opts.ColorBehavior == LoggerColorBehavior.Disabled;
+            bool toConsole = !Console.IsOutputRedirected; // direct console writing allowed
+            bool useAnsi = !colorsDisabled && !toConsole;
 
-            void SetLevelColors(LogLevel level)
+            if (toConsole && !colorsDisabled)
             {
-                if (!canColor)
+                // Use Console.* APIs for reliable coloring when writing to a real console
+                var originalFg = Console.ForegroundColor;
+                var originalBg = Console.BackgroundColor;
+                try
                 {
-                    return;
-                }
-                switch (level)
-                {
-                    case LogLevel.Trace:
-                        Console.ForegroundColor = ConsoleColor.DarkGray; break;
-                    case LogLevel.Debug:
-                        Console.ForegroundColor = ConsoleColor.Gray; break;
-                    case LogLevel.Information:
-                        Console.ForegroundColor = ConsoleColor.Green; break;
-                    case LogLevel.Warning:
-                        Console.ForegroundColor = ConsoleColor.Yellow; break;
-                    case LogLevel.Error:
-                        Console.ForegroundColor = ConsoleColor.Red; break;
-                    case LogLevel.Critical:
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.BackgroundColor = ConsoleColor.Red; break;
-                    default:
-                        Console.ForegroundColor = originalFg; break;
-                }
-            }
+                    Console.Write('[');
+                    Console.Write(ts);
+                    Console.Write(' ');
+                    // level colored
+                    switch (levelValue)
+                    {
+                        case LogLevel.Trace: Console.ForegroundColor = ConsoleColor.DarkGray; break;
+                        case LogLevel.Debug: Console.ForegroundColor = ConsoleColor.Gray; break;
+                        case LogLevel.Information: Console.ForegroundColor = ConsoleColor.Green; break;
+                        case LogLevel.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
+                        case LogLevel.Error: Console.ForegroundColor = ConsoleColor.Red; break;
+                        case LogLevel.Critical:
+                            Console.BackgroundColor = ConsoleColor.Red; Console.ForegroundColor = ConsoleColor.White; break;
+                    }
+                    Console.Write(lvl);
+                    Console.ForegroundColor = originalFg; Console.BackgroundColor = originalBg;
+                    Console.Write("] ");
+                    // message
+                    Console.Write(msg);
 
-            void ResetColors()
-            {
-                if (!canColor) return;
-                Console.ForegroundColor = originalFg;
-                Console.BackgroundColor = originalBg;
+                    // structured state
+                    if (logEntry.State is IEnumerable<KeyValuePair<string, object>> kvps)
+                    {
+                        bool first = true;
+                        foreach (var kv in kvps)
+                        {
+                            if (kv.Key == "{OriginalFormat}") continue;
+                            Console.Write(first ? " | " : ", ");
+                            first = false;
+                            Console.Write(kv.Key);
+                            Console.Write('=');
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write(kv.Value);
+                            Console.ForegroundColor = originalFg;
+                        }
+                    }
+
+                    if (logEntry.Exception is Exception ex)
+                    {
+                        Console.Write(" | ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(ex.GetType().Name);
+                        Console.ForegroundColor = originalFg;
+                        Console.Write(": ");
+                        Console.Write(ex.Message);
+                    }
+
+                    Console.WriteLine();
+                }
+                finally
+                {
+                    Console.ForegroundColor = originalFg;
+                    Console.BackgroundColor = originalBg;
+                }
+                return;
             }
 
             // Write header
             textWriter.Write('[');
             textWriter.Write(ts);
             textWriter.Write(' ');
-            SetLevelColors(levelValue);
-            textWriter.Write(lvl);
-            ResetColors();
+            if (useAnsi)
+            {
+                textWriter.Write(AnsiForLevel(levelValue));
+                textWriter.Write(lvl);
+                textWriter.Write(AnsiReset);
+            }
+            else
+            {
+                textWriter.Write(lvl);
+            }
             textWriter.Write("] ");
 
             // Message
             textWriter.Write(msg);
 
             // Structured state (highlight variables if present)
-            if (logEntry.State is IEnumerable<KeyValuePair<string, object>> kvps)
+            if (logEntry.State is IEnumerable<KeyValuePair<string, object>> kvps2)
             {
                 bool first = true;
-                foreach (var kv in kvps)
+                foreach (var kv in kvps2)
                 {
                     if (kv.Key == "{OriginalFormat}") continue;
                     if (first)
@@ -105,27 +148,35 @@ namespace EasyExtensions.AspNetCore.Formatters
                     }
                     textWriter.Write(kv.Key);
                     textWriter.Write('=');
-                    if (canColor)
+                    if (useAnsi)
                     {
-                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        textWriter.Write(AnsiCyan);
+                        textWriter.Write(kv.Value);
+                        textWriter.Write(AnsiReset);
                     }
-                    textWriter.Write(kv.Value);
-                    ResetColors();
+                    else
+                    {
+                        textWriter.Write(kv.Value);
+                    }
                 }
             }
 
             // Exception tail
-            if (logEntry.Exception is Exception ex)
+            if (logEntry.Exception is Exception ex2)
             {
                 textWriter.Write(" | ");
-                if (canColor)
+                if (useAnsi)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    textWriter.Write(AnsiRed);
+                    textWriter.Write(ex2.GetType().Name);
+                    textWriter.Write(AnsiReset);
                 }
-                textWriter.Write(ex.GetType().Name);
-                ResetColors();
+                else
+                {
+                    textWriter.Write(ex2.GetType().Name);
+                }
                 textWriter.Write(": ");
-                textWriter.Write(ex.Message);
+                textWriter.Write(ex2.Message);
             }
 
             textWriter.WriteLine();
@@ -140,6 +191,20 @@ namespace EasyExtensions.AspNetCore.Formatters
             LogLevel.Error => "ERR",
             LogLevel.Critical => "CRT",
             _ => "INF"
+        };
+
+        private const string AnsiReset = "\u001b[0m";
+        private const string AnsiCyan = "\u001b[36m";
+        private const string AnsiRed = "\u001b[31m";
+        private static string AnsiForLevel(LogLevel level) => level switch
+        {
+            LogLevel.Trace => "\u001b[90m",   // Bright black / DarkGray
+            LogLevel.Debug => "\u001b[37m",   // Gray
+            LogLevel.Information => "\u001b[32m", // Green
+            LogLevel.Warning => "\u001b[33m", // Yellow
+            LogLevel.Error => "\u001b[31m",   // Red
+            LogLevel.Critical => "\u001b[97;41m", // White on Red background
+            _ => ""
         };
     }
 }
