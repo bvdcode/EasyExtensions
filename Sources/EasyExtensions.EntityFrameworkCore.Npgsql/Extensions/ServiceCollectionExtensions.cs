@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.EntityFrameworkCore.Npgsql.Factories;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Migrations;
+using EasyExtensions.EntityFrameworkCore.Npgsql.Builders;
 
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 {

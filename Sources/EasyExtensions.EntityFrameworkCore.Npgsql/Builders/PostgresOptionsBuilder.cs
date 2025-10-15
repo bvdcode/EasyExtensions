@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
+namespace EasyExtensions.EntityFrameworkCore.Npgsql.Builders
 {
     /// <summary>
     /// This class is used to set up the <see cref="DbContext"/> for PostgreSQL with the specified arguments.

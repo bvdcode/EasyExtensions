@@ -21,23 +21,37 @@ namespace EasyExtensions.Quartz.Extensions
         /// <param name="jobAdded">Action to be executed when a job is added.</param>
         /// <param name="configureQuartz">Action to configure Quartz.</param>
         /// <param name="configureService">Action to configure Quartz hosted service.</param>
+        /// <param name="postgresConnectionString">Postgres connection string for persistent store. If null or empty, in-memory store is used.</param>
+        /// <param name="useClustering">Whether to use clustering with the persistent store. Default is false.</param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         public static IServiceCollection AddQuartzJobs(this IServiceCollection services, Action<Type>? jobAdded = null,
-            Action<IServiceCollectionQuartzConfigurator>? configureQuartz = null, Action<QuartzHostedServiceOptions>? configureService = null)
+            Action<IServiceCollectionQuartzConfigurator>? configureQuartz = null, Action<QuartzHostedServiceOptions>? configureService = null,
+            string? postgresConnectionString = null, bool useClustering = false)
         {
-            return services
-                .AddQuartz(x =>
+            return services.AddQuartz(x =>
+            {
+                SetupQuartz(x, jobAdded);
+                configureQuartz?.Invoke(x);
+                if (!string.IsNullOrWhiteSpace(postgresConnectionString))
                 {
-                    SetupQuartz(x, jobAdded);
-                    configureQuartz?.Invoke(x);
-                })
-                .AddQuartzServer(x =>
-                {
-                    x.WaitForJobsToComplete = false;
-                    x.AwaitApplicationStarted = true;
-                    x.StartDelay = TimeSpan.FromSeconds(10);
-                    configureService?.Invoke(x);
-                });
+                    x.UsePersistentStore(ps =>
+                    {
+                        ps.UseProperties = true;
+                        ps.UsePostgres(postgresConnectionString);
+                        if (useClustering)
+                        {
+                            ps.UseClustering();
+                        }
+                    });
+                }
+            })
+            .AddQuartzServer(x =>
+            {
+                x.WaitForJobsToComplete = false;
+                x.AwaitApplicationStarted = true;
+                x.StartDelay = TimeSpan.FromSeconds(5);
+                configureService?.Invoke(x);
+            });
         }
 
         private static void SetupQuartz(IServiceCollectionQuartzConfigurator configurator, Action<Type>? jobAdded)
