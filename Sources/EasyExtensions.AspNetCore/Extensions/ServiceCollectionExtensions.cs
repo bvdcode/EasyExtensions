@@ -5,8 +5,11 @@ using EasyExtensions.Helpers;
 using EasyExtensions.Services;
 using Microsoft.AspNetCore.Http;
 using EasyExtensions.Abstractions;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Console;
+using EasyExtensions.AspNetCore.Formatters;
 using EasyExtensions.AspNetCore.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +20,16 @@ namespace EasyExtensions.AspNetCore.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Adds <see cref="SimpleConsoleFormatter"/> to the <see cref="ILoggingBuilder"/>.
+        /// </summary>
+        /// <param name="builder"> Current <see cref="ILoggingBuilder"/> instance. </param>
+        public static ILoggingBuilder AddSimpleConsoleLogging(this ILoggingBuilder builder)
+        {
+            return builder.AddConsole(o => o.FormatterName = "minimal")
+                .AddConsoleFormatter<SimpleConsoleFormatter, SimpleConsoleFormatterOptions>();
+        }
+
         /// <summary>
         /// Adds <see cref="Pbkdf2PasswordHashService"/> to the <see cref="IServiceCollection"/> resolving pepper from <see cref="IConfiguration"/> in DI.
         /// </summary>
