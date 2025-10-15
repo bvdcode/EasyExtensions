@@ -13,9 +13,14 @@ namespace EasyExtensions.AspNetCore.Formatters
     public class SimpleConsoleFormatter : ConsoleFormatter
     {
         /// <summary>
+        /// The name of the formatter.
+        /// </summary>
+        public const string FormatterName = nameof(SimpleConsoleFormatter);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SimpleConsoleFormatter"/> class with the name "minimal".
         /// </summary>
-        public SimpleConsoleFormatter() : base("minimal") { }
+        public SimpleConsoleFormatter() : base(FormatterName) { }
 
         /// <summary>
         /// Writes a log entry to the specified <see cref="TextWriter"/> in a simple format.

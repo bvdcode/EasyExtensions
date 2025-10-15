@@ -26,7 +26,7 @@ namespace EasyExtensions.AspNetCore.Extensions
         /// <param name="builder"> Current <see cref="ILoggingBuilder"/> instance. </param>
         public static ILoggingBuilder AddSimpleConsoleLogging(this ILoggingBuilder builder)
         {
-            return builder.AddConsole(o => o.FormatterName = "minimal")
+            return builder.AddConsole(o => o.FormatterName = SimpleConsoleFormatter.FormatterName)
                 .AddConsoleFormatter<SimpleConsoleFormatter, SimpleConsoleFormatterOptions>();
         }
 
