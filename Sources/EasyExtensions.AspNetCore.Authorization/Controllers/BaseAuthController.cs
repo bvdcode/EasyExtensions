@@ -1,19 +1,19 @@
-﻿using EasyExtensions.Abstractions;
-using EasyExtensions.AspNetCore.Authorization.Abstractions;
-using EasyExtensions.AspNetCore.Authorization.Models.Dto;
-using EasyExtensions.AspNetCore.Authorization.Models.Dto.Enums;
-using EasyExtensions.AspNetCore.Extensions;
-using EasyExtensions.Helpers;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using EasyExtensions.Helpers;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using EasyExtensions.Abstractions;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
+using EasyExtensions.AspNetCore.Extensions;
+using EasyExtensions.AspNetCore.Authorization.Models.Dto;
+using EasyExtensions.AspNetCore.Authorization.Abstractions;
+using EasyExtensions.AspNetCore.Authorization.Models.Dto.Enums;
 
 namespace EasyExtensions.AspNetCore.Authorization.Controllers
 {
@@ -34,10 +34,6 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// </summary>
         /// <param name="request">The request containing the current and new passwords.</param>
         /// <returns>An IActionResult indicating the result of the operation.</returns>
-        /// <response code="200">Password changed successfully.</response>
-        /// <response code="400">Invalid request or current password is incorrect.</response>
-        /// <response code="401">Unauthorized - user is not authenticated.</response>
-        /// <response code="500">Internal server error.</response>
         /// <remarks>
         /// This endpoint allows an authenticated user to change their password by providing their current password and a new password.
         /// The current password is verified before updating to the new password.
@@ -132,6 +128,19 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             });
         }
 
+        /// <summary>
+        /// Authenticates a user using a Google OAuth token and issues a new access and refresh token pair if
+        /// authentication succeeds.
+        /// </summary>
+        /// <remarks>The user's email must be verified if email verification is required by the
+        /// application. If the user does not exist, a new user account is created using the information from Google.
+        /// The method issues new tokens and revokes any previous refresh tokens for the user.</remarks>
+        /// <param name="token">The Google OAuth access token to use for retrieving user information. Must be a valid token issued by
+        /// Google.</param>
+        /// <returns>An <see cref="IActionResult"/> containing a <see cref="TokenPairDto"/> with access and refresh tokens if
+        /// authentication is successful; otherwise, an unauthorized response if authentication fails or the user's
+        /// email is not verified.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if user information cannot be retrieved from Google using the provided token.</exception>
         [HttpPost("login/google")]
         public async Task<IActionResult> Login([FromQuery] string token)
         {
@@ -163,19 +172,6 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
-            });
-        }
-
-        private string CreateAccessToken(Guid userId, IEnumerable<string> roles)
-        {
-            return _tokenProvider.CreateToken(cb =>
-            {
-                cb.Add(JwtRegisteredClaimNames.Sub, userId.ToString());
-                foreach (string role in roles)
-                {
-                    cb.Add(ClaimTypes.Role, role);
-                }
-                return cb;
             });
         }
 
@@ -283,6 +279,19 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         public virtual Task<Guid?> CreateUserFromGoogleAsync(GoogleOpenIdResponseDto dto)
         {
             return Task.FromResult<Guid?>(null);
+        }
+
+        private string CreateAccessToken(Guid userId, IEnumerable<string> roles)
+        {
+            return _tokenProvider.CreateToken(cb =>
+            {
+                cb.Add(JwtRegisteredClaimNames.Sub, userId.ToString());
+                foreach (string role in roles)
+                {
+                    cb.Add(ClaimTypes.Role, role);
+                }
+                return cb;
+            });
         }
     }
 }
