@@ -21,6 +21,14 @@ namespace EasyExtensions.AspNetCore.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Represents the configuration key used to specify the pepper value for PBKDF2 operations.
+        /// </summary>
+        /// <remarks>Use this key when retrieving or setting the pepper value in configuration sources
+        /// related to PBKDF2 password hashing. The pepper is an additional secret value that enhances password security
+        /// when combined with a salt.</remarks>
+        public const string Pbkdf2PepperDefaultConfigurationKey = "Pepper";
+
+        /// <summary>
         /// Adds <see cref="SimpleConsoleFormatter"/> to the <see cref="ILoggingBuilder"/>.
         /// </summary>
         /// <param name="builder"> Current <see cref="ILoggingBuilder"/> instance. </param>
@@ -34,14 +42,14 @@ namespace EasyExtensions.AspNetCore.Extensions
         /// Adds <see cref="Pbkdf2PasswordHashService"/> to the <see cref="IServiceCollection"/> resolving pepper from <see cref="IConfiguration"/> in DI.
         /// </summary>
         /// <param name="services"> Current <see cref="IServiceCollection"/> instance. </param>
-        /// <param name="configurationKey"> Configuration key to resolve pepper from <see cref="IConfiguration"/>. Default is "Pepper". </param>
+        /// <param name="configurationKey"> Configuration key to resolve pepper from <see cref="IConfiguration"/>. Default is <see cref="Pbkdf2PepperDefaultConfigurationKey"/>. </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
         /// <exception cref="ArgumentNullException"> Thrown when Pepper configuration value is missing or invalid. </exception>
         /// <remarks>
-        /// Requires IConfiguration in the service provider with key "Pepper" (at least 16 UTF-8 bytes).
+        /// Requires IConfiguration in the service provider with provided pepper (at least 16 UTF-8 bytes).
         /// Example: builder.Services.AddPbkdf2PasswordHashService();
         /// </remarks>
-        public static IServiceCollection AddPbkdf2PasswordHashService(this IServiceCollection services, string configurationKey = "Pepper")
+        public static IServiceCollection AddPbkdf2PasswordHashService(this IServiceCollection services, string configurationKey = Pbkdf2PepperDefaultConfigurationKey)
         {
             return services.AddSingleton<IPasswordHashService>(sp =>
             {

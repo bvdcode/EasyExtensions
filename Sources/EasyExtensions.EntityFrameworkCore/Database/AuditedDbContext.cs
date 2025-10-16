@@ -41,7 +41,7 @@ namespace EasyExtensions.EntityFrameworkCore.Database
     ///         <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>    
-    public class AuditedDbContext : DbContext
+    public abstract class AuditedDbContext : DbContext
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContext" /> class. The

@@ -97,7 +97,11 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return settings[key];
         }
 
-        private static string GetSetting(IConfigurationSection settings, string key, IConfiguration configuration, PostgresOptionsBuilder contextFactory)
+        private static string GetSetting(IConfigurationSection settings,
+            string key,
+            IConfiguration configuration,
+            PostgresOptionsBuilder contextFactory,
+            string? defaultValue = null)
         {
             if (configuration[contextFactory.ConfigurationPrefix + key] is string value)
             {
@@ -105,6 +109,10 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             }
             if (!settings.Exists())
             {
+                if (defaultValue is not null)
+                {
+                    return defaultValue;
+                }
                 throw new KeyNotFoundException($"{contextFactory.ConfigurationSection} section or {contextFactory.ConfigurationPrefix}{key} is not set");
             }
             return settings[key] ?? throw new KeyNotFoundException($"{settings.Path}:{key} is not set");

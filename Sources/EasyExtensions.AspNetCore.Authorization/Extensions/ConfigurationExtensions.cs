@@ -10,7 +10,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
     {
         internal static JwtSettings GetJwtSettings(this IConfiguration configuration)
         {
-            const int defaultLifetimeMinutes = 10;
+            const int defaultLifetimeMinutes = 15;
             var jwtSettings = configuration.GetSection("JwtSettings");
             string? lifetimeMinutesStr = jwtSettings.Exists() 
                 ? jwtSettings["LifetimeMinutes"]
@@ -36,9 +36,9 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
                 Key = key,
                 Algorithm = algorithm,
                 Issuer = (!jwtSettings.Exists() ? configuration["JwtIssuer"] : jwtSettings["Issuer"])
-                    ?? throw new KeyNotFoundException("JwtSettings.Issuer or JwtIssuer is not set"),
+                    ?? "EasyExtensions/" + AppDomain.CurrentDomain.FriendlyName,
                 Audience = (!jwtSettings.Exists() ? configuration["JwtAudience"] : jwtSettings["Audience"])
-                    ?? throw new KeyNotFoundException("JwtSettings.Audience or JwtAudience is not set"),
+                    ?? AppDomain.CurrentDomain.FriendlyName + "/Client",
                 LifetimeMinutes = lifetimeMinutes
             };
         }
