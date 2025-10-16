@@ -1,9 +1,8 @@
 ﻿using System;
 using Microsoft.IdentityModel.Tokens;
 using EasyExtensions.AspNetCore.Authorization.Builders;
-using EasyExtensions.AspNetCore.Authorization.Abstractions;
 
-namespace EasyExtensions.AspNetCore.Authorization.Services
+namespace EasyExtensions.AspNetCore.Authorization.Abstractions
 {
     /// <summary>
     /// Provides token creation with claims.

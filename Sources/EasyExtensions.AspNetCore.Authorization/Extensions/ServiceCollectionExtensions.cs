@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using EasyExtensions.AspNetCore.Authorization.Handlers;
 using EasyExtensions.AspNetCore.Authorization.Services;
+using EasyExtensions.AspNetCore.Authorization.Abstractions;
 
 namespace EasyExtensions.AspNetCore.Authorization.Extensions
 {
