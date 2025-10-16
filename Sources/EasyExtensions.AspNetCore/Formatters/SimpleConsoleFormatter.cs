@@ -35,11 +35,12 @@ namespace EasyExtensions.AspNetCore.Formatters
         public override void Write<TState>(in LogEntry<TState> logEntry,
             IExternalScopeProvider? scopeProvider, TextWriter textWriter)
         {
-            // [HH:mm:ss LVL] Message
+            // [HH:mm:ss LVL] [Category] Message
             string ts = DateTime.Now.ToString("HH:mm:ss");
             var levelValue = logEntry.LogLevel;
             string lvl = ShortLevel(levelValue);
             string msg = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception) ?? string.Empty;
+            string category = logEntry.Category ?? string.Empty;
 
             // Color policy from options
             var opts = _options.CurrentValue;
@@ -71,6 +72,12 @@ namespace EasyExtensions.AspNetCore.Formatters
                     Console.Write(lvl);
                     Console.ForegroundColor = originalFg; Console.BackgroundColor = originalBg;
                     Console.Write("] ");
+
+                    // category
+                    Console.Write('[');
+                    Console.Write(category);
+                    Console.Write("] ");
+
                     // message
                     Console.Write(msg);
 
@@ -124,6 +131,20 @@ namespace EasyExtensions.AspNetCore.Formatters
             else
             {
                 textWriter.Write(lvl);
+            }
+            textWriter.Write("] ");
+
+            // Category
+            textWriter.Write('[');
+            if (useAnsi)
+            {
+                textWriter.Write(AnsiCyan);
+                textWriter.Write(category);
+                textWriter.Write(AnsiReset);
+            }
+            else
+            {
+                textWriter.Write(category);
             }
             textWriter.Write("] ");
 
