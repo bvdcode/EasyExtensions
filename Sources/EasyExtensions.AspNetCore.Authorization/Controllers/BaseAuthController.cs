@@ -1,17 +1,19 @@
-﻿using System;
-using System.Net;
-using EasyExtensions.Helpers;
-using System.Threading.Tasks;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using EasyExtensions.Abstractions;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authorization;
-using EasyExtensions.AspNetCore.Extensions;
-using EasyExtensions.AspNetCore.Authorization.Models.Dto;
+﻿using EasyExtensions.Abstractions;
 using EasyExtensions.AspNetCore.Authorization.Abstractions;
+using EasyExtensions.AspNetCore.Authorization.Models.Dto;
 using EasyExtensions.AspNetCore.Authorization.Models.Dto.Enums;
+using EasyExtensions.AspNetCore.Extensions;
+using EasyExtensions.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace EasyExtensions.AspNetCore.Authorization.Controllers
 {
@@ -90,6 +92,80 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             });
         }
 
+        /// <summary>
+        /// Authenticates a user using the provided credentials and issues a new access and refresh token pair.
+        /// </summary>
+        /// <remarks>This endpoint is typically used as part of a username and password authentication
+        /// flow. The returned tokens can be used to access protected resources and to refresh authentication without
+        /// re-entering credentials. Repeated failed login attempts may be subject to rate limiting or account lockout
+        /// policies, depending on system configuration.</remarks>
+        /// <param name="request">The login request containing the user's username and password. Cannot be null.</param>
+        /// <returns>An <see cref="IActionResult"/> containing a <see cref="TokenPairDto"/> with access and refresh tokens if
+        /// authentication is successful; otherwise, an unauthorized response if the credentials are invalid.</returns>
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        {
+            Guid? userId = await FindUserByUsernameAsync(request.Username);
+            if (!userId.HasValue || userId == Guid.Empty)
+            {
+                return this.ApiUnauthorized("Invalid username or password");
+            }
+            string? phc = await FindUserPhcAsync(userId.Value);
+            if (string.IsNullOrWhiteSpace(phc))
+            {
+                return this.ApiUnauthorized("Invalid username or password");
+            }
+            bool isValidPassword = _passwordHasher.Verify(request.Password, phc);
+            if (!isValidPassword)
+            {
+                return this.ApiUnauthorized("Invalid username or password");
+            }
+            var roles = await GetUserRolesAsync(userId.Value);
+            string accessToken = CreateAccessToken(userId.Value, roles);
+            string refreshToken = StringHelpers.CreateRandomString(64);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken);
+            await OnUserLoggedInAsync(userId.Value, AuthType.Credentials);
+            return Ok(new TokenPairDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            });
+        }
+
+        [HttpPost("login/google")]
+        public async Task<IActionResult> Login([FromQuery] string token)
+        {
+            const string url = "https://openidconnect.googleapis.com/v1/userinfo";
+            using HttpClient http = new();
+            http.DefaultRequestHeaders.Authorization = new("Bearer", token);
+            GoogleOpenIdResponseDto response = await http.GetFromJsonAsync<GoogleOpenIdResponseDto>(url)
+                ?? throw new InvalidOperationException("Failed to get user info from Google.");
+            bool mustVerifyEmail = IsEmailVerificationRequired();
+            if (mustVerifyEmail && !response.IsEmailVerified)
+            {
+                return this.ApiUnauthorized("Email is not verified");
+            }
+            Guid? userId = await FindUserByUsernameAsync(response.Email);
+            if (!userId.HasValue || userId == Guid.Empty)
+            {
+                userId = await CreateUserFromGoogleAsync(response);
+                if (!userId.HasValue || userId == Guid.Empty)
+                {
+                    return this.ApiUnauthorized("User not found");
+                }
+            }
+            var roles = await GetUserRolesAsync(userId.Value);
+            string accessToken = CreateAccessToken(userId.Value, roles);
+            string refreshToken = StringHelpers.CreateRandomString(64);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken);
+            await OnUserLoggedInAsync(userId.Value, AuthType.Google);
+            return Ok(new TokenPairDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            });
+        }
+
         private string CreateAccessToken(Guid userId, IEnumerable<string> roles)
         {
             return _tokenProvider.CreateToken(cb =>
@@ -102,6 +178,14 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
                 return cb;
             });
         }
+
+        /// <summary>
+        /// Asynchronously searches for a user by username and returns the user's unique identifier if found.
+        /// </summary>
+        /// <param name="username">The username of the user to locate. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the unique identifier of the
+        /// user if found; otherwise, null.</returns>
+        public abstract Task<Guid?> FindUserByUsernameAsync(string username);
 
         /// <summary>
         /// Saves a new refresh token for the specified user and revokes the previous refresh token asynchronously.
@@ -168,6 +252,37 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         public virtual Task OnTokenRefreshedAsync(Guid userId, string newRefreshToken)
         {
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Handles logic to be performed when a user has successfully logged in.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user who has logged in.</param>
+        /// <param name="authType">The type of authentication used for login.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public virtual Task OnUserLoggedInAsync(Guid userId, AuthType authType)
+        {
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Determines whether email verification is required for user accounts.
+        /// </summary>
+        /// <returns><see langword="true"/> if email verification is required; otherwise, <see langword="false"/>.</returns>
+        public virtual bool IsEmailVerificationRequired()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a new user account based on the information provided by a Google OpenID response.
+        /// </summary>
+        /// <param name="dto">The Google OpenID response data containing user information to create the account. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the unique identifier of the
+        /// newly created user if successful; otherwise, null.</returns>
+        public virtual Task<Guid?> CreateUserFromGoogleAsync(GoogleOpenIdResponseDto dto)
+        {
+            return Task.FromResult<Guid?>(null);
         }
     }
 }
