@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using EasyExtensions.AspNetCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +11,6 @@ using EasyExtensions.EntityFrameworkCore.Database;
 using EasyExtensions.EntityFrameworkCore.HealthChecks;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Extensions;
 using EasyExtensions.AspNetCore.Authorization.Extensions;
-using Microsoft.Extensions.Logging;
 
 namespace EasyExtensions.AspNetCore.Stack.Extensions
 {
@@ -53,30 +55,58 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             this IHostApplicationBuilder builder,
             Action<EasyStackOptions>? setupStack) where TDbContext : AuditedDbContext
         {
+            // create temp logger to log during startup
+            using var loggerFactory = LoggerFactory.Create(loggingBuilder =>
+            {
+                loggingBuilder.AddSimpleConsoleLogging();
+            });
+            var logger = loggerFactory.CreateLogger("EasyStack");
+            logger.LogInformation("Starting EasyStack setup...");
+
             EasyStackOptions options = new();
             setupStack?.Invoke(options);
-
-            var healthChecksBuilder = builder.Services.AddHealthChecks();
+            logger.LogInformation("Configuration of EasyStack options is {state}.", setupStack is null ? "null, using defaults" : "provided");
 
             // EasyLogging Formatters
             builder.Logging.AddSimpleConsoleLogging();
             builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
             builder.Logging.AddFilter("LuckyPennySoftware.AutoMapper.License", LogLevel.None);
+            logger.LogInformation("Added EasyLogging formatters");
+
+            // Healthchecks
+            var healthChecksBuilder = builder.Services.AddHealthChecks();
+            logger.LogInformation("Added health checks");
 
             // Controllers
             builder.Services.AddControllers();
+            logger.LogInformation("Added controllers");
+
+            // Compression
+            builder.Services.AddResponseCompression(x => 
+            { 
+                x.EnableForHttps = true; 
+                x.MimeTypes = Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes;
+            });
+            logger.LogInformation("Added response compression for {count} mime types",
+                Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes.Count());
 
             // Quartz Jobs
-            Quartz.Extensions.ServiceCollectionExtensions.AddQuartzJobs(builder.Services);
+            logger.LogInformation("Adding Quartz jobs...");
+            Quartz.Extensions.ServiceCollectionExtensions.AddQuartzJobs(builder.Services, x =>
+            {
+                logger.LogInformation("Found job added: {job}", x.Name);
+            });
 
             // SignalR
             builder.Services.AddSignalR();
+            logger.LogInformation("Added SignalR");
 
             // Setup Origins if presented in configuration, or allow all if asked
             string[] corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? [];
             if (corsOrigins.Length > 0)
             {
                 builder.Services.AddDefaultCorsWithOrigins(corsOrigins);
+                logger.LogInformation("Added CORS with {count} origins from configuration", corsOrigins.Length);
             }
             else
             {
@@ -90,6 +120,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
                               .WithExposedHeaders("*");
                     });
                 });
+                logger.LogWarning("No CORS origins found in configuration - allowing ALL origins.");
             }
 
             // EasyVault - if URL presented in configuration
@@ -97,6 +128,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             if (isVaultPresented)
             {
                 EasyVault.SDK.Extensions.ConfigurationExtensions.AddSecrets(builder.Configuration);
+                logger.LogInformation("VaultApiUrl found in configuration, added EasyVault");
             }
 
             // Add Pbkdf2
@@ -104,6 +136,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             if (isPepperPresented)
             {
                 builder.Services.AddPbkdf2PasswordHashService();
+                logger.LogInformation("Pepper found in configuration, added Pbkdf2PasswordHashService");
             }
 
             // Add Postgres if asked
@@ -111,6 +144,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             {
                 builder.Services.AddPostgresDbContext<TDbContext>(x => x.UseLazyLoadingProxies = false);
                 healthChecksBuilder.AddCheck<DatabaseHealthCheck<TDbContext>>("Database");
+                logger.LogInformation("Added Postgres DbContext and Database health check");
             }
 
             if (options.AddAuthorization)
@@ -126,6 +160,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
 
                 // add jwt
                 builder.Services.AddJwt();
+                logger.LogInformation("Added JWT authentication");
             }
 
             return builder;
