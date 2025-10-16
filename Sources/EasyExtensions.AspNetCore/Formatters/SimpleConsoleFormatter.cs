@@ -41,82 +41,13 @@ namespace EasyExtensions.AspNetCore.Formatters
             string lvl = ShortLevel(levelValue);
             string msg = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception) ?? string.Empty;
             string category = logEntry.Category ?? string.Empty;
+            string displayCategory = ShortCategory(category);
 
             // Color policy from options
             var opts = _options.CurrentValue;
             bool colorsDisabled = opts.ColorBehavior == LoggerColorBehavior.Disabled;
-            bool toConsole = !Console.IsOutputRedirected; // direct console writing allowed
-            bool useAnsi = !colorsDisabled && !toConsole;
-
-            if (toConsole && !colorsDisabled)
-            {
-                // Use Console.* APIs for reliable coloring when writing to a real console
-                var originalFg = Console.ForegroundColor;
-                var originalBg = Console.BackgroundColor;
-                try
-                {
-                    Console.Write('[');
-                    Console.Write(ts);
-                    Console.Write(' ');
-                    // level colored
-                    switch (levelValue)
-                    {
-                        case LogLevel.Trace: Console.ForegroundColor = ConsoleColor.DarkGray; break;
-                        case LogLevel.Debug: Console.ForegroundColor = ConsoleColor.Gray; break;
-                        case LogLevel.Information: Console.ForegroundColor = ConsoleColor.Green; break;
-                        case LogLevel.Warning: Console.ForegroundColor = ConsoleColor.Yellow; break;
-                        case LogLevel.Error: Console.ForegroundColor = ConsoleColor.Red; break;
-                        case LogLevel.Critical:
-                            Console.BackgroundColor = ConsoleColor.Red; Console.ForegroundColor = ConsoleColor.White; break;
-                    }
-                    Console.Write(lvl);
-                    Console.ForegroundColor = originalFg; Console.BackgroundColor = originalBg;
-                    Console.Write("] ");
-
-                    // category
-                    Console.Write('[');
-                    Console.Write(category);
-                    Console.Write("] ");
-
-                    // message
-                    Console.Write(msg);
-
-                    // structured state
-                    if (logEntry.State is IEnumerable<KeyValuePair<string, object>> kvps)
-                    {
-                        bool first = true;
-                        foreach (var kv in kvps)
-                        {
-                            if (kv.Key == "{OriginalFormat}") continue;
-                            Console.Write(first ? " | " : ", ");
-                            first = false;
-                            Console.Write(kv.Key);
-                            Console.Write('=');
-                            Console.ForegroundColor = ConsoleColor.Cyan;
-                            Console.Write(kv.Value);
-                            Console.ForegroundColor = originalFg;
-                        }
-                    }
-
-                    if (logEntry.Exception is Exception ex)
-                    {
-                        Console.Write(" | ");
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write(ex.GetType().Name);
-                        Console.ForegroundColor = originalFg;
-                        Console.Write(": ");
-                        Console.Write(ex.Message);
-                    }
-
-                    Console.WriteLine();
-                }
-                finally
-                {
-                    Console.ForegroundColor = originalFg;
-                    Console.BackgroundColor = originalBg;
-                }
-                return;
-            }
+            bool toConsole = !Console.IsOutputRedirected; // detect console, but we still write via textWriter
+            bool useAnsi = !colorsDisabled && !toConsole; // keep prior behavior to avoid escape codes on real console
 
             // Write header
             textWriter.Write('[');
@@ -139,12 +70,12 @@ namespace EasyExtensions.AspNetCore.Formatters
             if (useAnsi)
             {
                 textWriter.Write(AnsiCyan);
-                textWriter.Write(category);
+                textWriter.Write(displayCategory);
                 textWriter.Write(AnsiReset);
             }
             else
             {
-                textWriter.Write(category);
+                textWriter.Write(displayCategory);
             }
             textWriter.Write("] ");
 
@@ -213,6 +144,24 @@ namespace EasyExtensions.AspNetCore.Formatters
             LogLevel.Critical => "CRT",
             _ => "INF"
         };
+
+        private static string ShortCategory(string category)
+        {
+            if (string.IsNullOrEmpty(category)) return category;
+            // Trim namespace and nested type separators
+            int lastDot = category.LastIndexOf('.');
+            int lastPlus = category.LastIndexOf('+');
+            int cut = Math.Max(lastDot, lastPlus);
+            var name = cut >= 0 ? category[(cut + 1)..] : category;
+            // Trim generic arity/backticks and generic argument list markers if any
+            int tick = name.IndexOf('`');
+            if (tick >= 0) name = name[..tick];
+            int lt = name.IndexOf('<');
+            if (lt >= 0) name = name[..lt];
+            int bracket = name.IndexOf('[');
+            if (bracket >= 0) name = name[..bracket];
+            return name;
+        }
 
         private const string AnsiReset = "\u001b[0m";
         private const string AnsiCyan = "\u001b[36m";
