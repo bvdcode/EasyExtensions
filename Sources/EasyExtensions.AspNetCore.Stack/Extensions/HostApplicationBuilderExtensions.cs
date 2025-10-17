@@ -7,9 +7,6 @@ using Microsoft.Extensions.Configuration;
 using EasyExtensions.AspNetCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using EasyExtensions.AspNetCore.Stack.Builders;
-using EasyExtensions.EntityFrameworkCore.Database;
-using EasyExtensions.EntityFrameworkCore.HealthChecks;
-using EasyExtensions.EntityFrameworkCore.Npgsql.Extensions;
 using EasyExtensions.AspNetCore.Authorization.Extensions;
 
 namespace EasyExtensions.AspNetCore.Stack.Extensions
@@ -51,9 +48,9 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
         /// <param name="setupStack">An optional delegate to configure EasyStack options. If null, default options are used.</param>
         /// <returns>The same <see cref="IHostApplicationBuilder"/> instance so that additional configuration calls can be
         /// chained.</returns>
-        public static IHostApplicationBuilder AddEasyStack<TDbContext>(
+        public static IHostApplicationBuilder AddEasyStack(
             this IHostApplicationBuilder builder,
-            Action<EasyStackOptions>? setupStack) where TDbContext : AuditedDbContext
+            Action<EasyStackOptions>? setupStack)
         {
             // create temp logger to log during startup
             using var loggerFactory = LoggerFactory.Create(loggingBuilder =>
@@ -140,16 +137,15 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             }
 
             // Add Postgres if asked
-            if (options.AddPostgres)
+            if (options.ConfigureDatabase != null)
             {
-                builder.Services.AddPostgresDbContext<TDbContext>(x => x.UseLazyLoadingProxies = false);
-                healthChecksBuilder.AddCheck<DatabaseHealthCheck<TDbContext>>("Database");
+                options.ConfigureDatabase.Invoke(builder.Services, healthChecksBuilder, builder.Configuration);
                 logger.LogInformation("Added Postgres DbContext and Database health check");
             }
 
             if (options.AddAuthorization)
             {
-                if (!options.AddPostgres)
+                if (options.ConfigureDatabase == null)
                 {
                     throw new Exception("Authorization requires Postgres. Set AddPostgres to true in EasyStackOptions.");
                 }
