@@ -143,7 +143,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
                 logger.LogInformation("Added Postgres DbContext and Database health check");
             }
 
-            if (options.AddAuthorization)
+            if (options.AuthorizationEnabled)
             {
                 if (options.ConfigureDatabase == null)
                 {
