@@ -14,7 +14,7 @@ namespace EasyExtensions.AspNetCore.Formatters
     /// <remarks>
     /// Initializes a new instance of the <see cref="SimpleConsoleFormatter"/> class with the name "minimal".
     /// </remarks>
-    public class SimpleConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions> options)
+    public class SimpleConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions> options) 
         : ConsoleFormatter(FormatterName)
     {
         /// <summary>
@@ -22,7 +22,7 @@ namespace EasyExtensions.AspNetCore.Formatters
         /// </summary>
         public const string FormatterName = nameof(SimpleConsoleFormatter);
 
-        private readonly IOptionsMonitor<SimpleConsoleFormatterOptions> _options =
+        private readonly IOptionsMonitor<SimpleConsoleFormatterOptions> _options = 
             options ?? throw new ArgumentNullException(nameof(options));
 
         /// <summary>
@@ -98,17 +98,50 @@ namespace EasyExtensions.AspNetCore.Formatters
                 textWriter.Write("] ");
             }
 
-            // First line: message only (keep one-liner style for the log message itself)
+            // First line: header + message
             WriteHeader();
             textWriter.Write(msg);
+
+            // For non-exception logs, render structured state inline on the same line (original behavior)
+            if (logEntry.Exception is null && logEntry.State is IEnumerable<KeyValuePair<string, object>> inlineKvps)
+            {
+                bool first = true;
+                foreach (var kv in inlineKvps)
+                {
+                    if (kv.Key == "{OriginalFormat}")
+                    {
+                        continue;
+                    }
+                    if (first)
+                    {
+                        textWriter.Write(" | ");
+                        first = false;
+                    }
+                    else
+                    {
+                        textWriter.Write(", ");
+                    }
+                    textWriter.Write(kv.Key);
+                    textWriter.Write('=');
+                    if (useAnsi)
+                    {
+                        textWriter.Write(AnsiCyan);
+                        textWriter.Write(kv.Value);
+                        textWriter.Write(AnsiReset);
+                    }
+                    else
+                    {
+                        textWriter.Write(kv.Value);
+                    }
+                }
+            }
+
             textWriter.WriteLine();
 
-            // If there's structured state and/or exception, write extra diagnostic lines
-            // in a concise, prefixed form similar to the default console logger.
-
-            // Structured state (variables) printed on a separate [Ex] line when there is an exception
+            // If there's an exception, emit extra lines with [Ex] containing structured state and full exception details
             if (logEntry.Exception is Exception ex)
             {
+                // Structured state (variables) printed on a separate [Ex] line when there is an exception
                 if (logEntry.State is IEnumerable<KeyValuePair<string, object>> kvps)
                 {
                     bool any = false;
@@ -164,47 +197,6 @@ namespace EasyExtensions.AspNetCore.Formatters
                         WriteHeader();
                         WriteExMarker();
                         textWriter.Write(line);
-                        textWriter.WriteLine();
-                    }
-                }
-            }
-            else
-            {
-                // No exception: for non-exception logs we may still want to show structured state inline as before
-                if (logEntry.State is IEnumerable<KeyValuePair<string, object>> kvps2)
-                {
-                    bool first = true;
-                    bool anyPairs = false;
-                    foreach (var kv in kvps2)
-                    {
-                        if (kv.Key == "{OriginalFormat}") continue;
-                        anyPairs = true; break;
-                    }
-                    if (anyPairs)
-                    {
-                        // continue on the same line style as before but as a second line to keep the
-                        // message itself clean. This preserves readability while keeping details nearby.
-                        WriteHeader();
-                        textWriter.Write("- ");
-                        foreach (var kv in kvps2)
-                        {
-                            if (kv.Key == "{OriginalFormat}") continue;
-                            if (first) { first = false; }
-                            else { textWriter.Write(", "); }
-
-                            textWriter.Write(kv.Key);
-                            textWriter.Write('=');
-                            if (useAnsi)
-                            {
-                                textWriter.Write(AnsiCyan);
-                                textWriter.Write(kv.Value);
-                                textWriter.Write(AnsiReset);
-                            }
-                            else
-                            {
-                                textWriter.Write(kv.Value);
-                            }
-                        }
                         textWriter.WriteLine();
                     }
                 }
