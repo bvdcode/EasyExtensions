@@ -50,7 +50,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
         /// chained.</returns>
         public static IHostApplicationBuilder AddEasyStack(
             this IHostApplicationBuilder builder,
-            Action<EasyStackOptions>? setupStack)
+            Action<EasyStackOptions>? setupStack = null)
         {
             // create temp logger to log during startup
             using var loggerFactory = LoggerFactory.Create(loggingBuilder =>
@@ -86,6 +86,10 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             });
             logger.LogInformation("Added response compression for {count} mime types",
                 Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes.Count());
+            foreach (var mime in Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes)
+            {
+                logger.LogInformation(" - Compression MimeType: {mime}", mime);
+            }
 
             // Quartz Jobs
             logger.LogInformation("Adding Quartz jobs...");
@@ -104,6 +108,10 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             {
                 builder.Services.AddDefaultCorsWithOrigins(corsOrigins);
                 logger.LogInformation("Added CORS with {count} origins from configuration", corsOrigins.Length);
+                foreach (var origin in corsOrigins)
+                {
+                    logger.LogInformation(" - CORS Origin: {origin}", origin);
+                }
             }
             else
             {
