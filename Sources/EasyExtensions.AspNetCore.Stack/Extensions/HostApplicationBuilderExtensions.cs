@@ -153,10 +153,6 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
 
             if (options.AuthorizationEnabled)
             {
-                if (options.ConfigureDatabase == null)
-                {
-                    throw new Exception("Authorization requires Postgres. Set AddPostgres to true in EasyStackOptions.");
-                }
                 if (!isPepperPresented)
                 {
                     throw new Exception("Authorization requires Pbkdf2PasswordHashService. Set configuration key 'EasyExtensions:Services:Pbkdf2:Pepper'.");
