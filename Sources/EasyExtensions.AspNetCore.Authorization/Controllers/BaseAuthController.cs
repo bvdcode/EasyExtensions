@@ -79,7 +79,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string newRefreshToken = StringHelpers.CreateRandomString(64);
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
-            await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken, AuthType.Unknown);
             await OnTokenRefreshedAsync(userId.Value, newRefreshToken);
             return Ok(new TokenPairDto
             {
@@ -119,7 +119,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             string refreshToken = StringHelpers.CreateRandomString(64);
-            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Credentials);
             await OnUserLoggedInAsync(userId.Value, AuthType.Credentials);
             return Ok(new TokenPairDto
             {
@@ -142,7 +142,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// email is not verified.</returns>
         /// <exception cref="InvalidOperationException">Thrown if user information cannot be retrieved from Google using the provided token.</exception>
         [HttpPost("login/google")]
-        public async Task<IActionResult> Login([FromQuery] string token)
+        public async Task<IActionResult> LoginWithGoogle([FromQuery] string token)
         {
             const string url = "https://openidconnect.googleapis.com/v1/userinfo";
             using HttpClient http = new();
@@ -166,7 +166,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             string refreshToken = StringHelpers.CreateRandomString(64);
-            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Google);
             await OnUserLoggedInAsync(userId.Value, AuthType.Google);
             return Ok(new TokenPairDto
             {
@@ -192,8 +192,9 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// <param name="userId">The unique identifier of the user for whom the refresh token is being updated.</param>
         /// <param name="oldRefreshToken">The refresh token to be revoked. Cannot be null or empty.</param>
         /// <param name="newRefreshToken">The new refresh token to be saved for the user. Cannot be null or empty.</param>
+        /// <param name="authType">The type of authentication used for the user when logged in for the first time.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public abstract Task SaveAndRevokeRefreshTokenAsync(Guid userId, string oldRefreshToken, string newRefreshToken);
+        public abstract Task SaveAndRevokeRefreshTokenAsync(Guid userId, string oldRefreshToken, string newRefreshToken, AuthType authType);
 
         /// <summary>
         /// Asynchronously retrieves the unique identifier of a user associated with the specified refresh token.
