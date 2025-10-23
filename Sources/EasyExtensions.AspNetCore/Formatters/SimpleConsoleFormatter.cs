@@ -35,169 +35,160 @@ namespace EasyExtensions.AspNetCore.Formatters
         public override void Write<TState>(in LogEntry<TState> logEntry,
             IExternalScopeProvider? scopeProvider, TextWriter textWriter)
         {
-            // [HH:mm:ss LVL] [Category] Message
             string ts = DateTime.Now.ToString("HH:mm:ss");
-            var levelValue = logEntry.LogLevel;
-            string lvl = ShortLevel(levelValue);
-            string msg = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception) ?? string.Empty;
+            var level = logEntry.LogLevel;
             string category = logEntry.Category ?? string.Empty;
             string displayCategory = ShortCategory(category);
 
-            // Color policy from options
             var opts = _options.CurrentValue;
             bool colorsDisabled = opts.ColorBehavior == LoggerColorBehavior.Disabled;
-            bool toConsole = !Console.IsOutputRedirected; // detect console, but we still write via textWriter
-            bool useAnsi = !colorsDisabled && !toConsole; // keep prior behavior to avoid escape codes on real console
-
-            // Local helper to write the common header: [ts LVL] [Category]
-            void WriteHeader()
-            {
-                textWriter.Write('[');
-                textWriter.Write(ts);
-                textWriter.Write(' ');
-                if (useAnsi)
-                {
-                    textWriter.Write(AnsiForLevel(levelValue));
-                    textWriter.Write(lvl);
-                    textWriter.Write(AnsiReset);
-                }
-                else
-                {
-                    textWriter.Write(lvl);
-                }
-                textWriter.Write("] ");
-
-                textWriter.Write('[');
-                if (useAnsi)
-                {
-                    textWriter.Write(AnsiCyan);
-                    textWriter.Write(displayCategory);
-                    textWriter.Write(AnsiReset);
-                }
-                else
-                {
-                    textWriter.Write(displayCategory);
-                }
-                textWriter.Write("] ");
-            }
-
-            // Local helper to write the [Ex] marker
-            void WriteExMarker()
-            {
-                textWriter.Write('[');
-                if (useAnsi)
-                {
-                    textWriter.Write(AnsiRed);
-                    textWriter.Write("Ex");
-                    textWriter.Write(AnsiReset);
-                }
-                else
-                {
-                    textWriter.Write("Ex");
-                }
-                textWriter.Write("] ");
-            }
+            bool toConsole = !Console.IsOutputRedirected;
+            bool useAnsi = !colorsDisabled && !toConsole;
 
             // First line: header + message
-            WriteHeader();
+            WriteHeader(textWriter, ts, level, displayCategory, useAnsi);
+            string msg = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception) ?? string.Empty;
             textWriter.Write(msg);
 
-            // For non-exception logs, render structured state inline on the same line (original behavior)
-            if (logEntry.Exception is null && logEntry.State is IEnumerable<KeyValuePair<string, object>> inlineKvps)
+            // Non-exception: render structured state inline
+            if (logEntry.Exception is null && TryGetState(logEntry.State, out var inlineKvps))
             {
-                bool first = true;
-                foreach (var kv in inlineKvps)
-                {
-                    if (kv.Key == "{OriginalFormat}")
-                    {
-                        continue;
-                    }
-                    if (first)
-                    {
-                        textWriter.Write(" | ");
-                        first = false;
-                    }
-                    else
-                    {
-                        textWriter.Write(", ");
-                    }
-                    textWriter.Write(kv.Key);
-                    textWriter.Write('=');
-                    if (useAnsi)
-                    {
-                        textWriter.Write(AnsiCyan);
-                        textWriter.Write(kv.Value);
-                        textWriter.Write(AnsiReset);
-                    }
-                    else
-                    {
-                        textWriter.Write(kv.Value);
-                    }
-                }
+                WriteInlineState(textWriter, inlineKvps, useAnsi);
             }
 
             textWriter.WriteLine();
 
-            // If there's an exception, emit extra lines with [Ex] containing structured state and full exception details
+            // Exception: extra lines with [Ex]
             if (logEntry.Exception is Exception ex)
             {
-                // Structured state (variables) printed on a separate [Ex] line when there is an exception
-                if (logEntry.State is IEnumerable<KeyValuePair<string, object>> kvps)
+                if (TryGetState(logEntry.State, out var kvps) && HasAnyPairs(kvps))
                 {
-                    bool any = false;
-                    foreach (var kv in kvps)
-                    {
-                        if (kv.Key == "{OriginalFormat}")
-                            continue;
-                        any = true; break;
-                    }
-                    if (any)
-                    {
-                        WriteHeader();
-                        WriteExMarker();
-                        textWriter.Write("- ");
-
-                        bool first = true;
-                        foreach (var kv in kvps)
-                        {
-                            if (kv.Key == "{OriginalFormat}")
-                            {
-                                continue;
-                            }
-                            if (!first)
-                            {
-                                textWriter.Write(", ");
-                            }
-                            first = false;
-
-                            textWriter.Write(kv.Key);
-                            textWriter.Write('=');
-                            if (useAnsi)
-                            {
-                                textWriter.Write(AnsiCyan);
-                                textWriter.Write(kv.Value);
-                                textWriter.Write(AnsiReset);
-                            }
-                            else
-                            {
-                                textWriter.Write(kv.Value);
-                            }
-                        }
-                        textWriter.WriteLine();
-                    }
+                    WriteExceptionStateLine(textWriter, ts, level, displayCategory, kvps, useAnsi);
                 }
 
-                // Exception details: print the full exception ToString() (includes message, stack, inner exceptions)
-                string exText = ex.ToString();
-                using var reader = new StringReader(exText);
-                string? line;
-                while ((line = reader.ReadLine()) is not null)
-                {
-                    WriteHeader();
-                    WriteExMarker();
-                    textWriter.Write(line);
-                    textWriter.WriteLine();
-                }
+                WriteExceptionLines(textWriter, ts, level, displayCategory, ex, useAnsi);
+            }
+        }
+
+        private static bool TryGetState<TState>(TState state, out IEnumerable<KeyValuePair<string, object>> kvps)
+        {
+            kvps = state as IEnumerable<KeyValuePair<string, object>>;
+            return kvps is not null;
+        }
+
+        private static bool HasAnyPairs(IEnumerable<KeyValuePair<string, object>> kvps)
+        {
+            foreach (var kv in kvps)
+            {
+                if (kv.Key == "{OriginalFormat}") continue;
+                return true;
+            }
+            return false;
+        }
+
+        private static void WriteHeader(TextWriter w, string ts, LogLevel level, string displayCategory, bool useAnsi)
+        {
+            w.Write('[');
+            w.Write(ts);
+            w.Write(' ');
+            if (useAnsi)
+            {
+                w.Write(AnsiForLevel(level));
+                w.Write(ShortLevel(level));
+                w.Write(AnsiReset);
+            }
+            else
+            {
+                w.Write(ShortLevel(level));
+            }
+            w.Write("] ");
+
+            w.Write('[');
+            if (useAnsi)
+            {
+                w.Write(AnsiCyan);
+                w.Write(displayCategory);
+                w.Write(AnsiReset);
+            }
+            else
+            {
+                w.Write(displayCategory);
+            }
+            w.Write("] ");
+        }
+
+        private static void WriteExMarker(TextWriter w, bool useAnsi)
+        {
+            w.Write('[');
+            if (useAnsi)
+            {
+                w.Write(AnsiRed);
+                w.Write("Ex");
+                w.Write(AnsiReset);
+            }
+            else
+            {
+                w.Write("Ex");
+            }
+            w.Write("] ");
+        }
+
+        private static void WriteInlineState(TextWriter w, IEnumerable<KeyValuePair<string, object>> kvps, bool useAnsi)
+        {
+            bool first = true;
+            foreach (var kv in kvps)
+            {
+                if (kv.Key == "{OriginalFormat}") continue;
+                if (first) { w.Write(" | "); first = false; } else { w.Write(", "); }
+                WriteKeyValue(w, kv, useAnsi);
+            }
+        }
+
+        private static void WriteExceptionStateLine(TextWriter w, string ts, LogLevel level, string displayCategory,
+            IEnumerable<KeyValuePair<string, object>> kvps, bool useAnsi)
+        {
+            WriteHeader(w, ts, level, displayCategory, useAnsi);
+            WriteExMarker(w, useAnsi);
+            w.Write("- ");
+
+            bool first = true;
+            foreach (var kv in kvps)
+            {
+                if (kv.Key == "{OriginalFormat}") continue;
+                if (!first) w.Write(", ");
+                first = false;
+                WriteKeyValue(w, kv, useAnsi);
+            }
+            w.WriteLine();
+        }
+
+        private static void WriteExceptionLines(TextWriter w, string ts, LogLevel level, string displayCategory,
+            Exception ex, bool useAnsi)
+        {
+            using var reader = new StringReader(ex.ToString());
+            string? line;
+            while ((line = reader.ReadLine()) is not null)
+            {
+                WriteHeader(w, ts, level, displayCategory, useAnsi);
+                WriteExMarker(w, useAnsi);
+                w.Write(line);
+                w.WriteLine();
+            }
+        }
+
+        private static void WriteKeyValue(TextWriter w, KeyValuePair<string, object> kv, bool useAnsi)
+        {
+            w.Write(kv.Key);
+            w.Write('=');
+            if (useAnsi)
+            {
+                w.Write(AnsiCyan);
+                w.Write(kv.Value);
+                w.Write(AnsiReset);
+            }
+            else
+            {
+                w.Write(kv.Value);
             }
         }
 
@@ -215,18 +206,16 @@ namespace EasyExtensions.AspNetCore.Formatters
         private static string ShortCategory(string category)
         {
             if (string.IsNullOrEmpty(category)) return category;
-            // Trim namespace and nested type separators
             int lastDot = category.LastIndexOf('.');
             int lastPlus = category.LastIndexOf('+');
             int cut = Math.Max(lastDot, lastPlus);
-            var name = cut >= 0 ? category[(cut + 1)..] : category;
-            // Trim generic arity/backticks and generic argument list markers if any
+            var name = cut >=0 ? category[(cut +1)..] : category;
             int tick = name.IndexOf('`');
-            if (tick >= 0) name = name[..tick];
+            if (tick >=0) name = name[..tick];
             int lt = name.IndexOf('<');
-            if (lt >= 0) name = name[..lt];
+            if (lt >=0) name = name[..lt];
             int bracket = name.IndexOf('[');
-            if (bracket >= 0) name = name[..bracket];
+            if (bracket >=0) name = name[..bracket];
             return name;
         }
 
@@ -235,12 +224,12 @@ namespace EasyExtensions.AspNetCore.Formatters
         private const string AnsiRed = "\u001b[31m";
         private static string AnsiForLevel(LogLevel level) => level switch
         {
-            LogLevel.Trace => "\u001b[90m",   // Bright black / DarkGray
-            LogLevel.Debug => "\u001b[37m",   // Gray
-            LogLevel.Information => "\u001b[32m", // Green
-            LogLevel.Warning => "\u001b[33m", // Yellow
-            LogLevel.Error => "\u001b[31m",   // Red
-            LogLevel.Critical => "\u001b[97;41m", // White on Red background
+            LogLevel.Trace => "\u001b[90m",
+            LogLevel.Debug => "\u001b[37m",
+            LogLevel.Information => "\u001b[32m",
+            LogLevel.Warning => "\u001b[33m",
+            LogLevel.Error => "\u001b[31m",
+            LogLevel.Critical => "\u001b[97;41m",
             _ => ""
         };
     }

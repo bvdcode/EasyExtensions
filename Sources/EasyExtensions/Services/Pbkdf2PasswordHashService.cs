@@ -80,7 +80,7 @@ namespace EasyExtensions.Services
             var hash = pbkdf2.GetBytes(HashSize);
             string hashB64 = Convert.ToBase64String(hash);
             string saltB64 = Convert.ToBase64String(saltBytes);
-            return $"${Prefix}$v={_version}$i={_iterations}${saltB64}${hashB64}";
+            return "$" + Prefix + "$v=" + _version + "$i=" + _iterations + "$" + saltB64 + "$" + hashB64;
         }
 
         /// <summary>
@@ -88,12 +88,12 @@ namespace EasyExtensions.Services
         /// </summary>
         /// <remarks>
         /// needsRehash becomes true when: <br/>
-        ///  - stored version &lt; current version <br/>
-        ///  - stored iterations &lt; current configured iterations <br/>
-        ///  - salt length != 16 <br/>
-        ///  - hash length != 32 <br/>
-        ///  </remarks>
-        ///  <exception cref="ArgumentNullException">Thrown when the password is null or whitespace.</exception>
+        /// - stored version &lt; current version <br/>
+        /// - stored iterations &lt; current configured iterations <br/>
+        /// - salt length != 16 <br/>
+        /// - hash length != 32 <br/>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when the password is null or whitespace.</exception>
         public bool Verify(string password, string passwordHash) => Verify(password, passwordHash, out _);
 
         /// <summary>
@@ -101,12 +101,12 @@ namespace EasyExtensions.Services
         /// </summary>
         /// <remarks>
         /// needsRehash becomes true when: <br/>
-        ///  - stored version &lt; current version <br/>
-        ///  - stored iterations &lt; current configured iterations <br/>
-        ///  - salt length != 16 <br/>
-        ///  - hash length != 32 <br/>
-        ///  </remarks>
-        ///  <exception cref="ArgumentNullException">Thrown when the password is null or whitespace.</exception>
+        /// - stored version &lt; current version <br/>
+        /// - stored iterations &lt; current configured iterations <br/>
+        /// - salt length != 16 <br/>
+        /// - hash length != 32 <br/>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when the password is null or whitespace.</exception>
         public bool Verify(string password, string phc, out bool needsRehash)
         {
             needsRehash = false;
@@ -119,48 +119,19 @@ namespace EasyExtensions.Services
                 throw new ArgumentNullException(nameof(password));
             }
 
-            string[] parts = phc.Split('$', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length != 5 || parts[0] != Prefix)
-            {
-                return false;
-            }
-
-            // v=...
-            if (!parts[1].StartsWith("v=") || !int.TryParse(parts[1].AsSpan(2), out var ver))
-            {
-                return false;
-            }
-
-            // i=...
-            if (!parts[2].StartsWith("i=") || !int.TryParse(parts[2].AsSpan(2), out var iter))
-            {
-                return false;
-            }
-
-            byte[] salt, expected;
-            try
-            {
-                salt = Convert.FromBase64String(parts[3]);
-                expected = Convert.FromBase64String(parts[4]);
-            }
-            catch
+            if (!TryParsePhc(phc, out var parsed))
             {
                 return false;
             }
 
             byte[] input = DeriveInput(password, _pepper);
-            using var pbkdf2 = new Rfc2898DeriveBytes(input, salt, iter, _hashAlgorithm);
-            byte[] actual = pbkdf2.GetBytes(expected.Length);
+            using var pbkdf2 = new Rfc2898DeriveBytes(input, parsed.Salt, parsed.Iterations, _hashAlgorithm);
+            byte[] actual = pbkdf2.GetBytes(parsed.Hash.Length);
 
-            var ok = CryptographicOperations.FixedTimeEquals(actual, expected);
-
-            if (ok)
+            var ok = CryptographicOperations.FixedTimeEquals(actual, parsed.Hash);
+            if (ok && ShouldRehash(parsed))
             {
-                // Check if we need to rehash (parameters changed or hash size changed)
-                if (ver < _version || iter < _iterations || expected.Length != HashSize || salt.Length != SaltSize)
-                {
-                    needsRehash = true;
-                }
+                needsRehash = true;
             }
 
             return ok;
@@ -180,6 +151,61 @@ namespace EasyExtensions.Services
                 CryptographicOperations.ZeroMemory(pwdBytes);
                 CryptographicOperations.ZeroMemory(pepperBytes);
             }
+        }
+
+        private readonly struct ParsedPhc
+        {
+            public ParsedPhc(int version, int iterations, byte[] salt, byte[] hash)
+            {
+                Version = version;
+                Iterations = iterations;
+                Salt = salt;
+                Hash = hash;
+            }
+            public int Version { get; }
+            public int Iterations { get; }
+            public byte[] Salt { get; }
+            public byte[] Hash { get; }
+        }
+
+        private static bool TryParsePhc(string phc, out ParsedPhc parsed)
+        {
+            parsed = default;
+            string[] parts = phc.Split('$', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 5 || parts[0] != Prefix)
+            {
+                return false;
+            }
+
+            // v=...
+            if (!parts[1].StartsWith("v=") || !int.TryParse(parts[1].Substring(2), out var version))
+            {
+                return false;
+            }
+
+            // i=...
+            if (!parts[2].StartsWith("i=") || !int.TryParse(parts[2].Substring(2), out var iterations))
+            {
+                return false;
+            }
+
+            try
+            {
+                var salt = Convert.FromBase64String(parts[3]);
+                var hash = Convert.FromBase64String(parts[4]);
+                parsed = new ParsedPhc(version, iterations, salt, hash);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool ShouldRehash(ParsedPhc p)
+        {
+            return p.Version < _version || p.Iterations < _iterations || p.Salt.Length != SaltSize || p.Hash.Length != HashSize;
         }
     }
 }
