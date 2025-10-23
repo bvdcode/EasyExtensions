@@ -189,16 +189,14 @@ namespace EasyExtensions.AspNetCore.Formatters
 
                 // Exception details: print the full exception ToString() (includes message, stack, inner exceptions)
                 string exText = ex.ToString();
-                using (var reader = new StringReader(exText))
+                using var reader = new StringReader(exText);
+                string? line;
+                while ((line = reader.ReadLine()) is not null)
                 {
-                    string? line;
-                    while ((line = reader.ReadLine()) is not null)
-                    {
-                        WriteHeader();
-                        WriteExMarker();
-                        textWriter.Write(line);
-                        textWriter.WriteLine();
-                    }
+                    WriteHeader();
+                    WriteExMarker();
+                    textWriter.Write(line);
+                    textWriter.WriteLine();
                 }
             }
         }
