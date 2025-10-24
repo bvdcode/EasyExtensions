@@ -154,14 +154,10 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             {
                 return this.ApiUnauthorized("Email is not verified");
             }
-            Guid? userId = await FindUserByUsernameAsync(response.Email);
+            Guid? userId = await CreateOrUpdateUserFromGoogleAsync(response);
             if (!userId.HasValue || userId == Guid.Empty)
             {
-                userId = await CreateUserFromGoogleAsync(response);
-                if (!userId.HasValue || userId == Guid.Empty)
-                {
-                    return this.ApiUnauthorized("User not found");
-                }
+                return this.ApiUnauthorized("User not found");
             }
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
@@ -273,11 +269,12 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
 
         /// <summary>
         /// Creates a new user account based on the information provided by a Google OpenID response.
+        /// If a user with the same email already exists, their information may be updated instead.
         /// </summary>
         /// <param name="dto">The Google OpenID response data containing user information to create the account. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the unique identifier of the
         /// newly created user if successful; otherwise, null.</returns>
-        public virtual Task<Guid?> CreateUserFromGoogleAsync(GoogleOpenIdResponseDto dto)
+        public virtual Task<Guid?> CreateOrUpdateUserFromGoogleAsync(GoogleOpenIdResponseDto dto)
         {
             return Task.FromResult<Guid?>(null);
         }
