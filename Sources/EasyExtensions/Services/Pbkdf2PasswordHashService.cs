@@ -178,13 +178,13 @@ namespace EasyExtensions.Services
             }
 
             // v=...
-            if (!parts[1].StartsWith("v=") || !int.TryParse(parts[1].Substring(2), out var version))
+            if (!parts[1].StartsWith("v=") || !int.TryParse(parts[1][2..], out var version))
             {
                 return false;
             }
 
             // i=...
-            if (!parts[2].StartsWith("i=") || !int.TryParse(parts[2].Substring(2), out var iterations))
+            if (!parts[2].StartsWith("i=") || !int.TryParse(parts[2][2..], out var iterations))
             {
                 return false;
             }
