@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
@@ -50,40 +49,16 @@ namespace EasyExtensions.AspNetCore.Formatters
             string msg = logEntry.Formatter?.Invoke(logEntry.State, logEntry.Exception) ?? string.Empty;
             textWriter.Write(msg);
 
-            // Non-exception: render structured state inline
-            if (logEntry.Exception is null && TryGetState(logEntry.State, out var inlineKvps))
-            {
-                WriteInlineState(textWriter, inlineKvps, useAnsi);
-            }
+            // Do NOT render structured state inline for non-exception logs to avoid duplicating template args
+            // (values are already substituted by the formatter into the message above).
 
             textWriter.WriteLine();
 
             // Exception: extra lines with [Ex]
-            if (logEntry.Exception is Exception ex)
+            if (logEntry.Exception != null)
             {
-                if (TryGetState(logEntry.State, out var kvps) && HasAnyPairs(kvps))
-                {
-                    WriteExceptionStateLine(textWriter, ts, level, displayCategory, kvps, useAnsi);
-                }
-
-                WriteExceptionLines(textWriter, ts, level, displayCategory, ex, useAnsi);
+                WriteExceptionLines(textWriter, ts, level, displayCategory, logEntry.Exception, useAnsi);
             }
-        }
-
-        private static bool TryGetState<TState>(TState state, out IEnumerable<KeyValuePair<string, object>> kvps)
-        {
-            kvps = state as IEnumerable<KeyValuePair<string, object>>;
-            return kvps is not null;
-        }
-
-        private static bool HasAnyPairs(IEnumerable<KeyValuePair<string, object>> kvps)
-        {
-            foreach (var kv in kvps)
-            {
-                if (kv.Key == "{OriginalFormat}") continue;
-                return true;
-            }
-            return false;
         }
 
         private static void WriteHeader(TextWriter w, string ts, LogLevel level, string displayCategory, bool useAnsi)
@@ -133,35 +108,6 @@ namespace EasyExtensions.AspNetCore.Formatters
             w.Write("] ");
         }
 
-        private static void WriteInlineState(TextWriter w, IEnumerable<KeyValuePair<string, object>> kvps, bool useAnsi)
-        {
-            bool first = true;
-            foreach (var kv in kvps)
-            {
-                if (kv.Key == "{OriginalFormat}") continue;
-                if (first) { w.Write(" | "); first = false; } else { w.Write(", "); }
-                WriteKeyValue(w, kv, useAnsi);
-            }
-        }
-
-        private static void WriteExceptionStateLine(TextWriter w, string ts, LogLevel level, string displayCategory,
-            IEnumerable<KeyValuePair<string, object>> kvps, bool useAnsi)
-        {
-            WriteHeader(w, ts, level, displayCategory, useAnsi);
-            WriteExMarker(w, useAnsi);
-            w.Write("- ");
-
-            bool first = true;
-            foreach (var kv in kvps)
-            {
-                if (kv.Key == "{OriginalFormat}") continue;
-                if (!first) w.Write(", ");
-                first = false;
-                WriteKeyValue(w, kv, useAnsi);
-            }
-            w.WriteLine();
-        }
-
         private static void WriteExceptionLines(TextWriter w, string ts, LogLevel level, string displayCategory,
             Exception ex, bool useAnsi)
         {
@@ -173,22 +119,6 @@ namespace EasyExtensions.AspNetCore.Formatters
                 WriteExMarker(w, useAnsi);
                 w.Write(line);
                 w.WriteLine();
-            }
-        }
-
-        private static void WriteKeyValue(TextWriter w, KeyValuePair<string, object> kv, bool useAnsi)
-        {
-            w.Write(kv.Key);
-            w.Write('=');
-            if (useAnsi)
-            {
-                w.Write(AnsiCyan);
-                w.Write(kv.Value);
-                w.Write(AnsiReset);
-            }
-            else
-            {
-                w.Write(kv.Value);
             }
         }
 
