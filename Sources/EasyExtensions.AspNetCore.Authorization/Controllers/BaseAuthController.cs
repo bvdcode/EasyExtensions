@@ -44,14 +44,18 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         {
             Guid userId = User.GetUserId();
             string? phc = await FindUserPhcAsync(userId);
-            if (string.IsNullOrWhiteSpace(phc))
+            bool canSetIfNeverHad = await CanSetPasswordIfNeverHadAsync(userId);
+            if (string.IsNullOrWhiteSpace(phc) && !canSetIfNeverHad)
             {
-                return this.ApiNotFound("User not found");
+                return this.ApiNotFound("User or password does not exist");
             }
-            bool isValidPassword = _passwordHasher.Verify(request.CurrentPassword, phc);
-            if (!isValidPassword)
+            if (!string.IsNullOrWhiteSpace(phc))
             {
-                return this.ApiBadRequest("Invalid current password");
+                bool isValidPassword = _passwordHasher.Verify(request.CurrentPassword, phc);
+                if (!isValidPassword)
+                {
+                    return this.ApiUnauthorized("Current password is incorrect");
+                }
             }
             string newPhc = _passwordHasher.Hash(request.NewPassword);
             await SetUserPasswordPhcAsync(userId, newPhc);
@@ -79,7 +83,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string newRefreshToken = StringHelpers.CreateRandomString(64);
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
-            await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken, AuthType.Unknown);
             await OnTokenRefreshedAsync(userId.Value, newRefreshToken);
             return Ok(new TokenPairDto
             {
@@ -119,7 +123,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             string refreshToken = StringHelpers.CreateRandomString(64);
-            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Credentials);
             await OnUserLoggedInAsync(userId.Value, AuthType.Credentials);
             return Ok(new TokenPairDto
             {
@@ -142,7 +146,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// email is not verified.</returns>
         /// <exception cref="InvalidOperationException">Thrown if user information cannot be retrieved from Google using the provided token.</exception>
         [HttpPost("login/google")]
-        public async Task<IActionResult> Login([FromQuery] string token)
+        public async Task<IActionResult> LoginWithGoogle([FromQuery] string token)
         {
             const string url = "https://openidconnect.googleapis.com/v1/userinfo";
             using HttpClient http = new();
@@ -154,19 +158,15 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             {
                 return this.ApiUnauthorized("Email is not verified");
             }
-            Guid? userId = await FindUserByUsernameAsync(response.Email);
+            Guid? userId = await CreateOrUpdateUserFromGoogleAsync(response);
             if (!userId.HasValue || userId == Guid.Empty)
             {
-                userId = await CreateUserFromGoogleAsync(response);
-                if (!userId.HasValue || userId == Guid.Empty)
-                {
-                    return this.ApiUnauthorized("User not found");
-                }
+                return this.ApiUnauthorized("User not found");
             }
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             string refreshToken = StringHelpers.CreateRandomString(64);
-            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken);
+            await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Google);
             await OnUserLoggedInAsync(userId.Value, AuthType.Google);
             return Ok(new TokenPairDto
             {
@@ -192,8 +192,9 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// <param name="userId">The unique identifier of the user for whom the refresh token is being updated.</param>
         /// <param name="oldRefreshToken">The refresh token to be revoked. Cannot be null or empty.</param>
         /// <param name="newRefreshToken">The new refresh token to be saved for the user. Cannot be null or empty.</param>
+        /// <param name="authType">The type of authentication used for the user when logged in for the first time.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public abstract Task SaveAndRevokeRefreshTokenAsync(Guid userId, string oldRefreshToken, string newRefreshToken);
+        public abstract Task SaveAndRevokeRefreshTokenAsync(Guid userId, string oldRefreshToken, string newRefreshToken, AuthType authType);
 
         /// <summary>
         /// Asynchronously retrieves the unique identifier of a user associated with the specified refresh token.
@@ -226,6 +227,15 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// strings representing the names of the roles assigned to the user. The collection is empty if the user has no
         /// roles.</returns>
         public abstract Task<IEnumerable<string>> GetUserRolesAsync(Guid userId);
+
+        /// <summary>
+        /// Determines whether a password can be set for the specified user if the user has never previously set a
+        /// password.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user to evaluate. This value must correspond to an existing user.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result is <see langword="true"/> if the user is
+        /// eligible to set a password for the first time; otherwise, <see langword="false"/>.</returns>
+        public abstract Task<bool> CanSetPasswordIfNeverHadAsync(Guid userId);
 
         /// <summary>
         /// Handles logic to be executed after a user has changed their password.
@@ -272,11 +282,12 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
 
         /// <summary>
         /// Creates a new user account based on the information provided by a Google OpenID response.
+        /// If a user with the same email already exists, their information may be updated instead.
         /// </summary>
         /// <param name="dto">The Google OpenID response data containing user information to create the account. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the unique identifier of the
         /// newly created user if successful; otherwise, null.</returns>
-        public virtual Task<Guid?> CreateUserFromGoogleAsync(GoogleOpenIdResponseDto dto)
+        public virtual Task<Guid?> CreateOrUpdateUserFromGoogleAsync(GoogleOpenIdResponseDto dto)
         {
             return Task.FromResult<Guid?>(null);
         }

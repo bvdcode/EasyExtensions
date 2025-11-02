@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
@@ -12,6 +13,24 @@ namespace EasyExtensions.AspNetCore.Extensions
     public static class HttpRequestExtensions
     {
         private static readonly ConcurrentDictionary<string, List<DateTime>> _accesses = new();
+
+        /// <summary>
+        /// Retrieves the remote IP address of the client that initiated the HTTP request.
+        /// </summary>
+        /// <remarks>If the remote address cannot be parsed as a valid IP address, the method returns
+        /// IPAddress.None. This method relies on the value returned by GetRemoteAddress, which may be influenced by
+        /// proxy headers or server configuration.</remarks>
+        /// <param name="request">The HTTP request from which to extract the remote IP address. Cannot be null.</param>
+        /// <returns>An IPAddress representing the remote client's IP address if it can be determined; otherwise, IPAddress.None.</returns>
+        public static IPAddress GetRemoteIPAddress(this HttpRequest request)
+        {
+            string ipString = request.GetRemoteAddress();
+            if (IPAddress.TryParse(ipString, out var ipAddress))
+            {
+                return ipAddress;
+            }
+            return IPAddress.None;
+        }
 
         /// <summary>
         /// Get remote host IP address using proxy "X-Real-IP", "CF-Connecting-IP", "X-Forwarded-For" headers, or connection remote IP address.
