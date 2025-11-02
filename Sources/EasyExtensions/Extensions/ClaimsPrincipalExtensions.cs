@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Collections.Generic;
 
 namespace EasyExtensions
@@ -8,6 +9,33 @@ namespace EasyExtensions
     /// </summary>
     public static class ClaimsPrincipalExtensions
     {
+        /// <summary>
+        /// Get user GUID.
+        /// </summary>
+        /// <param name="user"> User instance. </param>
+        /// <returns> User GUID. </returns>
+        /// <exception cref="KeyNotFoundException"> Throws when claim not found. </exception>
+        public static Guid GetUserId(this ClaimsPrincipal? user)
+        {
+            if (user == null)
+            {
+                throw new NullReferenceException(nameof(user));
+            }
+            Claim? sub = user.FindFirst("sub");
+            if (sub != null)
+            {
+                return Guid.Parse(sub.Value);
+            }
+
+            Claim? nameIdentifier = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (nameIdentifier != null)
+            {
+                return Guid.Parse(nameIdentifier.Value);
+            }
+
+            throw new KeyNotFoundException("'sub' or " + ClaimTypes.NameIdentifier);
+        }
+
         /// <summary>
         /// Get user id.
         /// </summary>

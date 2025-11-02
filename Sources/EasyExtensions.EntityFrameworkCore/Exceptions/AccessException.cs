@@ -4,7 +4,7 @@ using System.Net;
 namespace EasyExtensions.EntityFrameworkCore.Exceptions
 {
     /// <summary>
-    /// Duplicate exception.
+    /// Access exception.
     /// </summary>
     /// <param name="objectName"> Object name. </param>
     [Serializable]

@@ -175,11 +175,10 @@ namespace EasyExtensions.WebDav
                 currentUrl += '/' + part;
                 await _client.Mkcol(currentUrl);
             }
-            var status = await ExistsWithStatusAsync(folder);
-            bool exists = status == HttpStatusCode.MultiStatus;
+            bool exists = await ExistsAsync(folder);
             if (!exists)
             {
-                throw new WebException($"Failed to create folder {folder} - it does not exist after creation attempt, status code {status}.");
+                throw new WebException($"Failed to create folder {folder} - it does not exist after creation attempt.");
             }
         }
 

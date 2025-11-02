@@ -5,7 +5,11 @@ using EasyExtensions.Helpers;
 using EasyExtensions.Services;
 using Microsoft.AspNetCore.Http;
 using EasyExtensions.Abstractions;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Console;
+using EasyExtensions.AspNetCore.Formatters;
 using EasyExtensions.AspNetCore.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +20,46 @@ namespace EasyExtensions.AspNetCore.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        /// <summary>
+        /// Represents the configuration key used to specify the pepper value for PBKDF2 operations.
+        /// </summary>
+        /// <remarks>Use this key when retrieving or setting the pepper value in configuration sources
+        /// related to PBKDF2 password hashing. The pepper is an additional secret value that enhances password security
+        /// when combined with a salt.</remarks>
+        public const string Pbkdf2PepperDefaultConfigurationKey = "Pepper";
+
+        /// <summary>
+        /// Adds <see cref="SimpleConsoleFormatter"/> to the <see cref="ILoggingBuilder"/>.
+        /// </summary>
+        /// <param name="builder"> Current <see cref="ILoggingBuilder"/> instance. </param>
+        public static ILoggingBuilder AddSimpleConsoleLogging(this ILoggingBuilder builder)
+        {
+            return builder.AddConsole(o => o.FormatterName = SimpleConsoleFormatter.FormatterName)
+                .AddConsoleFormatter<SimpleConsoleFormatter, SimpleConsoleFormatterOptions>();
+        }
+
+        /// <summary>
+        /// Adds <see cref="Pbkdf2PasswordHashService"/> to the <see cref="IServiceCollection"/> resolving pepper from <see cref="IConfiguration"/> in DI.
+        /// </summary>
+        /// <param name="services"> Current <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="configurationKey"> Configuration key to resolve pepper from <see cref="IConfiguration"/>. Default is <see cref="Pbkdf2PepperDefaultConfigurationKey"/>. </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        /// <exception cref="ArgumentNullException"> Thrown when Pepper configuration value is missing or invalid. </exception>
+        /// <remarks>
+        /// Requires IConfiguration in the service provider with provided pepper (at least 16 UTF-8 bytes).
+        /// Example: builder.Services.AddPbkdf2PasswordHashService();
+        /// </remarks>
+        public static IServiceCollection AddPbkdf2PasswordHashService(this IServiceCollection services, string configurationKey = Pbkdf2PepperDefaultConfigurationKey)
+        {
+            return services.AddSingleton<IPasswordHashService>(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var pepper = configuration[configurationKey]
+                    ?? throw new ArgumentNullException(nameof(configurationKey), "Pepper configuration value is missing: " + configurationKey);
+                return new Pbkdf2PasswordHashService(pepper);
+            });
+        }
+
         /// <summary>
         /// Adds default health checks to the <see cref="IServiceCollection"/> instance.
         /// </summary>
@@ -99,7 +143,7 @@ namespace EasyExtensions.AspNetCore.Extensions
         }
 
         /// <summary>
-        /// Adds exception handler for EasyExtensions.EntityFrameworkCore.Exceptions to the <see cref="IServiceCollection"/>.
+        /// Adds exception handler for EasyExtensions.*.Exceptions to the <see cref="IServiceCollection"/>.
         /// </summary>
         /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
@@ -127,7 +171,7 @@ namespace EasyExtensions.AspNetCore.Extensions
         /// <param name="serviceLifetime"> Service lifetime, default is Scoped. </param>
         /// <typeparam name="TInterface"> Interface type. </typeparam>
         /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
-        public static IServiceCollection AddTypesOfInterface<TInterface>(this IServiceCollection services, 
+        public static IServiceCollection AddTypesOfInterface<TInterface>(this IServiceCollection services,
             ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) where TInterface : class
         {
             var types = ReflectionHelpers.GetTypesOfInterface<TInterface>();

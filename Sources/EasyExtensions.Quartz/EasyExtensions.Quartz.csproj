@@ -6,7 +6,7 @@
 		<Company>bvdcode</Company>
 		<Product>EasyExtensions.Quartz</Product>
 		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
-		<Copyright>Copyright © Vadim Belov 2024</Copyright>
+		<Copyright>Copyright © Vadim Belov 2025</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<Title>EasyExtensions.Quartz</Title>
@@ -27,7 +27,7 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<PackageReference Include="Quartz.AspNetCore" Version="3.14.0" />
+		<PackageReference Include="Quartz.AspNetCore" Version="3.15.0" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>

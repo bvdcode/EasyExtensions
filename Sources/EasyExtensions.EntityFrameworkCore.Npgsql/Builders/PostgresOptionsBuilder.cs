@@ -4,12 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
+namespace EasyExtensions.EntityFrameworkCore.Npgsql.Builders
 {
     /// <summary>
     /// This class is used to set up the <see cref="DbContext"/> for PostgreSQL with the specified arguments.
     /// </summary>
-    public class PostgresContextFactory
+    public class PostgresOptionsBuilder
     {
         /// <summary>
         /// The maximum pool size for the database connection, default is 100.
@@ -22,9 +22,9 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
         public int TimeoutSeconds { get; set; } = 60;
 
         /// <summary>
-        /// The lifetime of the <see cref="DbContext"/>, default is <see cref="ServiceLifetime.Transient"/>.
+        /// The lifetime of the <see cref="DbContext"/>, default is <see cref="ServiceLifetime.Scoped"/>.
         /// </summary>
-        public ServiceLifetime ContextLifetime { get; set; } = ServiceLifetime.Transient;
+        public ServiceLifetime ContextLifetime { get; set; } = ServiceLifetime.Scoped;
 
         /// <summary>
         /// The timezone to use for the database connection, default is "UTC".
@@ -55,5 +55,15 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Factories
         /// Setup action for the <see cref="NpgsqlConnectionStringBuilder"/> to customize the connection string.
         /// </summary>
         public Action<NpgsqlConnectionStringBuilder>? SetupConnectionString { get; set; }
+
+        /// <summary>
+        /// Whether to use lazy loading proxies, default is true.
+        /// </summary>
+        public bool UseLazyLoadingProxies { get; set; } = true;
+
+        /// <summary>
+        /// Whether to include error details in exceptions, default is true.
+        /// </summary>
+        public bool IncludeErrorDetail { get; set; } = true;
     }
 }

@@ -7,7 +7,7 @@
 		<Company>bvdcode</Company>
 		<Product>EasyExtensions.EntityFrameworkCore</Product>
 		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
-		<Copyright>Copyright © Vadim Belov 2024</Copyright>
+		<Copyright>Copyright © Vadim Belov 2025</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<Title>EasyExtensions.EntityFrameworkCore</Title>
@@ -29,13 +29,13 @@
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
-		<PackageReference Include="Gridify" Version="2.16.3" />
-		<PackageReference Include="Gridify.EntityFramework" Version="2.16.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.7" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
+		<PackageReference Include="Gridify" Version="2.17.0" />
+		<PackageReference Include="Gridify.EntityFramework" Version="2.17.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 </Project>

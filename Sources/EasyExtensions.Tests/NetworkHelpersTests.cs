@@ -305,7 +305,7 @@ namespace EasyExtensions.Tests
             IPAddress? ipAddress = null;
             try
             {
-                var hostEntry = await Dns.GetHostEntryAsync("www.google.com");
+                var hostEntry = await Dns.GetHostEntryAsync("google.com");
                 ipAddress = hostEntry.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
 
                 if (ipAddress == null)
