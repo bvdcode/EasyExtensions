@@ -18,6 +18,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+		<ProjectReference Include="..\EasyExtensions.Clients\EasyExtensions.Clients.csproj" />
 		<ProjectReference Include="..\EasyExtensions.Drawing\EasyExtensions.Drawing.csproj" />
 		<ProjectReference Include="..\EasyExtensions.Fonts\EasyExtensions.Fonts.csproj" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />

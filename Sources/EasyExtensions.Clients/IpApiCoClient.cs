@@ -37,7 +37,13 @@ namespace EasyExtensions.Clients
                 return cachedResponse;
             }
             string url = $"https://ipapi.co/json/";
-            using HttpClient http = new();
+            using HttpClient http = new()
+            {
+                DefaultRequestHeaders =
+                {
+                    { "User-Agent", "EasyExtensions.Clients/1.0" }
+                }
+            };
             var response = await http.GetFromJsonAsync<IpApiCoResponse>(url)
                 ?? throw new InvalidOperationException("Failed to get a valid response from ipapi.co.");
             var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -72,7 +78,13 @@ namespace EasyExtensions.Clients
                 return cachedResponse;
             }
             string url = $"https://ipapi.co/{ip}/json/";
-            using HttpClient http = new();
+            using HttpClient http = new()
+            {
+                DefaultRequestHeaders =
+                {
+                    { "User-Agent", "EasyExtensions.Clients/1.0" }
+                }
+            };
             var response = await http.GetFromJsonAsync<IpApiCoResponse>(url)
                 ?? throw new InvalidOperationException("Failed to get a valid response from ipapi.co.");
             var cacheEntryOptions = new MemoryCacheEntryOptions()
