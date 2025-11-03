@@ -2,20 +2,21 @@
 
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Authors>Vadim Belov</Authors>
 		<Company>bvdcode</Company>
-		<Product>EasyExtensions.Drawing</Product>
+		<Product>EasyExtensions.Clients</Product>
 		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
 		<Copyright>Copyright © Vadim Belov 2025</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Title>EasyExtensions.Drawing</Title>
-		<PackageId>EasyExtensions.Drawing</PackageId>
-		<PackageTags>ASP.NET,EFCore,Drawing,Database,Extensions</PackageTags>
+		<Title>EasyExtensions.Clients</Title>
+		<PackageId>EasyExtensions.Clients</PackageId>
+		<PackageTags>ASP.NET,EFCore,Clients,Database,Extensions</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>packageIcon.png</PackageIcon>
-		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Drawing/packageIcon.png</PackageIconUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Clients/packageIcon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -28,11 +29,8 @@
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
-		<ProjectReference Include="..\EasyExtensions.Fonts\EasyExtensions.Fonts.csproj" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.10" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
