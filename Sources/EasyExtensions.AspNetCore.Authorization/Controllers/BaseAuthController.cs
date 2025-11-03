@@ -110,6 +110,11 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             {
                 return this.ApiUnauthorized("Invalid username or password");
             }
+            bool canLogin = await CanUserLoginAsync(userId.Value);
+            if (!canLogin)
+            {
+                return this.ApiUnauthorized("Invalid username or password");
+            }
             string? phc = await FindUserPhcAsync(userId.Value);
             if (string.IsNullOrWhiteSpace(phc))
             {
@@ -162,6 +167,11 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             if (!userId.HasValue || userId == Guid.Empty)
             {
                 return this.ApiUnauthorized("User not found");
+            }
+            bool canLogin = await CanUserLoginAsync(userId.Value);
+            if (!canLogin)
+            {
+                return this.ApiUnauthorized("Invalid username or password");
             }
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
@@ -236,6 +246,17 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// <returns>A task that represents the asynchronous operation. The task result is <see langword="true"/> if the user is
         /// eligible to set a password for the first time; otherwise, <see langword="false"/>.</returns>
         public abstract Task<bool> CanSetPasswordIfNeverHadAsync(Guid userId);
+
+        /// <summary>
+        /// Determines asynchronously whether the specified user is permitted to log in.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user whose login permission is being checked.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains <see langword="true"/> if the
+        /// user is allowed to log in; otherwise, <see langword="false"/>.</returns>
+        public virtual Task<bool> CanUserLoginAsync(Guid userId)
+        {
+            return Task.FromResult(true);
+        }
 
         /// <summary>
         /// Handles logic to be executed after a user has changed their password.
