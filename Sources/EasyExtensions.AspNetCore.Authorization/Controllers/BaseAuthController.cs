@@ -106,28 +106,32 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             Guid? userId = await FindUserByUsernameAsync(request.Username);
             if (!userId.HasValue || userId == Guid.Empty)
             {
+                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.UserNotFound);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             bool canLogin = await CanUserLoginAsync(userId.Value);
             if (!canLogin)
             {
+                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.CannotLoginExternal);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             string? phc = await FindUserPhcAsync(userId.Value);
             if (string.IsNullOrWhiteSpace(phc))
             {
+                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.NoPassword);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             bool isValidPassword = _passwordHasher.Verify(request.Password, phc);
             if (!isValidPassword)
             {
+                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.WrongPassword);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Credentials);
-            await OnUserLoggedInAsync(userId.Value, AuthType.Credentials);
+            await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.None);
             return Ok(new TokenPairDto
             {
                 AccessToken = accessToken,
@@ -169,13 +173,14 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             bool canLogin = await CanUserLoginAsync(userId.Value);
             if (!canLogin)
             {
+                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.CannotLoginExternal);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Google);
-            await OnUserLoggedInAsync(userId.Value, AuthType.Google);
+            await OnUserLoggingInAsync(userId.Value, AuthType.Google, AuthRejectionType.None);
             return Ok(new TokenPairDto
             {
                 AccessToken = accessToken,
@@ -261,8 +266,9 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// </summary>
         /// <param name="userId">The unique identifier of the user who has logged in.</param>
         /// <param name="authType">The type of authentication used for login.</param>
+        /// <param name="authRejectionType">The type of authentication rejection, if any.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public virtual Task OnUserLoggedInAsync(Guid userId, AuthType authType, AuthRejectionType authRejectionType)
+        public virtual Task OnUserLoggingInAsync(Guid userId, AuthType authType, AuthRejectionType authRejectionType)
         {
             return Task.CompletedTask;
         }
