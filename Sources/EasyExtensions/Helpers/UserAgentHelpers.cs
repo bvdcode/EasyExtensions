@@ -52,17 +52,17 @@ namespace EasyExtensions.Helpers
             }
 
             // iOS
-            if (ual.Contains("iphone"))
+            if (ual.Contains("ipod"))
             {
-                return "iPhone";
+                return "iPod";
             }
             if (ual.Contains("ipad"))
             {
                 return "iPad";
             }
-            if (ual.Contains("ipod"))
+            if (ual.Contains("iphone"))
             {
-                return "iPod";
+                return "iPhone";
             }
 
             // Android (try to extract model between "; ... Build/")
