@@ -59,7 +59,6 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             }
             string newPhc = _passwordHasher.Hash(request.NewPassword);
             await SetUserPasswordPhcAsync(userId, newPhc);
-            await OnUserChangedPasswordAsync(userId);
             return Ok("Password changed successfully");
         }
 
@@ -84,7 +83,6 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken, AuthType.Unknown);
-            await OnTokenRefreshedAsync(userId.Value, newRefreshToken);
             return Ok(new TokenPairDto
             {
                 AccessToken = accessToken,
@@ -259,35 +257,12 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         }
 
         /// <summary>
-        /// Handles logic to be executed after a user has changed their password.
-        /// </summary>
-        /// <param name="userId">The unique identifier of the user who changed their password.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        public virtual Task OnUserChangedPasswordAsync(Guid userId)
-        {
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Handles actions to perform when a user's refresh token has been updated.
-        /// </summary>
-        /// <remarks>Override this method to implement custom logic when a user's refresh token is
-        /// refreshed, such as updating persistent storage or notifying other services.</remarks>
-        /// <param name="userId">The unique identifier of the user whose refresh token was refreshed.</param>
-        /// <param name="newRefreshToken">The new refresh token value assigned to the user.</param>
-        /// <returns>A task that represents the asynchronous operation.</returns>
-        public virtual Task OnTokenRefreshedAsync(Guid userId, string newRefreshToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
         /// Handles logic to be performed when a user has successfully logged in.
         /// </summary>
         /// <param name="userId">The unique identifier of the user who has logged in.</param>
         /// <param name="authType">The type of authentication used for login.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        public virtual Task OnUserLoggedInAsync(Guid userId, AuthType authType)
+        public virtual Task OnUserLoggedInAsync(Guid userId, AuthType authType, AuthRejectionType authRejectionType)
         {
             return Task.CompletedTask;
         }
