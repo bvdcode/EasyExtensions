@@ -173,7 +173,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             bool canLogin = await CanUserLoginAsync(userId.Value);
             if (!canLogin)
             {
-                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.CannotLoginExternal);
+                await OnUserLoggingInAsync(userId.Value, AuthType.Google, AuthRejectionType.CannotLoginExternal);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             var roles = await GetUserRolesAsync(userId.Value);
