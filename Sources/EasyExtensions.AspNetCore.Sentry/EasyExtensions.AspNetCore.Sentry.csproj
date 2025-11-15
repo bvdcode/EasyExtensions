@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<Authors>Vadim Belov</Authors>
 		<Company>bvdcode</Company>
@@ -31,7 +31,7 @@
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Sentry.AspNetCore" Version="5.16.2" />
-		<PackageReference Include="System.Text.Encodings.Web" Version="9.0.10" />
+		<PackageReference Include="System.Text.Encodings.Web" Version="10.0.0" />
 		<ProjectReference Include="..\EasyExtensions.AspNetCore\EasyExtensions.AspNetCore.csproj" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
