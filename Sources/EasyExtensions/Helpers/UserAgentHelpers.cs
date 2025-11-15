@@ -103,7 +103,11 @@ namespace EasyExtensions.Helpers
             {
                 return "Mobile";
             }
-            return "Desktop";
+            if (ual.Contains("server"))
+            {
+                return "Server";
+            }
+            return "Unknown";
         }
 
         // small helpers

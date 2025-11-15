@@ -10,11 +10,49 @@ namespace EasyExtensions
     public static class ClaimsPrincipalExtensions
     {
         /// <summary>
-        /// Get user GUID.
+        /// Attempts to extract the user's unique identifier from the specified claims principal.
         /// </summary>
-        /// <param name="user"> User instance. </param>
-        /// <returns> User GUID. </returns>
-        /// <exception cref="KeyNotFoundException"> Throws when claim not found. </exception>
+        /// <remarks>This method searches for a claim with the type "sub" or <see
+        /// cref="System.Security.Claims.ClaimTypes.NameIdentifier"/>. If either claim is present and contains a valid
+        /// GUID value, that value is returned in <paramref name="userId"/>.</remarks>
+        /// <param name="user">The claims principal from which to retrieve the user identifier. May be null.</param>
+        /// <param name="userId">When this method returns, contains the user identifier as a <see cref="Guid"/> if found; otherwise, <see
+        /// cref="Guid.Empty"/>.</param>
+        /// <returns>true if a user identifier was successfully retrieved; otherwise, false.</returns>
+        public static bool TryGetUserId(this ClaimsPrincipal? user, out Guid userId)
+        {
+            userId = Guid.Empty;
+            if (user == null)
+            {
+                return false;
+            }
+            Claim? sub = user.FindFirst("sub");
+            if (sub != null)
+            {
+                userId = Guid.Parse(sub.Value);
+                return true;
+            }
+            Claim? nameIdentifier = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (nameIdentifier != null)
+            {
+                userId = Guid.Parse(nameIdentifier.Value);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Retrieves the unique identifier (GUID) for the current user from the specified claims principal.
+        /// </summary>
+        /// <remarks>This method attempts to locate the user's unique identifier by first searching for
+        /// the 'sub' claim, which is commonly used in OpenID Connect and OAuth 2.0 scenarios. If the 'sub' claim is not
+        /// found, it falls back to the NameIdentifier claim. The method expects the claim value to be a valid GUID
+        /// string.</remarks>
+        /// <param name="user">The claims principal representing the authenticated user. Cannot be null.</param>
+        /// <returns>The GUID value of the user's unique identifier, extracted from the 'sub' claim if present; otherwise, from
+        /// the NameIdentifier claim.</returns>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="user"/> is null.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown if neither the 'sub' claim nor the NameIdentifier claim is present in <paramref name="user"/>.</exception>
         public static Guid GetUserId(this ClaimsPrincipal? user)
         {
             if (user == null)
