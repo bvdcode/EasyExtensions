@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 
@@ -61,13 +60,7 @@ namespace EasyExtensions
         {
             using SHA256 sha = SHA256.Create();
             byte[] array = sha.ComputeHash(stream);
-            StringBuilder stringBuilder = new StringBuilder(64);
-            byte[] array2 = array;
-            foreach (byte b in array2)
-            {
-                stringBuilder.Append(b.ToString("X2"));
-            }
-            return stringBuilder.ToString().ToLower();
+            return BitConverter.ToString(array).Replace("-", string.Empty).ToLower();
         }
 
         /// <summary>
@@ -79,13 +72,7 @@ namespace EasyExtensions
         {
             using SHA512 sha = SHA512.Create();
             byte[] array = sha.ComputeHash(stream);
-            StringBuilder stringBuilder = new StringBuilder(128);
-            byte[] array2 = array;
-            foreach (byte b in array2)
-            {
-                stringBuilder.Append(b.ToString("X2"));
-            }
-            return stringBuilder.ToString().ToLower();
+            return BitConverter.ToString(array).Replace("-", string.Empty).ToLower();
         }
     }
 }
