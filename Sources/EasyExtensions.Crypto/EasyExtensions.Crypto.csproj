@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<Authors>Vadim Belov</Authors>
+		<Company>bvdcode</Company>
+		<Product>EasyExtensions.Crypto</Product>
+		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
+		<Copyright>Copyright © Vadim Belov 2025</Copyright>
+		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<Title>EasyExtensions.Crypto</Title>
+		<PackageId>EasyExtensions.Crypto</PackageId>
+		<PackageTags>ASP.NET,EFCore,Crypto,Database,Extensions</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>packageIcon.png</PackageIcon>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Crypto/packageIcon.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageLicenseExpression>AGPL-3.0</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+	</ItemGroup>
+
+</Project>
