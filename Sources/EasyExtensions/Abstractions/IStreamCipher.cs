@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EasyExtensions.Crypto.Abstractions
+namespace EasyExtensions.Abstractions
 {
     /// <summary>
     /// Defines methods for encrypting and decrypting data streams using a stream cipher algorithm.
@@ -31,7 +31,7 @@ namespace EasyExtensions.Crypto.Abstractions
         /// <param name="leaveOutputOpen">true to leave the output stream open after the operation completes; otherwise, false.</param>
         /// <param name="ct">A cancellation token that can be used to cancel the asynchronous operation.</param>
         /// <returns>A task that represents the asynchronous encryption operation.</returns>
-        Task EncryptAsync(Stream input, Stream output, int chunkSize = AesGcmStreamCipher.DefaultChunkSize, bool leaveInputOpen = true, bool leaveOutputOpen = true, CancellationToken ct = default);
+        Task EncryptAsync(Stream input, Stream output, int chunkSize = 1 * 1024 * 1024, bool leaveInputOpen = true, bool leaveOutputOpen = true, CancellationToken ct = default);
 
         /// <summary>
         /// Asynchronously decrypts data from the specified input stream and writes the decrypted data to the specified
@@ -60,7 +60,7 @@ namespace EasyExtensions.Crypto.Abstractions
         /// <param name="ct">A cancellation token that can be used to cancel the asynchronous operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a stream with the encrypted
         /// data. The caller is responsible for disposing the returned stream.</returns>
-        Task<Stream> EncryptAsync(Stream input, int chunkSize = AesGcmStreamCipher.DefaultChunkSize, bool leaveOpen = false, CancellationToken ct = default);
+        Task<Stream> EncryptAsync(Stream input, int chunkSize = 1 * 1024 * 1024, bool leaveOpen = false, CancellationToken ct = default);
 
         /// <summary>
         /// Asynchronously decrypts the data from the specified input stream and returns a stream containing the

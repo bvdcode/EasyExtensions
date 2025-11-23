@@ -8,9 +8,9 @@ using System.Threading;
 using System.IO.Pipelines;
 using System.Buffers.Binary;
 using System.Threading.Tasks;
+using EasyExtensions.Abstractions;
 using System.Security.Cryptography;
 using EasyExtensions.Crypto.Internals;
-using EasyExtensions.Crypto.Abstractions;
 using EasyExtensions.Crypto.Internals.Pipelines;
 
 namespace EasyExtensions.Crypto
@@ -22,19 +22,47 @@ namespace EasyExtensions.Crypto
     /// </summary>
     public class AesGcmStreamCipher : IStreamCipher
     {
-        private readonly int _keyId;
+        /// <summary>
+        /// Represents the size, in bytes, of the authentication tag used in cryptographic operations.
+        /// </summary>
         public const int TagSize = 16;
+
+        /// <summary>
+        /// Specifies the size, in bytes, of the cryptographic key.
+        /// </summary>
         public const int KeySize = 32;
+
+        /// <summary>
+        /// Specifies the size, in bytes, of the nonce used for encryption operations.
+        /// </summary>
         public const int NonceSize = 12;
+
+        /// <summary>
+        /// Represents the minimum allowed chunk size, in bytes, for data operations.
+        /// </summary>
+        public const int MinChunkSize = 8 * 1024;
+        
+        /// <summary>
+        /// Represents the maximum allowed size, in bytes, for a single data chunk.
+        /// </summary>
+        /// <remarks>This constant can be used to enforce limits when processing or transmitting large
+        /// data blocks to prevent excessive memory usage or to comply with protocol constraints.</remarks>
+        public const int MaxChunkSize = 64 * 1024 * 1024;
+
+        /// <summary>
+        /// Represents the default chunk size, in bytes, used for data processing or transfer operations.
+        /// </summary>
+        /// <remarks>The value is set to 1 megabyte (1 * 1024 * 1024 bytes). This constant can be used
+        /// as a standard buffer or segment size when working with large data streams or files.</remarks>
+        public const int DefaultChunkSize = 1 * 1024 * 1024;
+
+        private readonly int _keyId;
         private readonly int _windowCap;
         private readonly int _maxThreads;
         private readonly int _threadsMultiplier;
         private readonly byte[] _masterKeyBytes;
         private readonly bool _strictLengthCheck;
-        public const int MinChunkSize = 8 * 1024;
         private readonly RandomNumberGenerator _rng;
-        public const int MaxChunkSize = 64 * 1024 * 1024;
-        public const int DefaultChunkSize = 16 * 1024 * 1024;
         private static readonly ArrayPool<byte> BufferPool = ArrayPool<byte>.Shared;
         private readonly int ConcurrencyLevel = Math.Min(4, Environment.ProcessorCount);
 

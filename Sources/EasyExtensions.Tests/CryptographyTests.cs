@@ -142,8 +142,7 @@ namespace EasyExtensions.Tests
             using var h = new HMACSHA256(key);
             var input = h.ComputeHash(pwdBytes);
 
-            using var pbkdf2 = new Rfc2898DeriveBytes(input, salt, iterations, HashAlgorithmName.SHA256);
-            var shortHash = pbkdf2.GetBytes(16); // smaller than default 32
+            var shortHash = Rfc2898DeriveBytes.Pbkdf2(input, salt, iterations, HashAlgorithmName.SHA256, outputLength: 16); // smaller than default 32
             var phcShort = "$pbkdf2-sha256$" + parts[1] + "$" + parts[2] + "$" + parts[3] + "$" + Convert.ToBase64String(shortHash);
 
             // Act
