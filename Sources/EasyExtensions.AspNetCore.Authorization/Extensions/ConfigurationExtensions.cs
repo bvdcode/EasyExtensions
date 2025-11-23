@@ -8,6 +8,8 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
 {
     internal static class ConfigurationExtensions
     {
+        private static readonly string _defaultJwtKey = StringHelpers.CreateRandomString(32);
+
         internal static JwtSettings GetJwtSettings(this IConfiguration configuration)
         {
             const int defaultLifetimeMinutes = 15;
@@ -20,7 +22,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
                 : defaultLifetimeMinutes;
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lifetimeMinutes, nameof(lifetimeMinutes));
 
-            string key = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"]) ?? StringHelpers.CreateRandomString(32);
+            string key = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"]) ?? _defaultJwtKey;
             int utf8KeyLength = System.Text.Encoding.UTF8.GetByteCount(key);
             string algorithm = utf8KeyLength switch
             {
