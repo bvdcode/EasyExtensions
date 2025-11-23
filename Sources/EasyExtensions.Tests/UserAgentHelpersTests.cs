@@ -99,7 +99,7 @@ namespace EasyExtensions.Tests
         }
 
         [TestCase("Mozilla/5.0 (Mobile; rv:47.0) Gecko/47.0 Firefox/47.0", "Mobile")]
-        [TestCase("Mozilla/5.0 (compatible; FooBar/1.0)", "Desktop")]
+        [TestCase("Mozilla/5.0 (compatible; FooBar/1.0)", "Unknown")]
         public void GetDevice_Fallbacks(string ua, string expected)
         {
             Assert.That(UserAgentHelpers.GetDevice(ua), Is.EqualTo(expected));

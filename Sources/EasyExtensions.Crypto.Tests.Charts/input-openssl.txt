@@ -1,0 +1,15 @@
+C:\Users\BigBl>openssl speed -evp aes-128-gcm
+Doing AES-128-GCM ops for 3s on 16 size blocks: 19070356 AES-128-GCM ops in 2.94s
+Doing AES-128-GCM ops for 3s on 64 size blocks: 17830902 AES-128-GCM ops in 2.89s
+Doing AES-128-GCM ops for 3s on 256 size blocks: 16008461 AES-128-GCM ops in 2.91s
+Doing AES-128-GCM ops for 3s on 1024 size blocks: 11195899 AES-128-GCM ops in 2.94s
+Doing AES-128-GCM ops for 3s on 8192 size blocks: 3094723 AES-128-GCM ops in 2.92s
+Doing AES-128-GCM ops for 3s on 16384 size blocks: 1720411 AES-128-GCM ops in 2.95s
+version: 3.6.0
+built on: Wed Oct  8 20:29:58 2025 UTC
+options: bn(64,64)
+compiler: cl  /Z7 /Fdossl_static.pdb /Gs0 /GF /Gy /MD /W3 /wd4090 /nologo /O2 -DL_ENDIAN -DOPENSSL_PIC -D"OPENSSL_BUILDING_OPENSSL" -D"OPENSSL_SYS_WIN32" -D"WIN32_LEAN_AND_MEAN" -D"UNICODE" -D"_UNICODE" -D"_CRT_SECURE_NO_DEPRECATE" -D"_WINSOCK_DEPRECATED_NO_WARNINGS" -D"NDEBUG" -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_WIN32_WINNT=0x0502
+CPUINFO: OPENSSL_ia32cap=0xfffaf38bffcbffff:0x184027a4239c27a9:0x00400810bc18c410:0x0000000000000000:0x0000000000000000
+The 'numbers' are in 1000s of bytes per second processed.
+type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes  16384 bytes
+AES-128-GCM     103872.58k   394785.81k  1410121.64k  3902842.75k  8676610.33k  9544876.64k
