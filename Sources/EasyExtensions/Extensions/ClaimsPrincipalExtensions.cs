@@ -10,6 +10,44 @@ namespace EasyExtensions
     public static class ClaimsPrincipalExtensions
     {
         /// <summary>
+        /// Retrieves the user name or unique identifier from the specified claims principal.
+        /// </summary>
+        /// <remarks>This method attempts to retrieve the user's name by first checking for a name claim
+        /// (<see cref="System.Security.Claims.ClaimTypes.Name"/>), then a subject claim ('sub'), and finally a name
+        /// identifier claim (<see cref="System.Security.Claims.ClaimTypes.NameIdentifier"/>). If none of these claims
+        /// are found, an exception is thrown.</remarks>
+        /// <param name="user">The claims principal from which to extract the user name. Cannot be null.</param>
+        /// <returns>A string containing the user's name, subject identifier ('sub'), or name identifier claim value, in that
+        /// order of precedence.</returns>
+        /// <exception cref="NullReferenceException">Thrown if the <paramref name="user"/> parameter is null.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown if neither a name, subject ('sub'), nor name identifier claim is present in the claims principal.</exception>
+        public static string GetUserName(this ClaimsPrincipal? user)
+        {
+            if (user == null)
+            {
+                throw new NullReferenceException(nameof(user));
+            }
+            Claim? name = user.FindFirst(ClaimTypes.Name);
+            if (name != null)
+            {
+                return name.Value;
+            }
+            Claim? sub = user.FindFirst("sub");
+            if (sub != null)
+            {
+                return sub.Value;
+            }
+
+            Claim? nameIdentifier = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (nameIdentifier != null)
+            {
+                return nameIdentifier.Value;
+            }
+
+            throw new KeyNotFoundException("'sub' or " + ClaimTypes.NameIdentifier);
+        }
+
+        /// <summary>
         /// Attempts to extract the user's unique identifier from the specified claims principal.
         /// </summary>
         /// <remarks>This method searches for a claim with the type "sub" or <see
