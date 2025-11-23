@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using EasyExtensions.Helpers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using EasyExtensions.AspNetCore.Authorization.Models;
@@ -20,9 +20,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
                 : defaultLifetimeMinutes;
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lifetimeMinutes, nameof(lifetimeMinutes));
 
-            string key = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"])
-                ?? throw new KeyNotFoundException("JwtSettings.Key or JwtKey is not set");
-
+            string key = (!jwtSettings.Exists() ? configuration["JwtKey"] : jwtSettings["Key"]) ?? StringHelpers.CreateRandomString(32);
             int utf8KeyLength = System.Text.Encoding.UTF8.GetByteCount(key);
             string algorithm = utf8KeyLength switch
             {
