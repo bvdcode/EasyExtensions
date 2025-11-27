@@ -21,15 +21,24 @@ namespace EasyExtensions.Crypto.Tests
         [SetUp]
         public void SetUp()
         {
-            if (_sharedData != null && _masterKey != null) return;
+            if (_sharedData != null && _masterKey != null)
+            {
+                return;
+            }
 
             lock (_initLock)
             {
-                if (_sharedData != null && _masterKey != null) return;
+                if (_sharedData != null && _masterKey != null)
+                {
+                    return;
+                }
 
                 // Fixed master key once for all tests
                 _masterKey = new byte[32];
-                for (int i = 0; i < _masterKey.Length; i++) _masterKey[i] = (byte)i;
+                for (int i = 0; i < _masterKey.Length; i++)
+                {
+                    _masterKey[i] = (byte)i;
+                }
 
                 // Prepare shared plaintext buffer (1 GB)
                 int sizeBytes = TestDataSizeMb * OneMb;
