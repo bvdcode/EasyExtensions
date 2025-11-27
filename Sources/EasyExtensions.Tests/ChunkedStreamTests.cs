@@ -24,8 +24,9 @@ namespace EasyExtensions.Tests
 
             // Assert
             Assert.That(chunks.Count, Is.EqualTo(totalSize / chunkSize));
-            foreach (var chunk in chunks)
+            for (int idx = 0; idx < chunks.Count; idx++)
             {
+                var chunk = chunks[idx];
                 using (chunk)
                 {
                     Assert.That(chunk.Length, Is.EqualTo(chunkSize));
@@ -33,7 +34,7 @@ namespace EasyExtensions.Tests
                     // verify content is contiguous and matches source
                     using var reader = new BinaryReader(chunk, System.Text.Encoding.UTF8, leaveOpen: true);
                     var bytes = reader.ReadBytes((int)chunk.Length);
-                    var startIndex = chunks.IndexOf(chunk) * chunkSize;
+                    var startIndex = idx * chunkSize;
                     var expected = data.Skip(startIndex).Take(chunkSize).ToArray();
                     Assert.That(bytes, Is.EqualTo(expected));
                 }
@@ -55,16 +56,23 @@ namespace EasyExtensions.Tests
 
             // Assert
             Assert.That(chunks.Count, Is.EqualTo(3)); // 1024 + 1024 + 452
-            using (chunks[0]) { Assert.That(chunks[0].Length, Is.EqualTo(chunkSize)); }
-            using (chunks[1]) { Assert.That(chunks[1].Length, Is.EqualTo(chunkSize)); }
-            using (chunks[2]) { Assert.That(chunks[2].Length, Is.EqualTo(totalSize - 2 * chunkSize)); }
+            Assert.That(chunks[0].Length, Is.EqualTo(chunkSize));
+            Assert.That(chunks[1].Length, Is.EqualTo(chunkSize));
+            Assert.That(chunks[2].Length, Is.EqualTo(totalSize - 2 * chunkSize));
 
-            // Verify content of last chunk
-            using var last = chunks[2];
-            using var reader = new BinaryReader(last, System.Text.Encoding.UTF8, leaveOpen: true);
-            var bytes = reader.ReadBytes((int)last.Length);
-            var expected = data.Skip(2 * chunkSize).ToArray();
-            Assert.That(bytes, Is.EqualTo(expected));
+            // Verify content of last chunk (do not dispose before reading)
+            var last = chunks[2];
+            using (last)
+            using (var reader = new BinaryReader(last, System.Text.Encoding.UTF8, leaveOpen: true))
+            {
+                var bytes = reader.ReadBytes((int)last.Length);
+                var expected = data.Skip(2 * chunkSize).ToArray();
+                Assert.That(bytes, Is.EqualTo(expected));
+            }
+
+            // Dispose other chunk streams
+            using (chunks[0]) { }
+            using (chunks[1]) { }
         }
 
         [Test]
