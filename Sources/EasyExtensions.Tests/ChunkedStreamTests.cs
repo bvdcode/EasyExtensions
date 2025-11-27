@@ -23,14 +23,14 @@ namespace EasyExtensions.Tests
             var chunks = chunked.GetChunks().ToList();
 
             // Assert
-            Assert.That(chunks.Count, Is.EqualTo(totalSize / chunkSize));
+            Assert.That(chunks, Has.Count.EqualTo(totalSize / chunkSize));
             for (int idx = 0; idx < chunks.Count; idx++)
             {
                 var chunk = chunks[idx];
                 using (chunk)
                 {
                     Assert.That(chunk.Length, Is.EqualTo(chunkSize));
-                    Assert.That(chunk.Position, Is.EqualTo(0));
+                    Assert.That(chunk.Position, Is.Zero);
                     // verify content is contiguous and matches source
                     using var reader = new BinaryReader(chunk, System.Text.Encoding.UTF8, leaveOpen: true);
                     var bytes = reader.ReadBytes((int)chunk.Length);
@@ -55,10 +55,13 @@ namespace EasyExtensions.Tests
             var chunks = chunked.GetChunks().ToList();
 
             // Assert
-            Assert.That(chunks.Count, Is.EqualTo(3)); // 1024 + 1024 + 452
-            Assert.That(chunks[0].Length, Is.EqualTo(chunkSize));
-            Assert.That(chunks[1].Length, Is.EqualTo(chunkSize));
-            Assert.That(chunks[2].Length, Is.EqualTo(totalSize - 2 * chunkSize));
+            Assert.That(chunks, Has.Count.EqualTo(3)); // 1024 + 1024 + 452
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(chunks[0].Length, Is.EqualTo(chunkSize));
+                Assert.That(chunks[1].Length, Is.EqualTo(chunkSize));
+                Assert.That(chunks[2].Length, Is.EqualTo(totalSize - 2 * chunkSize));
+            }
 
             // Verify content of last chunk (do not dispose before reading)
             var last = chunks[2];
@@ -79,7 +82,7 @@ namespace EasyExtensions.Tests
         public void GetChunks_EmptyStream_ReturnsNoChunks()
         {
             // Arrange
-            using var baseStream = new MemoryStream(Array.Empty<byte>());
+            using var baseStream = new MemoryStream([]);
             using var chunked = new ChunkedStream(baseStream, chunkSize: 1024);
 
             // Act
@@ -105,7 +108,7 @@ namespace EasyExtensions.Tests
             {
                 using (chunk)
                 {
-                    Assert.That(chunk.Position, Is.EqualTo(0));
+                    Assert.That(chunk.Position, Is.Zero);
                     // Move position and ensure other chunks unaffected
                     chunk.Position = Math.Min(10, chunk.Length);
                 }
