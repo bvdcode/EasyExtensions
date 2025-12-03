@@ -24,6 +24,8 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         IPasswordHashService _passwordHasher,
         ITokenProvider _tokenProvider) : ControllerBase
     {
+        private const string CookieRefreshTokenName = "ee_refresh_token";
+
         /// <summary>
         /// Gets the IP address from which the current request originated.
         /// </summary>
@@ -76,7 +78,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             bool useCookie = string.IsNullOrWhiteSpace(request?.RefreshToken);
             if (useCookie)
             {
-                if (Request.Cookies.TryGetValue("refresh_token", out string? cookieRefreshToken))
+                if (Request.Cookies.TryGetValue(CookieRefreshTokenName, out string? cookieRefreshToken))
                 {
                     request = request is not null
                         ? request with { RefreshToken = cookieRefreshToken }
@@ -99,7 +101,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken, AuthType.Unknown);
-            Response.Cookies.Append("refresh_token", newRefreshToken, new()
+            Response.Cookies.Append(CookieRefreshTokenName, newRefreshToken, new()
             {
                 Secure = true,
                 HttpOnly = true,
@@ -155,7 +157,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Credentials);
             await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.None);
-            Response.Cookies.Append("refresh_token", refreshToken, new()
+            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
             {
                 Secure = true,
                 HttpOnly = true,
@@ -211,7 +213,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Google);
             await OnUserLoggingInAsync(userId.Value, AuthType.Google, AuthRejectionType.None);
-            Response.Cookies.Append("refresh_token", refreshToken, new()
+            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
             {
                 Secure = true,
                 HttpOnly = true,
