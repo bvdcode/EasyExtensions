@@ -63,6 +63,7 @@ namespace EasyExtensions.Crypto
         private readonly byte[] _masterKeyBytes;
         private readonly bool _strictLengthCheck;
         private readonly RandomNumberGenerator _rng;
+        private readonly long? _memoryLimitBytes;
         private static readonly ArrayPool<byte> BufferPool = ArrayPool<byte>.Shared;
         private readonly int ConcurrencyLevel = Math.Min(4, Environment.ProcessorCount);
 
@@ -84,10 +85,11 @@ namespace EasyExtensions.Crypto
         /// <param name="strictLengthCheck">true to enforce strict length checking on input data; otherwise, false.</param>
         /// <param name="rng">The random number generator to use for cryptographic operations. If null, a default secure random number
         /// generator is used.</param>
+        /// <param name="memoryLimitBytes">Optional soft memory cap to bound windowCap relative to chunk size.</param>
         /// <exception cref="ArgumentException">Thrown if masterKey is not the required length.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if keyId is not positive, threadsLimitMultiplier is less than 1, windowCap is less than 4, or threads
         /// is outside the allowed range.</exception>
-        public AesGcmStreamCipher(ReadOnlyMemory<byte> masterKey, int keyId = 1, int? threads = null, int threadsLimitMultiplier = 2, int windowCap = 1024, bool strictLengthCheck = true, RandomNumberGenerator? rng = null)
+        public AesGcmStreamCipher(ReadOnlyMemory<byte> masterKey, int keyId = 1, int? threads = null, int threadsLimitMultiplier = 2, int windowCap = 1024, bool strictLengthCheck = true, RandomNumberGenerator? rng = null, long? memoryLimitBytes = null)
         {
             if (masterKey.Length != KeySize)
             {
@@ -105,6 +107,10 @@ namespace EasyExtensions.Crypto
             {
                 throw new ArgumentOutOfRangeException(nameof(windowCap), "Window cap must be >= 4.");
             }
+            if (memoryLimitBytes.HasValue && memoryLimitBytes.Value < (long)(MinChunkSize * 4))
+            {
+                throw new ArgumentOutOfRangeException(nameof(memoryLimitBytes), "Memory limit too small for safe operation.");
+            }
 
             _masterKeyBytes = masterKey.ToArray();
             _keyId = keyId;
@@ -113,6 +119,7 @@ namespace EasyExtensions.Crypto
             _windowCap = windowCap;
             _strictLengthCheck = strictLengthCheck;
             _rng = rng ?? RandomNumberGenerator.Create();
+            _memoryLimitBytes = memoryLimitBytes;
             if (threads.HasValue)
             {
                 if (threads.Value < 1 || threads.Value > _maxThreads)
@@ -122,6 +129,20 @@ namespace EasyExtensions.Crypto
                 ConcurrencyLevel = threads.Value;
             }
             ConcurrencyLevel = Math.Clamp(ConcurrencyLevel, 1, _maxThreads);
+        }
+
+        private int ComputeEffectiveWindowCap(int chunkSize)
+        {
+            int cs = Math.Clamp(chunkSize, MinChunkSize, MaxChunkSize);
+            if (!_memoryLimitBytes.HasValue)
+            {
+                return Math.Clamp(_windowCap, 4, int.MaxValue);
+            }
+            // Estimate per-window memory footprint: ciphertext buffer ~ chunkSize + headers/overhead ~ 64KB
+            long estimatedPerWindow = cs + 64L * 1024L;
+            long maxWindowsByMem = Math.Max(4, _memoryLimitBytes.Value / Math.Max(estimatedPerWindow, 1));
+            int effective = (int)Math.Clamp(maxWindowsByMem, 4, int.MaxValue);
+            return Math.Min(_windowCap, effective);
         }
 
         /// <inheritdoc/>
@@ -141,6 +162,8 @@ namespace EasyExtensions.Crypto
             {
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), $"Chunk size must be between {MinChunkSize} and {MaxChunkSize} bytes.");
             }
+
+            int effectiveWindowCap = ComputeEffectiveWindowCap(chunkSize);
 
             byte[] fileKey = BufferPool.Rent(KeySize);
             try
@@ -177,7 +200,7 @@ namespace EasyExtensions.Crypto
                     BufferPool.Return(headerBuf, clearArray: false);
                 }
 
-                var enc = new EncryptionPipeline(input, output, fileKey, fileNoncePrefix, chunkSize, ConcurrencyLevel, _keyId, NonceSize, TagSize, _windowCap, BufferPool);
+                var enc = new EncryptionPipeline(input, output, fileKey, fileNoncePrefix, chunkSize, ConcurrencyLevel, _keyId, NonceSize, TagSize, effectiveWindowCap, BufferPool);
                 await enc.RunAsync(ct).ConfigureAwait(false);
             }
             finally
@@ -223,6 +246,8 @@ namespace EasyExtensions.Crypto
                 throw new InvalidDataException($"Key ID mismatch. Expected {_keyId}, but file has {header.KeyId}.");
             }
 
+            int effectiveWindowCap = ComputeEffectiveWindowCap(DefaultChunkSize);
+
             byte[] fileKey = BufferPool.Rent(KeySize);
             try
             {
@@ -233,7 +258,7 @@ namespace EasyExtensions.Crypto
                     byte[] aad = AesGcmStreamFormat.BuildKeyAad(header.KeyId, header.NoncePrefix, header.Nonce, header.TotalPlaintextLength, NonceSize, TagSize, KeySize);
                     gcm.Decrypt(header.Nonce, header.EncryptedKey, tagSpan, fileKey.AsSpan(0, KeySize), associatedData: aad);
                 }
-                var dec = new DecryptionPipeline(input, output, fileKey, header.NoncePrefix, ConcurrencyLevel, _keyId, NonceSize, TagSize, MaxChunkSize, _windowCap, header.TotalPlaintextLength, _strictLengthCheck, BufferPool);
+                var dec = new DecryptionPipeline(input, output, fileKey, header.NoncePrefix, ConcurrencyLevel, _keyId, NonceSize, TagSize, MaxChunkSize, effectiveWindowCap, header.TotalPlaintextLength, _strictLengthCheck, BufferPool);
                 await dec.RunAsync(ct).ConfigureAwait(false);
             }
             finally
@@ -264,7 +289,8 @@ namespace EasyExtensions.Crypto
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), $"Chunk size must be between {MinChunkSize} and {MaxChunkSize} bytes.");
             }
 
-            long pauseThreshold = (long)Math.Clamp(chunkSize, MinChunkSize, MaxChunkSize) * Math.Clamp(_windowCap, 4, int.MaxValue);
+            int effectiveWindowCap = ComputeEffectiveWindowCap(chunkSize);
+            long pauseThreshold = (long)Math.Clamp(chunkSize, MinChunkSize, MaxChunkSize) * Math.Clamp(effectiveWindowCap, 4, int.MaxValue);
             long resumeThreshold = pauseThreshold / 2;
             var pipe = new Pipe(new PipeOptions(
                 pool: MemoryPool<byte>.Shared,
@@ -315,7 +341,8 @@ namespace EasyExtensions.Crypto
             }
 
             long perChunkGuess = DefaultChunkSize;
-            long pauseThreshold = (long)Math.Clamp(perChunkGuess, MinChunkSize, MaxChunkSize) * Math.Clamp(_windowCap, 4, int.MaxValue);
+            int effectiveWindowCap = ComputeEffectiveWindowCap((int)perChunkGuess);
+            long pauseThreshold = perChunkGuess * Math.Clamp(effectiveWindowCap, 4, int.MaxValue);
             long resumeThreshold = pauseThreshold / 2;
             var pipe = new Pipe(new PipeOptions(
                 pool: MemoryPool<byte>.Shared,
