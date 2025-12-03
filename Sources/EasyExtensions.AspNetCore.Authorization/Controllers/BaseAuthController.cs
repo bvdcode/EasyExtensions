@@ -96,6 +96,13 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken, AuthType.Unknown);
+            Response.Cookies.Append("refresh_token", newRefreshToken, new()
+            {
+                Secure = true,
+                HttpOnly = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
+            });
             return Ok(new TokenPairDto
             {
                 AccessToken = accessToken,
