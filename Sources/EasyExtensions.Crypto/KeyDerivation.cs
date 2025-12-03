@@ -1,82 +1,156 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
 
 namespace EasyExtensions.Crypto
 {
     /// <summary>
-    /// Provides methods for deriving cryptographic subkeys from a master key and a specified purpose using HMAC-SHA256.
+    /// Key derivation using HKDF (RFC 5869) over HMAC-SHA256.
+    /// Provides deterministic subkeys from a master key and context info (purpose), with optional salt.
+    /// Canonical implementation: Extract(PRK) then Expand: T(1)=HMAC(PRK, info || 0x01), T(i)=HMAC(PRK, T(i-1) || info || i).
     /// </summary>
-    /// <remarks>The KeyDerivation class enables deterministic generation of subkeys for different application
-    /// scenarios, such as per-user or per-purpose secrets, by combining a master key with a unique purpose string. This
-    /// approach helps ensure that derived keys are unique and isolated for each intended use. All members are static
-    /// and thread-safe.</remarks>
     public static class KeyDerivation
     {
+        private const int HmacOutputLength = 32; // HMAC-SHA256 output size
+
         /// <summary>
-        /// Derives a deterministic subkey from the specified master key and purpose using HMAC-SHA256.
+        /// HKDF (RFC 5869) over HMAC-SHA256: masterKey + info (+ optional salt) -> subkey.
         /// </summary>
-        /// <remarks>This method uses HMAC-SHA256 to derive a subkey that is unique to the given purpose
-        /// and master key. If the requested length exceeds 32 bytes, additional HMAC blocks are concatenated to reach
-        /// the desired length. The method is suitable for generating cryptographic keys for different contexts from a
-        /// single master key. The caller is responsible for ensuring that the master key and purpose are chosen
-        /// appropriately for their security requirements.</remarks>
-        /// <param name="masterKey">The master key as a UTF-8 encoded string. Cannot be null.</param>
-        /// <param name="purpose">A string that specifies the intended purpose of the derived subkey. This value differentiates subkeys
-        /// derived from the same master key. Cannot be null.</param>
-        /// <param name="lengthBytes">The desired length, in bytes, of the derived subkey. Must be a positive integer.</param>
-        /// <returns>A byte array containing the derived subkey of the specified length. The same inputs will always produce the
-        /// same output.</returns>
-        public static byte[] DeriveSubkey(string masterKey, string purpose, int lengthBytes)
+        public static byte[] DeriveSubkey(
+            ReadOnlySpan<byte> masterKey,
+            ReadOnlySpan<byte> info,
+            int lengthBytes,
+            ReadOnlySpan<byte> salt = default)
         {
-            // masterKey + purpose -> HMAC-SHA256 -> target length
-            var masterBytes = Encoding.UTF8.GetBytes(masterKey);
-            var purposeBytes = Encoding.UTF8.GetBytes(purpose);
-
-            using var hmac = new HMACSHA256(masterBytes);
-            var hash = hmac.ComputeHash(purposeBytes);
-
-            if (lengthBytes <= hash.Length)
+            if (lengthBytes == 0)
             {
-                var result = new byte[lengthBytes];
-                Array.Copy(hash, result, lengthBytes);
-                return result;
+                return [];
+            }
+            ArgumentOutOfRangeException.ThrowIfNegative(lengthBytes);
+
+            var prk = HkdfExtract(masterKey, salt);
+            try
+            {
+                return HkdfExpand(prk, info, lengthBytes);
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(prk);
+            }
+        }
+
+        private static byte[] HkdfExtract(ReadOnlySpan<byte> ikm, ReadOnlySpan<byte> salt)
+        {
+            // If salt is not provided, use zeros of HashLen bytes (RFC 5869 §2.2).
+            byte[] saltKey = salt.IsEmpty ? new byte[HmacOutputLength] : salt.ToArray();
+            try
+            {
+                using var hmac = new HMACSHA256(saltKey);
+                // ComputeHash allocates; pass a copy of ikm to avoid pinning external span
+                return hmac.ComputeHash(ikm.ToArray());
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(saltKey);
+            }
+        }
+
+        private static byte[] HkdfExpand(byte[] prk, ReadOnlySpan<byte> info, int lengthBytes)
+        {
+            int n = (int)Math.Ceiling(lengthBytes / (double)HmacOutputLength);
+            if (n <= 0 || n > 255)
+            {
+                throw new ArgumentOutOfRangeException(nameof(lengthBytes), "HKDF length is too large.");
             }
 
-            // If you need more than 32 bytes, you can simply "pull" more blocks
-            // with different counters. This allows for generating longer keys
-            // while still being deterministic and tied to the master key and purpose.
-            var buffer = new byte[lengthBytes];
+            var okm = new byte[lengthBytes];
+            var infoBytes = info.ToArray();
+            byte[] tPrev = [];
             int offset = 0;
-            int counter = 1;
 
-            while (offset < lengthBytes)
+            using var hmac = new HMACSHA256(prk);
+
+            for (int i = 1; i <= n; i++)
             {
-                var counterBytes = BitConverter.GetBytes(counter++);
-                var blockInput = purposeBytes.Concat(counterBytes).ToArray();
-                var block = hmac.ComputeHash(blockInput);
+                // T(i) = HMAC(PRK, T(i-1) || info || i)
+                var dataLen = tPrev.Length + infoBytes.Length + 1;
+                var data = new byte[dataLen];
+                if (tPrev.Length > 0)
+                {
+                    Buffer.BlockCopy(tPrev, 0, data, 0, tPrev.Length);
+                }
+                if (infoBytes.Length > 0)
+                {
+                    Buffer.BlockCopy(infoBytes, 0, data, tPrev.Length, infoBytes.Length);
+                }
+                data[^1] = (byte)i;
 
-                int toCopy = Math.Min(block.Length, lengthBytes - offset);
-                Array.Copy(block, 0, buffer, offset, toCopy);
+                var t = hmac.ComputeHash(data);
+                int toCopy = Math.Min(HmacOutputLength, lengthBytes - offset);
+                Buffer.BlockCopy(t, 0, okm, offset, toCopy);
                 offset += toCopy;
+
+                // Zero and move T(i) -> T(i-1)
+                CryptographicOperations.ZeroMemory(tPrev);
+                tPrev = t;
+                CryptographicOperations.ZeroMemory(data);
             }
 
-            return buffer;
+            // Cleanup
+            CryptographicOperations.ZeroMemory(tPrev);
+            CryptographicOperations.ZeroMemory(infoBytes);
+            return okm;
         }
 
         /// <summary>
-        /// Derives a subkey from the specified master key and purpose, and returns the result as a Base64-encoded
-        /// string.
+        /// String-based wrapper for compatibility: masterKey + purpose -> subkey.
         /// </summary>
-        /// <param name="masterKey">The master key used as the basis for subkey derivation. Cannot be null or empty.</param>
-        /// <param name="purpose">A string that specifies the intended purpose of the derived subkey. Used to ensure subkeys are unique for
-        /// different purposes. Cannot be null or empty.</param>
-        /// <param name="lengthBytes">The desired length, in bytes, of the derived subkey. Must be a positive integer.</param>
-        /// <returns>A Base64-encoded string representing the derived subkey.</returns>
-        public static string DeriveSubkeyBase64(string masterKey, string purpose, int lengthBytes)
+        public static byte[] DeriveSubkey(
+            string masterKey,
+            string purpose,
+            int lengthBytes,
+            string? salt = null)
         {
-            var bytes = DeriveSubkey(masterKey, purpose, lengthBytes);
+            ArgumentNullException.ThrowIfNull(masterKey);
+            ArgumentNullException.ThrowIfNull(purpose);
+            if (lengthBytes == 0)
+            {
+                return [];
+            }
+
+            var masterBytes = Encoding.UTF8.GetBytes(masterKey);
+            var infoBytes = Encoding.UTF8.GetBytes(purpose);
+            byte[]? saltBytes = salt is null ? null : Encoding.UTF8.GetBytes(salt);
+
+            try
+            {
+                return DeriveSubkey(
+                    masterBytes,
+                    infoBytes,
+                    lengthBytes,
+                    saltBytes is null ? [] : saltBytes);
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(masterBytes);
+                CryptographicOperations.ZeroMemory(infoBytes);
+                if (saltBytes is not null)
+                {
+                    CryptographicOperations.ZeroMemory(saltBytes);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Base64 helper.
+        /// </summary>
+        public static string DeriveSubkeyBase64(
+            string masterKey,
+            string purpose,
+            int lengthBytes,
+            string? salt = null)
+        {
+            var bytes = DeriveSubkey(masterKey, purpose, lengthBytes, salt);
             return Convert.ToBase64String(bytes);
         }
     }

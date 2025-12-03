@@ -12,12 +12,14 @@ namespace EasyExtensions.Mediator
     /// Provides a mediator implementation that coordinates the sending of requests, publishing of notifications, and
     /// streaming of responses using registered handlers and processors.
     /// </summary>
-    /// <remarks>EasyMediator enables decoupled communication between components by dispatching requests,
+    /// <remarks>
+    /// EasyMediator enables decoupled communication between components by dispatching requests,
     /// notifications, and stream requests to their corresponding handlers. It supports both strongly-typed and
     /// object-based APIs, allowing for flexible integration scenarios. Handlers, pre-processors, post-processors, and
     /// exception handlers are resolved from the provided service provider. This class is typically used in applications
     /// that follow the mediator pattern to centralize request and notification handling. Thread safety depends on the
-    /// underlying service provider and registered handlers.</remarks>
+    /// underlying service provider and registered handlers.
+    /// </remarks>
     public class EasyMediator : IMediator
     {
         private readonly IServiceProvider _serviceProvider;
@@ -26,7 +28,7 @@ namespace EasyExtensions.Mediator
         /// Initializes a new instance of the EasyMediator class using the specified service provider.
         /// </summary>
         /// <param name="serviceProvider">The service provider used to resolve dependencies for handling requests and notifications.</param>
-        /// <exception cref="ArgumentNullException">Thrown if the serviceProvider parameter is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="serviceProvider"/> parameter is null.</exception>
         public EasyMediator(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -35,15 +37,19 @@ namespace EasyExtensions.Mediator
         /// <summary>
         /// Creates an asynchronous stream of response objects for the specified stream request.
         /// </summary>
-        /// <remarks>The returned stream yields objects of the response type specified by the request's
-        /// IStreamRequest:TResponse implementation, boxed as object. Consumers should cast each element to the
-        /// expected response type.</remarks>
-        /// <param name="request">The request object that implements the IStreamRequest:TResponse interface. Cannot be null.</param>
+        /// <remarks>
+        /// The returned stream yields objects of the response type specified by the request's
+        /// <see cref="IStreamRequest{TResponse}"/> implementation, boxed as <see cref="object"/>. Consumers should cast each element to the
+        /// expected response type.
+        /// </remarks>
+        /// <param name="request">The request object that implements the <see cref="IStreamRequest{TResponse}"/> interface. Cannot be null.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the stream operation.</param>
-        /// <returns>An asynchronous stream of response objects corresponding to the request. Each element in the stream is of
-        /// the response type defined by the request.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the request parameter is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the request object does not implement the IStreamRequest:TResponse interface.</exception>
+        /// <returns>
+        /// An asynchronous stream of response objects corresponding to the request. Each element in the stream is of
+        /// the response type defined by the request.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="request"/> parameter is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the request object does not implement <see cref="IStreamRequest{TResponse}"/>.</exception>
         public IAsyncEnumerable<object?> CreateStream(object request, CancellationToken cancellationToken = default)
         {
             if (request == null)
@@ -71,17 +77,21 @@ namespace EasyExtensions.Mediator
         /// <summary>
         /// Creates an asynchronous stream of responses for the specified stream request.
         /// </summary>
-        /// <remarks>The returned stream is produced by the handler registered for the specific request
+        /// <remarks>
+        /// The returned stream is produced by the handler registered for the specific request
         /// type. Ensure that a compatible handler is registered in the service provider before calling this
-        /// method.</remarks>
+        /// method.
+        /// </remarks>
         /// <typeparam name="TResponse">The type of the response elements produced by the stream.</typeparam>
         /// <param name="request">The stream request to process. Cannot be null.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the stream operation. The default value is <see
         /// cref="CancellationToken.None"/>.</param>
-        /// <returns>An asynchronous stream of response elements of type <typeparamref name="TResponse"/> generated by the
-        /// registered handler for the request.</returns>
+        /// <returns>
+        /// An asynchronous stream of response elements of type <typeparamref name="TResponse"/> generated by the
+        /// registered handler for the request.
+        /// </returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="request"/> is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if no handler is registered for the request type or if the handler does not implement a Handle
+        /// <exception cref="InvalidOperationException">Thrown if no handler is registered for the request type or if the handler does not implement a <c>Handle</c>
         /// method.</exception>
         public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
@@ -101,11 +111,11 @@ namespace EasyExtensions.Mediator
         /// <summary>
         /// Publishes a notification to all registered handlers for the notification's type.
         /// </summary>
-        /// <param name="notification">The notification object to publish. Must implement the INotification interface.</param>
+        /// <param name="notification">The notification object to publish. Must implement the <see cref="INotification"/> interface.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the publish operation.</param>
         /// <returns>A task that represents the asynchronous publish operation.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the notification parameter is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the notification does not implement the INotification interface.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="notification"/> parameter is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the notification does not implement the <see cref="INotification"/> interface.</exception>
         public Task Publish(object notification, CancellationToken cancellationToken = default)
         {
             if (notification == null)
@@ -131,8 +141,10 @@ namespace EasyExtensions.Mediator
         /// <summary>
         /// Publishes a notification to all registered handlers for the specified notification type.
         /// </summary>
-        /// <remarks>All handlers for the specified notification type are invoked asynchronously. The
-        /// order in which handlers are invoked is not guaranteed.</remarks>
+        /// <remarks>
+        /// All handlers for the specified notification type are invoked asynchronously. The
+        /// order in which handlers are invoked is not guaranteed.
+        /// </remarks>
         /// <typeparam name="TNotification">The type of notification being published. Must implement the <see cref="INotification"/> interface.</typeparam>
         /// <param name="notification">The notification instance to publish to handlers. Cannot be null.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the publish operation.</param>
@@ -161,14 +173,16 @@ namespace EasyExtensions.Mediator
         /// <summary>
         /// Sends a request to the appropriate handler and returns the response asynchronously.
         /// </summary>
-        /// <remarks>The request is processed by any registered pre-processors and post-processors. If no
-        /// handler is registered for the request type, an InvalidOperationException is thrown. Exceptions thrown during
-        /// processing may be handled by registered exception handlers or actions.</remarks>
+        /// <remarks>
+        /// The request is processed by any registered pre-processors and post-processors. If no
+        /// handler is registered for the request type, an <see cref="InvalidOperationException"/> is thrown. Exceptions thrown during
+        /// processing may be handled by registered exception handlers or actions.
+        /// </remarks>
         /// <typeparam name="TResponse">The type of the response expected from the request.</typeparam>
-        /// <param name="request">The request to send. Must implement the IRequest<TResponse> interface.</param>
+        /// <param name="request">The request to send. Must implement the <see cref="IRequest{TResponse}"/> interface.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the response from the handler.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the request parameter is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="request"/> parameter is null.</exception>
         public async Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         {
             if (request == null)
@@ -212,9 +226,10 @@ namespace EasyExtensions.Mediator
         /// Sends a request to the appropriate handler for processing, invoking any registered pre-processors and
         /// exception actions as needed.
         /// </summary>
-        /// <remarks>If no handler is registered for the request type, an <see
-        /// cref="InvalidOperationException"/> is thrown. Pre-processors are invoked before the handler, and exception
-        /// actions are executed if an exception occurs during processing.</remarks>
+        /// <remarks>
+        /// If no handler is registered for the request type, an <see cref="InvalidOperationException"/> is thrown. Pre-processors are invoked before the handler, and exception
+        /// actions are executed if an exception occurs during processing.
+        /// </remarks>
         /// <typeparam name="TRequest">The type of the request to send. Must implement the <see cref="IRequest"/> interface.</typeparam>
         /// <param name="request">The request object to be processed. Cannot be null.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
@@ -254,16 +269,20 @@ namespace EasyExtensions.Mediator
         /// <summary>
         /// Sends a request to the appropriate handler and asynchronously returns the response, if any.
         /// </summary>
-        /// <remarks>The type of the request determines whether a response is expected. If the request
-        /// implements IRequest<TResponse>, the method returns the response from the handler. If the request implements
-        /// IRequest (without a response type), the method returns null after the handler completes. This method is
-        /// typically used in scenarios where the request type is not known at compile time.</remarks>
-        /// <param name="request">The request object to send. Must implement either IRequest or IRequest<TResponse>.</param>
+        /// <remarks>
+        /// The type of the request determines whether a response is expected. If the request
+        /// implements <see cref="IRequest{TResponse}"/>, the method returns the response from the handler. If the request implements
+        /// <see cref="IRequest"/> (without a response type), the method returns <see langword="null"/> after the handler completes. This method is
+        /// typically used in scenarios where the request type is not known at compile time.
+        /// </remarks>
+        /// <param name="request">The request object to send. Must implement either <see cref="IRequest"/> or <see cref="IRequest{TResponse}"/>.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the send operation.</param>
-        /// <returns>An object representing the response from the handler if the request implements IRequest<TResponse>;
-        /// otherwise, null if the request implements IRequest with no response.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the request parameter is null.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the request type does not implement IRequest or IRequest<TResponse>.</exception>
+        /// <returns>
+        /// An object representing the response from the handler if the request implements <see cref="IRequest{TResponse}"/>;
+        /// otherwise, <see langword="null"/> if the request implements <see cref="IRequest"/> with no response.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown if the <paramref name="request"/> parameter is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the request type does not implement <see cref="IRequest"/> or <see cref="IRequest{TResponse}"/>.</exception>
         public async Task<object?> Send(object request, CancellationToken cancellationToken = default)
         {
             if (request == null)
