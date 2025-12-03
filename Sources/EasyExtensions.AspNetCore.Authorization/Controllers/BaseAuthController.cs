@@ -73,7 +73,8 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
-            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            bool useCookie = string.IsNullOrWhiteSpace(request.RefreshToken);
+            if (useCookie)
             {
                 if (Request.Cookies.TryGetValue("refresh_token", out string? cookieRefreshToken))
                 {
@@ -106,7 +107,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             return Ok(new TokenPairDto
             {
                 AccessToken = accessToken,
-                RefreshToken = newRefreshToken
+                RefreshToken = useCookie ? StringHelpers.CreateRandomString(64) : newRefreshToken
             });
         }
 
