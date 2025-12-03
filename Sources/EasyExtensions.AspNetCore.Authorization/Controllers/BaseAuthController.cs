@@ -73,6 +73,19 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
         {
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                if (Request.Cookies.TryGetValue("refresh_token", out string? cookieRefreshToken))
+                {
+                    request = request with { RefreshToken = cookieRefreshToken };
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            {
+                return this.ApiNotFound("Refresh token was not found");
+            }
+
             Guid? userId = await FindUserByRefreshTokenAsync(request.RefreshToken);
             if (!userId.HasValue || userId == Guid.Empty)
             {
@@ -132,6 +145,13 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Credentials);
             await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.None);
+            Response.Cookies.Append("refresh_token", refreshToken, new()
+            {
+                Secure = true,
+                HttpOnly = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
+            });
             return Ok(new TokenPairDto
             {
                 AccessToken = accessToken,
@@ -181,6 +201,13 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Google);
             await OnUserLoggingInAsync(userId.Value, AuthType.Google, AuthRejectionType.None);
+            Response.Cookies.Append("refresh_token", refreshToken, new()
+            {
+                Secure = true,
+                HttpOnly = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
+            });
             return Ok(new TokenPairDto
             {
                 AccessToken = accessToken,
@@ -292,6 +319,15 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         public virtual Task<Guid?> CreateOrUpdateUserFromGoogleAsync(GoogleOpenIdResponseDto dto)
         {
             return Task.FromResult<Guid?>(null);
+        }
+
+        /// <summary>
+        /// Returns the default expiration time span for cookies issued by the application.
+        /// </summary>
+        /// <returns>A <see cref="TimeSpan"/> representing the duration after which a cookie expires. The default is 30 days.</returns>
+        public virtual TimeSpan GetCookieExpirationTime()
+        {
+            return TimeSpan.FromDays(30);
         }
 
         private string CreateAccessToken(Guid userId, IEnumerable<string> roles)

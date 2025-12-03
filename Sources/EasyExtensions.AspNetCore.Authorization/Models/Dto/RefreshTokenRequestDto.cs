@@ -10,7 +10,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
         /// <summary>
         /// Gets or sets the refresh token used to obtain a new access token when the current one expires.
         /// </summary>
-        [Required(AllowEmptyStrings = false)]
-        public string RefreshToken { get; set; } = null!;
+        [Required(AllowEmptyStrings = true)]
+        public string? RefreshToken { get; set; }
     }
 }
