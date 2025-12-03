@@ -2,8 +2,9 @@
 // Copyright (c) 2025 Vadim Belov
 
 using EasyExtensions.Crypto.Models;
-using System.Buffers.Binary;
 using EasyExtensions.Crypto.Tests.TestUtils;
+using System.Buffers.Binary;
+using System.Security.Cryptography;
 
 namespace EasyExtensions.Crypto.Tests;
 
@@ -24,17 +25,17 @@ public class ReliabilityTests
         cipher.EncryptAsync(nonSeek, outEnc, chunkSize: AesGcmStreamCipher.MinChunkSize).GetAwaiter().GetResult();
         outEnc.Position = 0;
         var hdr = AesGcmKeyHeader.FromStream(outEnc, AesGcmStreamCipher.NonceSize, AesGcmStreamCipher.TagSize);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(hdr.DataLength, Is.EqualTo(0));
+            Assert.That(hdr.DataLength, Is.Zero);
             // There should be no more data
             Assert.That(outEnc.Position, Is.EqualTo(outEnc.Length));
-        });
+        }
         // Decrypt back and verify 0 bytes
         outEnc.Position = 0;
         using var outDec = new MemoryStream();
         cipher.DecryptAsync(outEnc, outDec).GetAwaiter().GetResult();
-        Assert.That(outDec.Length, Is.EqualTo(0));
+        Assert.That(outDec.Length, Is.Zero);
     }
 
     // 11. ChunkSize boundaries
@@ -52,22 +53,22 @@ public class ReliabilityTests
         using var enc1 = new MemoryStream();
         cipher.EncryptAsync(input1, enc1, chunkSize: min).GetAwaiter().GetResult();
         var (chunksMin, lengthsMin) = ParseChunks(enc1.ToArray(), out _);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(chunksMin, Is.EqualTo((data.Length / min) + ((data.Length % min == 0) ? 0 : 1)));
             Assert.That(lengthsMin.Last(), Is.EqualTo(data.Length % min == 0 ? min : data.Length % min));
-        });
+        }
 
         // Test with MaxChunkSize
         using var input2 = new MemoryStream(data);
         using var enc2 = new MemoryStream();
         cipher.EncryptAsync(input2, enc2, chunkSize: max).GetAwaiter().GetResult();
         var (chunksMax, lengthsMax) = ParseChunks(enc2.ToArray(), out _);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(chunksMax, Is.EqualTo((data.Length / max) + ((data.Length % max == 0) ? 0 : 1)));
             Assert.That(lengthsMax.Last(), Is.EqualTo(data.Length % max == 0 ? max : data.Length % max));
-        });
+        }
     }
 
     // 12. Wrong magic in chunk-header
@@ -115,12 +116,12 @@ public class ReliabilityTests
         SetTotal(L - 1);
         using var tamperedMinus = new MemoryStream(bytes, writable: false);
         using var outDec1 = new MemoryStream();
-        Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tamperedMinus, outDec1));
+        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tamperedMinus, outDec1));
         // L+1
         SetTotal(L + 1);
         using var tamperedPlus = new MemoryStream(bytes, writable: false);
         using var outDec2 = new MemoryStream();
-        Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tamperedPlus, outDec2));
+        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tamperedPlus, outDec2));
         // Exactly L passes
         SetTotal(L);
         using var ok = new MemoryStream(bytes, writable: false);
@@ -171,14 +172,14 @@ public class ReliabilityTests
         int offset = 0;
         // File header
         if (bytes.Length < 8) throw new InvalidDataException();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Magic
             Assert.That(bytes[0], Is.EqualTo((byte)'C'));
             Assert.That(bytes[1], Is.EqualTo((byte)'T'));
             Assert.That(bytes[2], Is.EqualTo((byte)'N'));
             Assert.That(bytes[3], Is.EqualTo((byte)'1'));
-        });
+        }
         int hdrLen = BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(4, 4));
         headerLen = hdrLen;
         offset += hdrLen;
@@ -186,14 +187,14 @@ public class ReliabilityTests
         var lens = new List<int>();
         while (offset < bytes.Length)
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 // Chunk header
                 Assert.That(bytes[offset + 0], Is.EqualTo((byte)'C'));
                 Assert.That(bytes[offset + 1], Is.EqualTo((byte)'T'));
                 Assert.That(bytes[offset + 2], Is.EqualTo((byte)'N'));
                 Assert.That(bytes[offset + 3], Is.EqualTo((byte)'1'));
-            });
+            }
             int chLen = BinaryPrimitives.ReadInt32LittleEndian(bytes.AsSpan(offset + 4, 4));
             long plainLen = BinaryPrimitives.ReadInt64LittleEndian(bytes.AsSpan(offset + 8, 8));
             // skip to ciphertext

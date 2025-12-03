@@ -20,7 +20,7 @@ namespace EasyExtensions.Crypto
     /// Nonce layout: 12-byte IV = 4-byte file prefix || 8-byte chunk counter.
     /// The maximum number of chunks per file is 2^64-1; exceeding this throws InvalidOperationException to avoid IV reuse.
     /// </summary>
-    public class AesGcmStreamCipher : IStreamCipher
+    public class AesGcmStreamCipher : IStreamCipher, IDisposable
     {
         /// <summary>
         /// Represents the size, in bytes, of the authentication tag used in cryptographic operations.
@@ -41,7 +41,7 @@ namespace EasyExtensions.Crypto
         /// Represents the minimum allowed chunk size, in bytes, for data operations.
         /// </summary>
         public const int MinChunkSize = 8 * 1024;
-        
+
         /// <summary>
         /// Represents the maximum allowed size, in bytes, for a single data chunk.
         /// </summary>
@@ -158,16 +158,18 @@ namespace EasyExtensions.Crypto
                 using (var gcm = new AesGcm(_masterKeyBytes, TagSize))
                 {
                     Span<byte> tagSpan = stackalloc byte[TagSize];
-                    gcm.Encrypt(fileKeyNonce, fileKey.AsSpan(0, KeySize), encryptedFileKey, tagSpan);
+                    long totalPlaintextLength = input.CanSeek ? Math.Max(0, input.Length - input.Position) : 0;
+                    byte[] aad = AesGcmStreamFormat.BuildKeyAad(_keyId, fileNoncePrefix, fileKeyNonce, totalPlaintextLength, NonceSize, TagSize, KeySize);
+                    gcm.Encrypt(fileKeyNonce, fileKey.AsSpan(0, KeySize), encryptedFileKey, tagSpan, associatedData: aad);
                     fileKeyTag = Tag128.FromSpan(tagSpan);
                 }
 
-                long totalPlaintextLength = input.CanSeek ? Math.Max(0, input.Length - input.Position) : 0;
+                long totalPlaintextLength2 = input.CanSeek ? Math.Max(0, input.Length - input.Position) : 0;
                 int headerLen = AesGcmStreamFormat.ComputeFileHeaderLength(NonceSize, TagSize, KeySize);
                 byte[] headerBuf = BufferPool.Rent(headerLen);
                 try
                 {
-                    AesGcmStreamFormat.BuildFileHeader(headerBuf.AsSpan(0, headerLen), _keyId, fileNoncePrefix, fileKeyNonce, fileKeyTag, encryptedFileKey, totalPlaintextLength, NonceSize, TagSize, KeySize);
+                    AesGcmStreamFormat.BuildFileHeader(headerBuf.AsSpan(0, headerLen), _keyId, fileNoncePrefix, fileKeyNonce, fileKeyTag, encryptedFileKey, totalPlaintextLength2, NonceSize, TagSize, KeySize);
                     await output.WriteAsync(headerBuf.AsMemory(0, headerLen), ct).ConfigureAwait(false);
                 }
                 finally
@@ -228,7 +230,8 @@ namespace EasyExtensions.Crypto
                 {
                     Span<byte> tagSpan = stackalloc byte[TagSize];
                     header.Tag.CopyTo(tagSpan);
-                    gcm.Decrypt(header.Nonce, header.EncryptedKey, tagSpan, fileKey.AsSpan(0, KeySize));
+                    byte[] aad = AesGcmStreamFormat.BuildKeyAad(header.KeyId, header.NoncePrefix, header.Nonce, header.TotalPlaintextLength, NonceSize, TagSize, KeySize);
+                    gcm.Decrypt(header.Nonce, header.EncryptedKey, tagSpan, fileKey.AsSpan(0, KeySize), associatedData: aad);
                 }
                 var dec = new DecryptionPipeline(input, output, fileKey, header.NoncePrefix, ConcurrencyLevel, _keyId, NonceSize, TagSize, MaxChunkSize, _windowCap, header.TotalPlaintextLength, _strictLengthCheck, BufferPool);
                 await dec.RunAsync(ct).ConfigureAwait(false);
@@ -351,6 +354,19 @@ namespace EasyExtensions.Crypto
             }, ct);
 
             return Task.FromResult<Stream>(readerStream);
+        }
+
+        /// <summary>
+        /// Releases all resources used by the current instance and securely clears sensitive data from memory.
+        /// </summary>
+        /// <remarks>Call this method when you are finished using the object to ensure that cryptographic
+        /// keys and other sensitive resources are properly disposed. After calling this method, the object should not
+        /// be used.</remarks>
+        public void Dispose()
+        {
+            CryptographicOperations.ZeroMemory(_masterKeyBytes);
+            _rng.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

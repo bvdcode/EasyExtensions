@@ -16,6 +16,7 @@ namespace EasyExtensions.Crypto
     {
         /// <summary>
         /// Derives a deterministic subkey from the specified master key and purpose using HMAC-SHA256.
+        /// Do not use this method for password hashing or storage.
         /// </summary>
         /// <remarks>This method uses HMAC-SHA256 to derive a subkey that is unique to the given purpose
         /// and master key. If the requested length exceeds 32 bytes, additional HMAC blocks are concatenated to reach

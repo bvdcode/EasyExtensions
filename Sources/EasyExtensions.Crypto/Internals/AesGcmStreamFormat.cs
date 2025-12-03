@@ -54,6 +54,35 @@ namespace EasyExtensions.Crypto.Internals
             BinaryPrimitives.WriteInt32LittleEndian(aad32.Slice(28, 4), 0);
         }
 
+        /// <summary>
+        /// Builds associated data used for per-file key wrapping. This AAD binds the wrapped file key to immutable
+        /// header metadata, preventing tampering with key id, nonce prefix, total plaintext length, and nonce.
+        /// Layout: magic(4) || headerLength(4) || totalPlaintextLength(8) || keyId(4) || noncePrefix(4) || nonce(NonceSize).
+        /// </summary>
+        /// <param name="keyId">The key id stored in the header.</param>
+        /// <param name="noncePrefix">Per-file 4-byte nonce prefix stored in the header.</param>
+        /// <param name="fileKeyNonce">The per-file nonce used to wrap the file key (full NonceSize bytes).</param>
+        /// <param name="totalPlaintextLength">Total plaintext length stored in the header.</param>
+        /// <param name="nonceSize">Size of the nonce in bytes.</param>
+        /// <param name="tagSize">Size of the tag in bytes (used to compute header length).</param>
+        /// <param name="keySize">Size of the encrypted file key in bytes (used to compute header length).</param>
+        /// <returns>Byte array containing the AAD.</returns>
+        public static byte[] BuildKeyAad(int keyId, uint noncePrefix, ReadOnlySpan<byte> fileKeyNonce, long totalPlaintextLength, int nonceSize, int tagSize, int keySize)
+        {
+            if (fileKeyNonce.Length < nonceSize) throw new ArgumentException("Nonce span shorter than nonce size", nameof(fileKeyNonce));
+            int headerLen = ComputeFileHeaderLength(nonceSize, tagSize, keySize);
+            int aadLen = 4 + 4 + 8 + 4 + 4 + nonceSize;
+            byte[] aad = new byte[aadLen];
+            int offset = 0;
+            MagicBytes.CopyTo(aad.AsSpan(offset)); offset += 4;
+            BinaryPrimitives.WriteInt32LittleEndian(aad.AsSpan(offset), headerLen); offset += 4;
+            BinaryPrimitives.WriteInt64LittleEndian(aad.AsSpan(offset), totalPlaintextLength); offset += 8;
+            BinaryPrimitives.WriteInt32LittleEndian(aad.AsSpan(offset), keyId); offset += 4;
+            BinaryPrimitives.WriteUInt32LittleEndian(aad.AsSpan(offset), noncePrefix); offset += 4;
+            fileKeyNonce[..nonceSize].CopyTo(aad.AsSpan(offset));
+            return aad;
+        }
+
         public static int ComputeFileHeaderLength(int nonceSize, int tagSize, int keySize)
             => FileHeader.ComputeLength(nonceSize, tagSize, keySize);
 
