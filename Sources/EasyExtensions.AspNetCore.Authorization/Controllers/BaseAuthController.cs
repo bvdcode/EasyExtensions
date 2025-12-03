@@ -71,18 +71,20 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the new access token if the refresh token is valid; otherwise, a
         /// 404 Not Found result if the token is invalid or revoked.</returns>
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto? request)
         {
-            bool useCookie = string.IsNullOrWhiteSpace(request.RefreshToken);
+            bool useCookie = string.IsNullOrWhiteSpace(request?.RefreshToken);
             if (useCookie)
             {
                 if (Request.Cookies.TryGetValue("refresh_token", out string? cookieRefreshToken))
                 {
-                    request = request with { RefreshToken = cookieRefreshToken };
+                    request = request is not null
+                        ? request with { RefreshToken = cookieRefreshToken }
+                        : new RefreshTokenRequestDto { RefreshToken = cookieRefreshToken };
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(request.RefreshToken))
+            if (string.IsNullOrWhiteSpace(request?.RefreshToken))
             {
                 return this.ApiNotFound("Refresh token was not found");
             }

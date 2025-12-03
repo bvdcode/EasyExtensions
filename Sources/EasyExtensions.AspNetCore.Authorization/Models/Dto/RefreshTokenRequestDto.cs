@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
+﻿namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
 {
     /// <summary>
     /// Represents a request to refresh an authentication token using the current password.
@@ -10,7 +8,6 @@ namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
         /// <summary>
         /// Gets or sets the refresh token used to obtain a new access token when the current one expires.
         /// </summary>
-        [Required(AllowEmptyStrings = true)]
         public string? RefreshToken { get; set; }
     }
 }
