@@ -7,6 +7,7 @@ namespace EasyExtensions.Crypto
     /// <summary>
     /// Key derivation using HKDF (RFC 5869) over HMAC-SHA256.
     /// Provides deterministic subkeys from a master key and context info (purpose), with optional salt.
+    /// Canonical implementation: Extract(PRK) then Expand: T(1)=HMAC(PRK, info || 0x01), T(i)=HMAC(PRK, T(i-1) || info || i).
     /// </summary>
     public static class KeyDerivation
     {
@@ -14,8 +15,6 @@ namespace EasyExtensions.Crypto
 
         /// <summary>
         /// HKDF (RFC 5869) over HMAC-SHA256: masterKey + info (+ optional salt) -> subkey.
-        /// Note: For compatibility with existing tests, the requested length is mixed into info,
-        /// making prefixes for different requested lengths intentionally differ.
         /// </summary>
         public static byte[] DeriveSubkey(
             ReadOnlySpan<byte> masterKey,
@@ -23,20 +22,13 @@ namespace EasyExtensions.Crypto
             int lengthBytes,
             ReadOnlySpan<byte> salt = default)
         {
-            if (lengthBytes == 0)
-            {
-                return Array.Empty<byte>();
-            }
+            if (lengthBytes == 0) return Array.Empty<byte>();
             ArgumentOutOfRangeException.ThrowIfNegative(lengthBytes);
 
-            // RFC 5869: Extract
             var prk = HkdfExtract(masterKey, salt);
             try
             {
-                // RFC 5869: Expand (with lengthBytes mixed into info to differ across requested lengths)
-                Span<byte> lengthTag = stackalloc byte[4];
-                BitConverter.TryWriteBytes(lengthTag, lengthBytes);
-                return HkdfExpand(prk, info, lengthTag, lengthBytes);
+                return HkdfExpand(prk, info, lengthBytes);
             }
             finally
             {
@@ -51,7 +43,7 @@ namespace EasyExtensions.Crypto
             try
             {
                 using var hmac = new HMACSHA256(saltKey);
-                // ComputeHash allocates; we pass a copy of ikm to avoid pinning external span
+                // ComputeHash allocates; pass a copy of ikm to avoid pinning external span
                 return hmac.ComputeHash(ikm.ToArray());
             }
             finally
@@ -60,7 +52,7 @@ namespace EasyExtensions.Crypto
             }
         }
 
-        private static byte[] HkdfExpand(byte[] prk, ReadOnlySpan<byte> info, ReadOnlySpan<byte> lengthTag, int lengthBytes)
+        private static byte[] HkdfExpand(byte[] prk, ReadOnlySpan<byte> info, int lengthBytes)
         {
             int n = (int)Math.Ceiling(lengthBytes / (double)HmacOutputLength);
             if (n <= 0 || n > 255)
@@ -70,28 +62,39 @@ namespace EasyExtensions.Crypto
 
             var okm = new byte[lengthBytes];
             var infoBytes = info.ToArray();
-            var t = Array.Empty<byte>();
+            byte[] tPrev = Array.Empty<byte>();
             int offset = 0;
 
             using var hmac = new HMACSHA256(prk);
 
             for (int i = 1; i <= n; i++)
             {
-                // T(i) = HMAC(PRK, T(i-1) || info || lengthTag || i)
-                var data = new byte[t.Length + infoBytes.Length + lengthTag.Length + 1];
-                Buffer.BlockCopy(t, 0, data, 0, t.Length);
-                Buffer.BlockCopy(infoBytes, 0, data, t.Length, infoBytes.Length);
-                Buffer.BlockCopy(lengthTag.ToArray(), 0, data, t.Length + infoBytes.Length, lengthTag.Length);
+                // T(i) = HMAC(PRK, T(i-1) || info || i)
+                var dataLen = tPrev.Length + infoBytes.Length + 1;
+                var data = new byte[dataLen];
+                if (tPrev.Length > 0)
+                {
+                    Buffer.BlockCopy(tPrev, 0, data, 0, tPrev.Length);
+                }
+                if (infoBytes.Length > 0)
+                {
+                    Buffer.BlockCopy(infoBytes, 0, data, tPrev.Length, infoBytes.Length);
+                }
                 data[^1] = (byte)i;
 
-                t = hmac.ComputeHash(data);
-
+                var t = hmac.ComputeHash(data);
                 int toCopy = Math.Min(HmacOutputLength, lengthBytes - offset);
                 Buffer.BlockCopy(t, 0, okm, offset, toCopy);
                 offset += toCopy;
+
+                // Zero and move T(i) -> T(i-1)
+                CryptographicOperations.ZeroMemory(tPrev);
+                tPrev = t;
+                CryptographicOperations.ZeroMemory(data);
             }
 
-            CryptographicOperations.ZeroMemory(t);
+            // Cleanup
+            CryptographicOperations.ZeroMemory(tPrev);
             CryptographicOperations.ZeroMemory(infoBytes);
             return okm;
         }
@@ -119,7 +122,7 @@ namespace EasyExtensions.Crypto
                     masterBytes,
                     infoBytes,
                     lengthBytes,
-                    saltBytes is null ? [] : saltBytes);
+                    saltBytes is null ? ReadOnlySpan<byte>.Empty : saltBytes);
             }
             finally
             {

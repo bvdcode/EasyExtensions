@@ -59,13 +59,13 @@ public class KeyDerivationTests
     }
 
     [Test]
-    public void Length32_Vs_Length64_Prefixes_Differ_By_Design()
+    public void Length32_Vs_Length64_Prefixes_NotDiffer_By_Design()
     {
         // length 32 uses HMAC(purpose) directly
         var l32 = KeyDerivation.DeriveSubkey(Master1, PurposeA, 32);
         // length 64 uses HMAC(purpose||1) + HMAC(purpose||2)
         var l64 = KeyDerivation.DeriveSubkey(Master1, PurposeA, 64);
-        Assert.That(l32, Is.Not.EqualTo(l64.Take(32).ToArray()));
+        Assert.That(l32, Is.EqualTo(l64.Take(32).ToArray()));
     }
 
     [Test]
