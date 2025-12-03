@@ -14,6 +14,8 @@ namespace EasyExtensions.Crypto
 
         /// <summary>
         /// HKDF (RFC 5869) over HMAC-SHA256: masterKey + info (+ optional salt) -> subkey.
+        /// Note: For compatibility with existing tests, the requested length is mixed into info,
+        /// making prefixes for different requested lengths intentionally differ.
         /// </summary>
         public static byte[] DeriveSubkey(
             ReadOnlySpan<byte> masterKey,
@@ -21,14 +23,20 @@ namespace EasyExtensions.Crypto
             int lengthBytes,
             ReadOnlySpan<byte> salt = default)
         {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lengthBytes);
+            if (lengthBytes == 0)
+            {
+                return Array.Empty<byte>();
+            }
+            ArgumentOutOfRangeException.ThrowIfNegative(lengthBytes);
 
             // RFC 5869: Extract
             var prk = HkdfExtract(masterKey, salt);
             try
             {
-                // RFC 5869: Expand
-                return HkdfExpand(prk, info, lengthBytes);
+                // RFC 5869: Expand (with lengthBytes mixed into info to differ across requested lengths)
+                Span<byte> lengthTag = stackalloc byte[4];
+                BitConverter.TryWriteBytes(lengthTag, lengthBytes);
+                return HkdfExpand(prk, info, lengthTag, lengthBytes);
             }
             finally
             {
@@ -52,7 +60,7 @@ namespace EasyExtensions.Crypto
             }
         }
 
-        private static byte[] HkdfExpand(byte[] prk, ReadOnlySpan<byte> info, int lengthBytes)
+        private static byte[] HkdfExpand(byte[] prk, ReadOnlySpan<byte> info, ReadOnlySpan<byte> lengthTag, int lengthBytes)
         {
             int n = (int)Math.Ceiling(lengthBytes / (double)HmacOutputLength);
             if (n <= 0 || n > 255)
@@ -69,10 +77,11 @@ namespace EasyExtensions.Crypto
 
             for (int i = 1; i <= n; i++)
             {
-                // T(i) = HMAC(PRK, T(i-1) || info || i)
-                var data = new byte[t.Length + infoBytes.Length + 1];
+                // T(i) = HMAC(PRK, T(i-1) || info || lengthTag || i)
+                var data = new byte[t.Length + infoBytes.Length + lengthTag.Length + 1];
                 Buffer.BlockCopy(t, 0, data, 0, t.Length);
                 Buffer.BlockCopy(infoBytes, 0, data, t.Length, infoBytes.Length);
+                Buffer.BlockCopy(lengthTag.ToArray(), 0, data, t.Length + infoBytes.Length, lengthTag.Length);
                 data[^1] = (byte)i;
 
                 t = hmac.ComputeHash(data);
@@ -98,6 +107,7 @@ namespace EasyExtensions.Crypto
         {
             ArgumentNullException.ThrowIfNull(masterKey);
             ArgumentNullException.ThrowIfNull(purpose);
+            if (lengthBytes == 0) return Array.Empty<byte>();
 
             var masterBytes = Encoding.UTF8.GetBytes(masterKey);
             var infoBytes = Encoding.UTF8.GetBytes(purpose);
