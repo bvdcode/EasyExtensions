@@ -129,5 +129,112 @@ namespace EasyExtensions.Tests
             // Assert: baseStream should be disposed and reading should throw
             Assert.Throws<ObjectDisposedException>(() => baseStream.ReadByte());
         }
+
+        [Test]
+        public void GetChunks_DoesNotReturnChunksSmallerThanRequestedSize_WhenEnoughDataAvailable()
+        {
+            // Arrange
+            var chunkSize = 8 * 1024 * 1024; // 8 MB
+            var totalSize = chunkSize * 3; // exactly 3 chunks
+            var data = Enumerable.Range(0, totalSize).Select(i => (byte)(i % 256)).ToArray();
+            using var baseStream = new MemoryStream(data);
+            using var chunked = new ChunkedStream(baseStream, chunkSize);
+
+            // Act
+            var chunks = chunked.GetChunks().ToList();
+
+            // Assert
+            Assert.That(chunks, Has.Count.EqualTo(3));
+            for (int idx = 0; idx < chunks.Count; idx++)
+            {
+                using var chunk = chunks[idx];
+                int length = (int)chunk.Length;
+                Assert.That(length, Is.EqualTo(chunkSize), $"Chunk #{idx} length is not equal to requested chunk size");
+            }
+        }
+
+        [Test]
+        public void GetChunks_ProducesSingleChunk_WhenDataSmallerThanChunkSize()
+        {
+            // Arrange
+            var chunkSize = 8 * 1024 * 1024; // 8 MB
+            var totalSize = 32 * 1024; // 32 KB
+            var data = Enumerable.Range(0, totalSize).Select(i => (byte)(i % 256)).ToArray();
+            using var baseStream = new MemoryStream(data);
+            using var chunked = new ChunkedStream(baseStream, chunkSize);
+
+            // Act
+            var chunks = chunked.GetChunks().ToList();
+
+            // Assert
+            Assert.That(chunks, Has.Count.EqualTo(1));
+            using var onlyChunk = chunks[0];
+            Assert.That(onlyChunk.Length, Is.EqualTo(totalSize));
+        }
+
+        [Test]
+        public void GetChunks_RespectsBaseStreamPosition_StartsFromCurrentPosition()
+        {
+            // Arrange
+            var totalSize = 1024 * 1024; // 1 MB
+            var chunkSize = 64 * 1024; // 64 KB
+            var skip = 128 * 1024; // skip first 128 KB
+            var data = Enumerable.Range(0, totalSize).Select(i => (byte)(i % 256)).ToArray();
+            using var baseStream = new MemoryStream(data);
+            baseStream.Position = skip;
+            using var chunked = new ChunkedStream(baseStream, chunkSize);
+
+            // Act
+            var chunks = chunked.GetChunks().ToList();
+
+            // Assert
+            var remaining = totalSize - skip;
+            var expectedFullChunks = remaining / chunkSize;
+            var expectedLastChunk = remaining % chunkSize;
+
+            Assert.That(chunks, Has.Count.EqualTo(expectedFullChunks + (expectedLastChunk > 0 ? 1 : 0)));
+
+            // First byte of first chunk should equal data[skip]
+            using (var firstChunk = chunks[0])
+            {
+                Assert.That(firstChunk.ReadByte(), Is.EqualTo(data[skip]));
+            }
+
+            // Dispose rest
+            for (int i = 1; i < chunks.Count; i++)
+            {
+                chunks[i].Dispose();
+            }
+        }
+
+        [Test]
+        public void GetChunks_ReturnsConsistentChunkSizes_ForLargeStreams()
+        {
+            // Arrange: create stream larger than typical buffer sizes
+            var chunkSize = 8 * 1024 * 1024; // 8 MB
+            var totalSize = chunkSize * 5 + chunkSize / 2; // 5.5 chunks
+            var data = new byte[totalSize];
+            new Random(1234).NextBytes(data);
+            using var baseStream = new MemoryStream(data);
+            using var chunked = new ChunkedStream(baseStream, chunkSize);
+
+            // Act
+            var chunks = chunked.GetChunks().ToList();
+
+            // Assert
+            Assert.That(chunks, Has.Count.EqualTo(6));
+            for (int i = 0; i < chunks.Count; i++)
+            {
+                using var chunk = chunks[i];
+                if (i < 5)
+                {
+                    Assert.That(chunk.Length, Is.EqualTo(chunkSize));
+                }
+                else
+                {
+                    Assert.That(chunk.Length, Is.EqualTo(chunkSize / 2));
+                }
+            }
+        }
     }
 }
