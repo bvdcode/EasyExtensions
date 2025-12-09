@@ -1,8 +1,8 @@
-﻿using Sentry;
+﻿using EasyExtensions.AspNetCore.Extensions;
+using Microsoft.AspNetCore.Http;
+using Sentry;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
-using EasyExtensions.AspNetCore.Extensions;
 
 namespace EasyExtensions.AspNetCore.Sentry.Factories
 {

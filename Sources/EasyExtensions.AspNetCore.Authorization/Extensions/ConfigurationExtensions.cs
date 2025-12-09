@@ -1,8 +1,8 @@
-﻿using System;
+﻿using EasyExtensions.AspNetCore.Authorization.Models;
 using EasyExtensions.Helpers;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
-using EasyExtensions.AspNetCore.Authorization.Models;
+using Microsoft.IdentityModel.Tokens;
+using System;
 
 namespace EasyExtensions.AspNetCore.Authorization.Extensions
 {
@@ -14,7 +14,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
         {
             const int defaultLifetimeMinutes = 15;
             var jwtSettings = configuration.GetSection("JwtSettings");
-            string? lifetimeMinutesStr = jwtSettings.Exists() 
+            string? lifetimeMinutesStr = jwtSettings.Exists()
                 ? jwtSettings["LifetimeMinutes"]
                 : configuration["JwtLifetimeMinutes"];
             int lifetimeMinutes = int.TryParse(lifetimeMinutesStr, out int parsedLifetimeMinutes)

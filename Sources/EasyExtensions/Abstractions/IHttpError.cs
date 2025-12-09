@@ -1,5 +1,5 @@
-﻿using System.Net;
-using EasyExtensions.Models;
+﻿using EasyExtensions.Models;
+using System.Net;
 
 namespace EasyExtensions.Abstractions
 {

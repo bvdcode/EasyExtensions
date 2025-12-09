@@ -1,11 +1,11 @@
-﻿using System;
-using WebDav;
-using System.IO;
-using System.Net;
-using System.Linq;
-using System.Threading.Tasks;
-using EasyExtensions.Extensions;
+﻿using EasyExtensions.Extensions;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using WebDav;
 
 namespace EasyExtensions.WebDav
 {

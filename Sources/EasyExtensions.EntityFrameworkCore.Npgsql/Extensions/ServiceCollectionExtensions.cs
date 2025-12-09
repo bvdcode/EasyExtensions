@@ -1,10 +1,10 @@
-﻿using Npgsql;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.DependencyInjection;
+﻿using EasyExtensions.EntityFrameworkCore.Npgsql.Builders;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Migrations;
-using EasyExtensions.EntityFrameworkCore.Npgsql.Builders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 {

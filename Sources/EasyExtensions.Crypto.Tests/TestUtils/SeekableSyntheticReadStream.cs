@@ -1,11 +1,6 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2025 Vadim Belov
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace EasyExtensions.Crypto.Tests.TestUtils
 {
     // A seekable stream that reports a given Length but returns EOF immediately (no data).

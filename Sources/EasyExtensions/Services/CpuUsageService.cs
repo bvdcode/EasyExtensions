@@ -1,6 +1,6 @@
-﻿using System;
+﻿using EasyExtensions.Models;
+using System;
 using System.Diagnostics;
-using EasyExtensions.Models;
 
 namespace EasyExtensions.Services
 {

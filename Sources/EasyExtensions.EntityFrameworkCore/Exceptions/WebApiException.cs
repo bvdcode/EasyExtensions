@@ -1,7 +1,7 @@
-﻿using System.Net;
-using System.Diagnostics;
+﻿using EasyExtensions.Abstractions;
 using EasyExtensions.Models;
-using EasyExtensions.Abstractions;
+using System.Diagnostics;
+using System.Net;
 
 namespace EasyExtensions.EntityFrameworkCore.Exceptions
 {

@@ -1,5 +1,5 @@
-﻿using System.Net.Http;
-using EasyExtensions.Handlers;
+﻿using EasyExtensions.Handlers;
+using System.Net.Http;
 
 namespace EasyExtensions.Clients
 {

@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.EntityFrameworkCore.Database;
+﻿using EasyExtensions.EntityFrameworkCore.Database;
 using EasyExtensions.EntityFrameworkCore.HealthChecks;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Extensions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace EasyExtensions.AspNetCore.Stack.Builders
 {

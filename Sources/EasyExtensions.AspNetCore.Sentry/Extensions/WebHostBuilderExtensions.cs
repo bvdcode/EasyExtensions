@@ -1,10 +1,10 @@
-﻿using Sentry;
-using System;
-using Sentry.AspNetCore;
-using System.Diagnostics;
+﻿using EasyExtensions.AspNetCore.Sentry.Factories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.AspNetCore.Sentry.Factories;
+using Sentry;
+using Sentry.AspNetCore;
+using System;
+using System.Diagnostics;
 
 namespace EasyExtensions.AspNetCore.Sentry.Extensions
 {
@@ -21,7 +21,7 @@ namespace EasyExtensions.AspNetCore.Sentry.Extensions
         /// <param name="setup"> Optional setup action. </param>
         /// <param name="useInDevelopment"> Force use in development environment. </param>
         /// <returns> Current <see cref="IWebHostBuilder"/> instance. </returns>
-        public static IWebHostBuilder UseSentryWithUserCapturing(this IWebHostBuilder builder, 
+        public static IWebHostBuilder UseSentryWithUserCapturing(this IWebHostBuilder builder,
             string dsn, Action<SentryAspNetCoreOptions>? setup = null, bool useInDevelopment = false)
         {
             bool isDevelopment = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Development" || Debugger.IsAttached;

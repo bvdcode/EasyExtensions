@@ -1,7 +1,7 @@
-﻿using System.Net;
-using System.Net.Http.Json;
-using EasyExtensions.Clients.Models;
+﻿using EasyExtensions.Clients.Models;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace EasyExtensions.Clients
 {

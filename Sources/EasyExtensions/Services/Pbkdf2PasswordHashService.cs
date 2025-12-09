@@ -1,7 +1,7 @@
-﻿using System;
-using System.Text;
-using EasyExtensions.Abstractions;
+﻿using EasyExtensions.Abstractions;
+using System;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace EasyExtensions.Services
 {

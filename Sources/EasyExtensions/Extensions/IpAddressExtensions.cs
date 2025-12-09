@@ -1,8 +1,8 @@
-﻿using System;
+﻿using EasyExtensions.Helpers;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
-using EasyExtensions.Helpers;
 
 namespace EasyExtensions
 {

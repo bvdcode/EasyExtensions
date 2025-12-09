@@ -1,6 +1,6 @@
-using System.IO;
-using System.Collections.Concurrent;
 using EasyExtensions.Fonts.Resources;
+using System.Collections.Concurrent;
+using System.IO;
 
 namespace EasyExtensions.Fonts.Helpers
 {
@@ -23,7 +23,7 @@ namespace EasyExtensions.Fonts.Helpers
             {
                 return fontBytes;
             }
-            var assembly = typeof(FontLoader).Assembly;            
+            var assembly = typeof(FontLoader).Assembly;
             using var stream = assembly.GetManifestResourceStream(typeof(StaticFonts), fontName)
                 ?? throw new FileNotFoundException($"Font file '{fontName}' not found in embedded resources.");
             using var memoryStream = new MemoryStream();

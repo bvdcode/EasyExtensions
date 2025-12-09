@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Text;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace EasyExtensions.Windows
 {
@@ -594,7 +594,7 @@ namespace EasyExtensions.Windows
             StringBuilder iconPath = new StringBuilder(260, 260);
             // Get icon index and path:
             int iconIndex;
-            if (linkA == null && linkW != null) 
+            if (linkA == null && linkW != null)
             {
                 linkW.GetIconLocation(iconPath, iconPath.Capacity, out iconIndex);
             }

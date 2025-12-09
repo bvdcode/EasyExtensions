@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace EasyExtensions.Mediator.Contracts
 {

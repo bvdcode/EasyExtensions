@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using System.Numerics;
 using System.Net.Sockets;
+using System.Numerics;
 
 namespace EasyExtensions.Helpers
 {

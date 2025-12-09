@@ -1,6 +1,6 @@
-﻿using System;
+﻿using EasyExtensions.AspNetCore.Authorization.Builders;
 using Microsoft.IdentityModel.Tokens;
-using EasyExtensions.AspNetCore.Authorization.Builders;
+using System;
 
 namespace EasyExtensions.AspNetCore.Authorization.Abstractions
 {

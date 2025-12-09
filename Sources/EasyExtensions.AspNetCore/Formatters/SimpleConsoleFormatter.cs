@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
+using System;
+using System.IO;
 
 namespace EasyExtensions.AspNetCore.Formatters
 {
@@ -13,7 +13,7 @@ namespace EasyExtensions.AspNetCore.Formatters
     /// <remarks>
     /// Initializes a new instance of the <see cref="SimpleConsoleFormatter"/> class with the name "minimal".
     /// </remarks>
-    public class SimpleConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions> options) 
+    public class SimpleConsoleFormatter(IOptionsMonitor<SimpleConsoleFormatterOptions> options)
         : ConsoleFormatter(FormatterName)
     {
         /// <summary>
@@ -21,7 +21,7 @@ namespace EasyExtensions.AspNetCore.Formatters
         /// </summary>
         public const string FormatterName = nameof(SimpleConsoleFormatter);
 
-        private readonly IOptionsMonitor<SimpleConsoleFormatterOptions> _options = 
+        private readonly IOptionsMonitor<SimpleConsoleFormatterOptions> _options =
             options ?? throw new ArgumentNullException(nameof(options));
 
         /// <summary>
@@ -139,13 +139,13 @@ namespace EasyExtensions.AspNetCore.Formatters
             int lastDot = category.LastIndexOf('.');
             int lastPlus = category.LastIndexOf('+');
             int cut = Math.Max(lastDot, lastPlus);
-            var name = cut >=0 ? category[(cut +1)..] : category;
+            var name = cut >= 0 ? category[(cut + 1)..] : category;
             int tick = name.IndexOf('`');
-            if (tick >=0) name = name[..tick];
+            if (tick >= 0) name = name[..tick];
             int lt = name.IndexOf('<');
-            if (lt >=0) name = name[..lt];
+            if (lt >= 0) name = name[..lt];
             int bracket = name.IndexOf('[');
-            if (bracket >=0) name = name[..bracket];
+            if (bracket >= 0) name = name[..bracket];
             return name;
         }
 

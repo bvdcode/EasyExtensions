@@ -1,7 +1,7 @@
-﻿using System.Net;
-using EasyExtensions.Models.Enums;
+﻿using EasyExtensions.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net;
 
 namespace EasyExtensions.EntityFrameworkCore.Database
 {
