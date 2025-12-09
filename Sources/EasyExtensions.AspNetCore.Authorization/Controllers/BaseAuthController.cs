@@ -8,12 +8,12 @@ using EasyExtensions.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using EasyExtensions.Abstractions;
+using EasyExtensions.Models.Enums;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using EasyExtensions.AspNetCore.Extensions;
 using EasyExtensions.AspNetCore.Authorization.Models.Dto;
 using EasyExtensions.AspNetCore.Authorization.Abstractions;
-using EasyExtensions.AspNetCore.Authorization.Models.Dto.Enums;
 
 namespace EasyExtensions.AspNetCore.Authorization.Controllers
 {
