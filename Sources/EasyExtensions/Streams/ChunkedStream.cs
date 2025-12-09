@@ -52,16 +52,42 @@ namespace EasyExtensions.Streams
             {
                 throw new ObjectDisposedException(nameof(ChunkedStream));
             }
+
             byte[] buffer = ArrayPool<byte>.Shared.Rent(_chunkSize);
-            int bytesRead;
-            while ((bytesRead = _baseStream.Read(buffer, 0, _chunkSize)) > 0)
+            try
             {
-                MemoryStream chunkStream = new MemoryStream();
-                chunkStream.Write(buffer, 0, bytesRead);
-                chunkStream.Position = 0;
-                yield return chunkStream;
+                while (true)
+                {
+                    var chunkStream = new MemoryStream(_chunkSize);
+                    int totalInChunk = 0;
+
+                    while (totalInChunk < _chunkSize)
+                    {
+                        int toRead = Math.Min(_chunkSize - totalInChunk, _chunkSize);
+                        int bytesRead = _baseStream.Read(buffer, 0, toRead);
+
+                        if (bytesRead <= 0)
+                        {
+                            break; // EOF
+                        }
+
+                        chunkStream.Write(buffer, 0, bytesRead);
+                        totalInChunk += bytesRead;
+                    }
+
+                    if (totalInChunk == 0)
+                    {
+                        yield break;
+                    }
+
+                    chunkStream.Position = 0;
+                    yield return chunkStream;
+                }
             }
-            ArrayPool<byte>.Shared.Return(buffer);
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
         }
 
         /// <summary>
