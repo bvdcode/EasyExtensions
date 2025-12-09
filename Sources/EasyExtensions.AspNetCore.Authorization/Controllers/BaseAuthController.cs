@@ -108,7 +108,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
                 SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
             });
-            return Ok(new TokenPairDto
+            return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
                 RefreshToken = useCookie ? StringHelpers.CreateRandomString(64) : newRefreshToken
@@ -123,7 +123,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// re-entering credentials. Repeated failed login attempts may be subject to rate limiting or account lockout
         /// policies, depending on system configuration.</remarks>
         /// <param name="request">The login request containing the user's username and password. Cannot be null.</param>
-        /// <returns>An <see cref="IActionResult"/> containing a <see cref="TokenPairDto"/> with access and refresh tokens if
+        /// <returns>An <see cref="IActionResult"/> containing a <see cref="TokenPairResponseDto"/> with access and refresh tokens if
         /// authentication is successful; otherwise, an unauthorized response if the credentials are invalid.</returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
@@ -164,7 +164,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
                 SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
             });
-            return Ok(new TokenPairDto
+            return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
@@ -180,7 +180,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// The method issues new tokens and revokes any previous refresh tokens for the user.</remarks>
         /// <param name="token">The Google OAuth access token to use for retrieving user information. Must be a valid token issued by
         /// Google.</param>
-        /// <returns>An <see cref="IActionResult"/> containing a <see cref="TokenPairDto"/> with access and refresh tokens if
+        /// <returns>An <see cref="IActionResult"/> containing a <see cref="TokenPairResponseDto"/> with access and refresh tokens if
         /// authentication is successful; otherwise, an unauthorized response if authentication fails or the user's
         /// email is not verified.</returns>
         /// <exception cref="InvalidOperationException">Thrown if user information cannot be retrieved from Google using the provided token.</exception>
@@ -220,7 +220,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
                 SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
             });
-            return Ok(new TokenPairDto
+            return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken

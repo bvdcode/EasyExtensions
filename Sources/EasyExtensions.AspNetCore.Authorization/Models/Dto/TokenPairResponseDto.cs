@@ -6,7 +6,7 @@
     /// <remarks>A token pair typically consists of an access token, which is used to authorize API requests,
     /// and a refresh token, which can be used to obtain a new access token when the current one expires. This class is
     /// commonly used in authentication flows that require token management.</remarks>
-    public class TokenPairDto
+    public class TokenPairResponseDto
     {
         /// <summary>
         /// Gets or sets the OAuth 2.0 access token used for authenticating API requests.
@@ -16,6 +16,6 @@
         /// <summary>
         /// Gets or sets the refresh token used to obtain a new access token when the current one expires.
         /// </summary>
-        public string RefreshToken { get; set; } = null!;
+        public string? RefreshToken { get; set; } = null!;
     }
 }
