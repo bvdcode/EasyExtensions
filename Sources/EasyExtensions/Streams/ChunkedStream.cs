@@ -16,7 +16,7 @@ namespace EasyExtensions.Streams
     {
         private readonly Stream _baseStream;
         private readonly int _chunkSize;
-        private readonly bool _disposed;
+        private bool _disposed;
 
         /// <summary>
         /// Initializes a new instance of the ChunkedStream class that reads from or writes to the specified base stream
@@ -101,6 +101,7 @@ namespace EasyExtensions.Streams
             if (!_disposed)
             {
                 _baseStream.Dispose();
+                _disposed = true;
             }
         }
     }
