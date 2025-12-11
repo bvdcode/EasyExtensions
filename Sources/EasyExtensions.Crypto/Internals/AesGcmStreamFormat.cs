@@ -104,7 +104,7 @@ namespace EasyExtensions.Crypto.Internals
             offset += MagicBytes.Length;
             BinaryPrimitives.WriteInt32LittleEndian(header[offset..], required);
             offset += sizeof(int);
-            BinaryPrimitives.WriteInt64LittleEndian(header[offset..], (long)textLength);
+            BinaryPrimitives.WriteInt64LittleEndian(header[offset..], textLength);
             offset += sizeof(long);
             BinaryPrimitives.WriteInt32LittleEndian(header[offset..], keyId);
             offset += sizeof(int);

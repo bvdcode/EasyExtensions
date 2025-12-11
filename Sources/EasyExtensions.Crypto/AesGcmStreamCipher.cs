@@ -107,7 +107,7 @@ namespace EasyExtensions.Crypto
             {
                 throw new ArgumentOutOfRangeException(nameof(windowCap), "Window cap must be >= 4.");
             }
-            if (memoryLimitBytes.HasValue && memoryLimitBytes.Value < (long)(MinChunkSize * 4))
+            if (memoryLimitBytes.HasValue && memoryLimitBytes.Value < MinChunkSize * 4)
             {
                 throw new ArgumentOutOfRangeException(nameof(memoryLimitBytes), "Memory limit too small for safe operation.");
             }

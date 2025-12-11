@@ -397,7 +397,7 @@ namespace EasyExtensions.Windows
         private class UnmanagedMethods
         {
             [DllImport("Shell32", CharSet = CharSet.Auto)]
-            internal extern static int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)]
+            internal static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)]
                 string lpszFile, int nIconIndex, IntPtr[]? phIconLarge, IntPtr[]? phIconSmall, int nIcons);
 
             [DllImport("user32")]

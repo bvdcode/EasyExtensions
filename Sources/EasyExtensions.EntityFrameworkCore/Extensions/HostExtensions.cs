@@ -19,17 +19,8 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
             using (var serviceScope = host.Services.GetService<IServiceScopeFactory>()!.CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<TContext>();
-                var migrations = context.Database.GetPendingMigrations();
-                if (migrations.Any())
-                {
-                    var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<DbContext>>();
-                    foreach (var migration in migrations)
-                    {
-                        logger.LogInformation("Applying migration {Migration}.", migration);
-                    }
-                    context.Database.Migrate();
-                    logger.LogInformation("Migrations applied.");
-                }
+                var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<DbContext>>();
+                context.ApplyMigrations(logger);
             }
             return host;
         }

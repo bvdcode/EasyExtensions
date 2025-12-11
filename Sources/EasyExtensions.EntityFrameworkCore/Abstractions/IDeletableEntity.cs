@@ -11,7 +11,7 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         /// When entity was deleted.
         /// </summary>
         [Column("deleted_at_utc")]
-        public DateTime? DeletedAtUtc { get; set; }
+        DateTime? DeletedAtUtc { get; set; }
 
         /// <summary>
         /// Calling this method must sets <see cref="DeletedAtUtc"/> to <see cref="DateTime.UtcNow"/>.
