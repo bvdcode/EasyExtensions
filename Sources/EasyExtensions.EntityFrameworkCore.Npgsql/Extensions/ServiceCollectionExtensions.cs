@@ -53,6 +53,51 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return services;
         }
 
+        /// <summary>
+        /// Adds a <see cref="DbContext"/> to the <see cref="IServiceCollection"/> resolving <see cref="IConfiguration"/> from DI.
+        /// Builds the connection string from the configured section (default: "DatabaseSettings") and/or prefixed keys.
+        /// </summary>
+        /// <typeparam name="TContext"> The type of <see cref="DbContext"/> to add. </typeparam>
+        /// <typeparam name="TImplementation"> The implementation type of <see cref="DbContext"/> to add. </typeparam>
+        /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="setup"> Optional action to configure the <see cref="PostgresOptionsBuilder"/> (section name, prefix, pool size, etc). </param>
+        /// <param name="setupContextOptions"> Optional action to configure the <see cref="DbContextOptionsBuilder"/> (e.g. enable sensitive data logging). </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        /// <exception cref="KeyNotFoundException"> When required database settings are missing. </exception>
+        /// <example>
+        /// <code>
+        /// builder.Services.AddPostgresDbContext&lt;MyDbContext&gt;(f =&gt; { f.ConfigurationSection = "Db"; });
+        /// </code>
+        /// </example>
+        public static IServiceCollection AddPostgresDbContext<TContext, TImplementation>(
+            this IServiceCollection services,
+            Action<PostgresOptionsBuilder>? setup = null,
+            Action<DbContextOptionsBuilder>? setupContextOptions = null)
+                where TContext : DbContext
+                where TImplementation : TContext
+        {
+            PostgresOptionsBuilder contextFactory = new();
+            setup?.Invoke(contextFactory);
+
+            services.AddDbContext<TContext, TImplementation>((sp, builder) =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                string connectionString = BuildConnectionString(configuration, contextFactory);
+                builder.UseNpgsql(connectionString);
+                setupContextOptions?.Invoke(builder);
+                if (contextFactory.UseLazyLoadingProxies)
+                {
+                    builder.UseLazyLoadingProxies();
+                }
+            }, contextLifetime: contextFactory.ContextLifetime);
+
+            if (contextFactory.AddDesignTimeDbContextFactory)
+            {
+                services.AddScoped<IDesignTimeDbContextFactory<TImplementation>, DesignTimeDbContextFactory<TImplementation>>();
+            }
+            return services;
+        }
+
         private static string BuildConnectionString(IConfiguration configuration, PostgresOptionsBuilder contextFactory)
         {
             bool isDevelopment = GetIsDevelopment(configuration);
