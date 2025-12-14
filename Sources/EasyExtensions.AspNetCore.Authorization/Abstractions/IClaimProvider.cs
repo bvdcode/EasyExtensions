@@ -1,5 +1,5 @@
-﻿using System.Security.Claims;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace EasyExtensions.AspNetCore.Authorization.Abstractions
 {

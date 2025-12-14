@@ -1,9 +1,9 @@
-﻿using Gridify;
-using System.Linq.Expressions;
+﻿using EasyExtensions.EntityFrameworkCore.Abstractions;
+using EasyExtensions.EntityFrameworkCore.Exceptions;
+using Gridify;
 using Gridify.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using EasyExtensions.EntityFrameworkCore.Exceptions;
-using EasyExtensions.EntityFrameworkCore.Abstractions;
+using System.Linq.Expressions;
 
 namespace EasyExtensions.EntityFrameworkCore.Repository
 {
@@ -243,7 +243,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <exception cref="InvalidOperationException">Thrown when no entity is found that matches the predicate.</exception>
         public virtual async Task<TItem> FirstAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await db.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken) 
+            return await db.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken)
                 ?? throw new EntityNotFoundException($"No entity found that matches the predicate: {predicate}");
         }
 

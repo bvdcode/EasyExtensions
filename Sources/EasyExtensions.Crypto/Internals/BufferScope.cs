@@ -3,9 +3,9 @@
 
 using System;
 using System.Buffers;
-using System.Threading;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace EasyExtensions.Crypto.Internals
 {

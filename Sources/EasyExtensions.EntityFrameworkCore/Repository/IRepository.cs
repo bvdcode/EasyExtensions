@@ -1,6 +1,6 @@
-﻿using Gridify;
+﻿using EasyExtensions.EntityFrameworkCore.Abstractions;
+using Gridify;
 using System.Linq.Expressions;
-using EasyExtensions.EntityFrameworkCore.Abstractions;
 
 namespace EasyExtensions.EntityFrameworkCore.Repository
 {

@@ -2,12 +2,11 @@
 // Copyright (c) 2025 Vadim Belov
 
 using System;
-using System.IO;
 using System.Buffers;
-using System.Threading;
 using System.Buffers.Binary;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using EasyExtensions.Crypto.Internals;
 
 namespace EasyExtensions.Crypto.Internals
 {
@@ -105,7 +104,7 @@ namespace EasyExtensions.Crypto.Internals
             offset += MagicBytes.Length;
             BinaryPrimitives.WriteInt32LittleEndian(header[offset..], required);
             offset += sizeof(int);
-            BinaryPrimitives.WriteInt64LittleEndian(header[offset..], (long)textLength);
+            BinaryPrimitives.WriteInt64LittleEndian(header[offset..], textLength);
             offset += sizeof(long);
             BinaryPrimitives.WriteInt32LittleEndian(header[offset..], keyId);
             offset += sizeof(int);

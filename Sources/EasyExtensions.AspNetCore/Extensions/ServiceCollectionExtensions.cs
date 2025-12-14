@@ -1,17 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using EasyExtensions.Helpers;
-using EasyExtensions.Services;
-using Microsoft.AspNetCore.Http;
-using EasyExtensions.Abstractions;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging.Console;
+﻿using EasyExtensions.Abstractions;
 using EasyExtensions.AspNetCore.Formatters;
 using EasyExtensions.AspNetCore.HealthChecks;
+using EasyExtensions.Helpers;
+using EasyExtensions.Services;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EasyExtensions.AspNetCore.Extensions
 {

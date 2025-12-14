@@ -1,10 +1,10 @@
-﻿using System;
-using System.Net;
-using System.Threading;
-using System.Net.Sockets;
-using EasyExtensions.Models;
-using System.Threading.Tasks;
+﻿using EasyExtensions.Models;
 using EasyExtensions.Models.Enums;
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EasyExtensions.Helpers
 {

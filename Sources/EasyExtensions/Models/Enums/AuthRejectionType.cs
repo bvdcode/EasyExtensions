@@ -1,4 +1,4 @@
-﻿namespace EasyExtensions.AspNetCore.Authorization.Models.Dto.Enums
+﻿namespace EasyExtensions.Models.Enums
 {
     /// <summary>
     /// Specifies the reason for an authentication rejection.

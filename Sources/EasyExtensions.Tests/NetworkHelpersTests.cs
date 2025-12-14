@@ -1,7 +1,7 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using EasyExtensions.Helpers;
+﻿using EasyExtensions.Helpers;
 using EasyExtensions.Models.Enums;
+using System.Net;
+using System.Net.Sockets;
 
 namespace EasyExtensions.Tests
 {
@@ -171,7 +171,7 @@ namespace EasyExtensions.Tests
             {
                 Assert.That(packet[0], Is.EqualTo(8)); // Echo Request type
                 Assert.That(packet[1], Is.Zero); // Code 0
-                                                       // Don't check checksum as it varies
+                                                 // Don't check checksum as it varies
                 Assert.That(packet[6], Is.Zero); // Sequence MSB
                 Assert.That(packet[7], Is.EqualTo(1)); // Sequence LSB
             }

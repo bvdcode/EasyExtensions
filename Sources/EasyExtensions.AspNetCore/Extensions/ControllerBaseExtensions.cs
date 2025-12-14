@@ -1,8 +1,8 @@
-﻿using System.Net;
-using System.Net.Mime;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Mime;
 
 namespace EasyExtensions.AspNetCore.Extensions
 {

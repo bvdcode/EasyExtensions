@@ -1,13 +1,13 @@
-﻿using System;
-using System.Linq;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using EasyExtensions.AspNetCore.Authorization.Extensions;
+using EasyExtensions.AspNetCore.Extensions;
+using EasyExtensions.AspNetCore.Stack.Builders;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using EasyExtensions.AspNetCore.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.AspNetCore.Stack.Builders;
-using EasyExtensions.AspNetCore.Authorization.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 
 namespace EasyExtensions.AspNetCore.Stack.Extensions
 {
@@ -79,9 +79,9 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             logger.LogInformation("Added controllers");
 
             // Compression
-            builder.Services.AddResponseCompression(x => 
-            { 
-                x.EnableForHttps = true; 
+            builder.Services.AddResponseCompression(x =>
+            {
+                x.EnableForHttps = true;
                 x.MimeTypes = Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes;
             });
             logger.LogInformation("Added response compression for {count} mime types",

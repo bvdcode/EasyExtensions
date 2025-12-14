@@ -1,7 +1,7 @@
-﻿using System.IO;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System.IO;
 
 namespace EasyExtensions.Drawing.Helpers
 {

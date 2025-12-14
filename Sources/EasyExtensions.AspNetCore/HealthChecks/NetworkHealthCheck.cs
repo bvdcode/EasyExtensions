@@ -1,13 +1,13 @@
-﻿using System.Net;
-using System.Linq;
-using System.Threading;
-using System.Net.Sockets;
+﻿using EasyExtensions.Helpers;
 using EasyExtensions.Models;
-using EasyExtensions.Helpers;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EasyExtensions.AspNetCore.HealthChecks
 {

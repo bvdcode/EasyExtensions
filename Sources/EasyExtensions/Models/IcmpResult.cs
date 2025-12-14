@@ -1,5 +1,5 @@
-﻿using System;
-using EasyExtensions.Models.Enums;
+﻿using EasyExtensions.Models.Enums;
+using System;
 
 namespace EasyExtensions.Models
 {

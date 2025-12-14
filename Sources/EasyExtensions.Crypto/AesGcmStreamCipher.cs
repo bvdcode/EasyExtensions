@@ -1,17 +1,17 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2025 Vadim Belov
 
-using System;
-using System.IO;
-using System.Buffers;
-using System.Threading;
-using System.IO.Pipelines;
-using System.Buffers.Binary;
-using System.Threading.Tasks;
 using EasyExtensions.Abstractions;
-using System.Security.Cryptography;
 using EasyExtensions.Crypto.Internals;
 using EasyExtensions.Crypto.Internals.Pipelines;
+using System;
+using System.Buffers;
+using System.Buffers.Binary;
+using System.IO;
+using System.IO.Pipelines;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EasyExtensions.Crypto
 {
@@ -107,7 +107,7 @@ namespace EasyExtensions.Crypto
             {
                 throw new ArgumentOutOfRangeException(nameof(windowCap), "Window cap must be >= 4.");
             }
-            if (memoryLimitBytes.HasValue && memoryLimitBytes.Value < (long)(MinChunkSize * 4))
+            if (memoryLimitBytes.HasValue && memoryLimitBytes.Value < MinChunkSize * 4)
             {
                 throw new ArgumentOutOfRangeException(nameof(memoryLimitBytes), "Memory limit too small for safe operation.");
             }

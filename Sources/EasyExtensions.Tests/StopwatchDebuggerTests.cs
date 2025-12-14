@@ -4,9 +4,9 @@ namespace EasyExtensions.Tests
 {
     internal class StopwatchDebuggerTests
     {
-        readonly StopwatchDebugger debugger;
-        string action = string.Empty;
-        TimeSpan elapsed = TimeSpan.Zero;
+        private readonly StopwatchDebugger debugger;
+        private string action = string.Empty;
+        private TimeSpan elapsed = TimeSpan.Zero;
 
         public StopwatchDebuggerTests()
         {

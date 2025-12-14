@@ -1,6 +1,6 @@
-﻿using System;
+﻿using EasyExtensions.Abstractions;
+using System;
 using System.Text;
-using EasyExtensions.Abstractions;
 
 namespace EasyExtensions.Extensions
 {

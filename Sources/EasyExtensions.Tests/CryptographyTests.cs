@@ -1,9 +1,8 @@
-﻿using System;
-using System.Text;
-using EasyExtensions.Services;
-using System.Security.Cryptography;
-using System.Diagnostics;
+﻿using EasyExtensions.Services;
 using NUnit.Framework.Internal;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace EasyExtensions.Tests
 {
@@ -20,7 +19,7 @@ namespace EasyExtensions.Tests
             var svc = new Pbkdf2PasswordHashService(ValidPepper);
             var password = "SomePassword!";
             svc.Hash(password);
-            Assert.That(stopwatch.ElapsedMilliseconds, Is.GreaterThanOrEqualTo(expectedMinDurationMs), 
+            Assert.That(stopwatch.ElapsedMilliseconds, Is.GreaterThanOrEqualTo(expectedMinDurationMs),
                 $"Hashing should take at least {expectedMinDurationMs} ms to be secure enough. " +
                 $"If your hardware is very fast, consider increasing the default iteration count in the Pbkdf2PasswordHashService constructor.");
         }

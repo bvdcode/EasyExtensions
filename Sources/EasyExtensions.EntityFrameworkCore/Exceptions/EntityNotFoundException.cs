@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 namespace EasyExtensions.EntityFrameworkCore.Exceptions
 {
@@ -8,6 +7,7 @@ namespace EasyExtensions.EntityFrameworkCore.Exceptions
     /// </summary>
     /// <param name="objectName"> Object name. </param>
     [Serializable]
-    public class EntityNotFoundException(string objectName) 
-        : WebApiException(HttpStatusCode.NotFound, objectName, "Entity was not found") { }
+    public class EntityNotFoundException(string objectName)
+        : WebApiException(HttpStatusCode.NotFound, objectName, "Entity was not found")
+    { }
 }

@@ -1,8 +1,8 @@
-﻿using Gridify;
-using System.Reflection;
+﻿using EasyExtensions.EntityFrameworkCore.Repository;
 using EasyExtensions.Helpers;
+using Gridify;
 using Microsoft.Extensions.DependencyInjection;
-using EasyExtensions.EntityFrameworkCore.Repository;
+using System.Reflection;
 
 namespace EasyExtensions.EntityFrameworkCore.Extensions
 {

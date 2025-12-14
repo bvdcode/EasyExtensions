@@ -1,10 +1,10 @@
-﻿using Quartz;
-using System;
-using Quartz.AspNetCore;
-using System.Reflection;
-using EasyExtensions.Helpers;
+﻿using EasyExtensions.Helpers;
 using EasyExtensions.Quartz.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz;
+using Quartz.AspNetCore;
+using System;
+using System.Reflection;
 
 namespace EasyExtensions.Quartz.Extensions
 {

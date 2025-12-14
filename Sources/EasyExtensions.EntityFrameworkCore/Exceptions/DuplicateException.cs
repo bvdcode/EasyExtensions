@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 namespace EasyExtensions.EntityFrameworkCore.Exceptions
 {
@@ -9,5 +8,6 @@ namespace EasyExtensions.EntityFrameworkCore.Exceptions
     /// <param name="objectName"> Object name. </param>
     [Serializable]
     public class DuplicateException(string objectName)
-        : WebApiException(HttpStatusCode.Conflict, objectName, "Object already exists") { }
+        : WebApiException(HttpStatusCode.Conflict, objectName, "Object already exists")
+    { }
 }

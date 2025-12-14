@@ -1,11 +1,11 @@
-﻿using System.IO;
+﻿using EasyExtensions.Drawing.Helpers;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
-using System.Collections.Generic;
-using EasyExtensions.Drawing.Helpers;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System.Collections.Generic;
+using System.IO;
 
 namespace EasyExtensions.Drawing.Extensions
 {

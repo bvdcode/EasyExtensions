@@ -1,4 +1,4 @@
-﻿namespace EasyExtensions.AspNetCore.Authorization.Models.Dto.Enums
+﻿namespace EasyExtensions.Models.Enums
 {
     /// <summary>
     /// Specifies the available authentication types for accessing a resource or service.

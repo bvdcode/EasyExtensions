@@ -1,8 +1,8 @@
 ﻿// SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (c) 2025 Vadim Belov
 
-using System.Buffers.Binary;
 using EasyExtensions.Crypto.Internals;
+using System.Buffers.Binary;
 
 namespace EasyExtensions.Crypto.Tests;
 

@@ -1,5 +1,5 @@
-﻿using System;
-using EasyExtensions.Fonts.Helpers;
+﻿using EasyExtensions.Fonts.Helpers;
+using System;
 
 namespace EasyExtensions.Fonts.Resources
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using NUnit.Framework;
-using EasyExtensions.Streams;
+﻿using EasyExtensions.Streams;
 
 namespace EasyExtensions.Tests
 {

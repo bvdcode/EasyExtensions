@@ -19,7 +19,7 @@
         /// Gets the user name associated with the current context.
         /// </summary>
         string UserName { get; }
-        
+
         /// <summary>
         /// Gets the password in PHC (Password Hashing Competition) string format.
         /// </summary>

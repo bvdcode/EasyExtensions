@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.Linq;
+﻿using EasyExtensions.Fonts.Resources;
 using SixLabors.Fonts;
 using System.Globalization;
-using EasyExtensions.Fonts.Resources;
+using System.IO;
+using System.Linq;
 
 namespace EasyExtensions.Drawing.Helpers
 {

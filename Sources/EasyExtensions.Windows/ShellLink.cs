@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Text;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace EasyExtensions.Windows
 {
@@ -397,7 +397,7 @@ namespace EasyExtensions.Windows
         private class UnmanagedMethods
         {
             [DllImport("Shell32", CharSet = CharSet.Auto)]
-            internal extern static int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)]
+            internal static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)]
                 string lpszFile, int nIconIndex, IntPtr[]? phIconLarge, IntPtr[]? phIconSmall, int nIcons);
 
             [DllImport("user32")]
@@ -594,7 +594,7 @@ namespace EasyExtensions.Windows
             StringBuilder iconPath = new StringBuilder(260, 260);
             // Get icon index and path:
             int iconIndex;
-            if (linkA == null && linkW != null) 
+            if (linkA == null && linkW != null)
             {
                 linkW.GetIconLocation(iconPath, iconPath.Capacity, out iconIndex);
             }
@@ -730,11 +730,22 @@ namespace EasyExtensions.Windows
                 if (linkA == null && linkW != null)
                 {
                     WIN32_FIND_DATAW fd = new WIN32_FIND_DATAW();
+                    fd.Data.ftCreationTime = new FILETIME();
+                    fd.Data.ftLastAccessTime = new FILETIME();
+                    fd.Data.ftLastWriteTime = new FILETIME();
+                    fd.Data.dwFileAttributes = 0;
+                    fd.Data.nFileSizeLow = 0;
+                    fd.Data.nFileSizeHigh = 0;
+                    fd.Data.dwReserved0 = 0;
+                    fd.Data.dwReserved1 = 0;
+                    fd.Data.cFileName = string.Empty;
+                    fd.Data.cAlternateFileName = string.Empty;
                     linkW.GetPath(target, target.Capacity, ref fd, (uint)EShellLinkGP.SLGP_UNCPRIORITY);
                 }
                 else if (linkA != null && linkW == null)
                 {
                     WIN32_FIND_DATAA fd = new WIN32_FIND_DATAA();
+                    fd.Data.dwFileAttributes = 0;
                     linkA.GetPath(target, target.Capacity, ref fd, (uint)EShellLinkGP.SLGP_UNCPRIORITY);
                 }
                 else

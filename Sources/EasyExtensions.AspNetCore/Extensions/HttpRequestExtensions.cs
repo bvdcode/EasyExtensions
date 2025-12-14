@@ -1,9 +1,9 @@
-﻿using System;
-using System.Net;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 
 namespace EasyExtensions.AspNetCore.Extensions
 {
@@ -110,7 +110,7 @@ namespace EasyExtensions.AspNetCore.Extensions
 
             if (!_accesses.TryGetValue(ip, out var dateTimes))
             {
-                _accesses[ip] = [ DateTime.UtcNow ];
+                _accesses[ip] = [DateTime.UtcNow];
                 return false;
             }
             dateTimes.Add(DateTime.UtcNow);

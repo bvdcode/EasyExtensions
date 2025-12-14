@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EasyExtensions.EntityFrameworkCore.Abstractions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using EasyExtensions.EntityFrameworkCore.Abstractions;
 
 namespace EasyExtensions.EntityFrameworkCore.Database
 {
