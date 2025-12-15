@@ -30,6 +30,14 @@ namespace EasyExtensions.Quartz.Attributes
         public string? CronSchedule { get; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether concurrent execution of this operation is disallowed.
+        /// </summary>
+        /// <remarks>When set to <see langword="true"/>, attempts to execute the operation concurrently
+        /// may be prevented, depending on the implementation. This can be used to ensure that only one instance of the
+        /// operation runs at a time.</remarks>
+        public bool DisallowConcurrentExecution { get; set; } = true;
+
+        /// <summary>
         /// Create a new instance of <see cref="JobTriggerAttribute"/>.
         /// </summary>
         /// <param name="days"> Interval: Days. </param>
@@ -38,10 +46,11 @@ namespace EasyExtensions.Quartz.Attributes
         /// <param name="seconds"> Interval: Seconds. </param>
         /// <param name="startNow"> Start now. </param>
         /// <param name="repeatForever"> Interval: Repeat forever. </param>
+        /// <param name="disallowConcurrentExecution"> Indicates whether concurrent execution of this operation is disallowed. </param>
         /// <param name="cronSchedule"> Cron schedule, if specified, it will override the interval. <br/>
         /// See <see href="https://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/crontrigger.html">Quartz CronTrigger Documentation</see> for more information. </param>
         public JobTriggerAttribute(int days = 0, int hours = 0, int minutes = 0, int seconds = 0,
-            bool startNow = true, bool repeatForever = true, string? cronSchedule = "")
+            bool startNow = true, bool repeatForever = true, string? cronSchedule = "", bool disallowConcurrentExecution = true)
         {
             TimeSpan interval = new TimeSpan(days, hours, minutes, seconds);
             if (interval <= TimeSpan.Zero && string.IsNullOrWhiteSpace(cronSchedule))
@@ -52,6 +61,7 @@ namespace EasyExtensions.Quartz.Attributes
             CronSchedule = cronSchedule;
             RepeatForever = repeatForever;
             Interval = new TimeSpan(days, hours, minutes, seconds);
+            DisallowConcurrentExecution = disallowConcurrentExecution;
         }
     }
 }

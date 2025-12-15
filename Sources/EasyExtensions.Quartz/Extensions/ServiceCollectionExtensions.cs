@@ -67,7 +67,7 @@ namespace EasyExtensions.Quartz.Extensions
                 var jobKey = new JobKey(job.Name);
                 configurator.AddJob(job, jobKey, x => x
                     .WithIdentity(jobKey)
-                    .DisallowConcurrentExecution());
+                    .DisallowConcurrentExecution(concurrentExecutionDisallowed: jobTriggerAttribute.DisallowConcurrentExecution));
                 configurator.AddTrigger(opts =>
                 {
                     opts.ForJob(jobKey)
