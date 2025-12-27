@@ -38,7 +38,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             PostgresOptionsBuilder contextFactory = new();
             setup?.Invoke(contextFactory);
 
-            services.AddScoped<IPostgresConnectionStringProvider>(sp =>
+            services.AddSingleton<IPostgresConnectionStringProvider>(sp =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
                 return new PostgresConnectionStringProvider(configuration, contextFactory);
@@ -87,6 +87,11 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             PostgresOptionsBuilder contextFactory = new();
             setup?.Invoke(contextFactory);
 
+            services.AddSingleton<IPostgresConnectionStringProvider>(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                return new PostgresConnectionStringProvider(configuration, contextFactory);
+            });
             services.AddDbContext<TContext, TImplementation>((sp, builder) =>
             {
                 var conStringProvider = sp.GetRequiredService<IPostgresConnectionStringProvider>();
