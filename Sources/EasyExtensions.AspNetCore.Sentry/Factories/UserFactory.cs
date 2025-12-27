@@ -1,6 +1,7 @@
 ﻿using EasyExtensions.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Sentry;
+using System;
 using System.Linq;
 using System.Security.Claims;
 
@@ -21,13 +22,24 @@ namespace EasyExtensions.AspNetCore.Sentry.Factories
             {
                 return null;
             }
+            var context = httpContextAccessor.HttpContext;
+            var claims = httpContextAccessor.HttpContext.User.Claims;
             int userId = httpContextAccessor.HttpContext.User.TryGetId();
+            bool hasUserId = httpContextAccessor.HttpContext.User.TryGetUserId(out Guid guidUserId);
+            string userIdStr = hasUserId ? guidUserId.ToString() : userId > 0 ? userId.ToString() : "Anonymous";
+            string username = claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value
+                ?? claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value
+                ?? "Anonymous";
+            string email = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value
+                ?? claims.FirstOrDefault(x => x.Type == "email")?.Value
+                ?? string.Empty;
+
             return new SentryUser()
             {
-                Id = userId.ToString(),
-                IpAddress = httpContextAccessor.HttpContext.Request.GetRemoteAddress(),
-                Username = httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value,
-                Email = httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value,
+                Id = userIdStr,
+                IpAddress = context.Request.GetRemoteAddress(),
+                Username = username,
+                Email = email,
             };
         }
     }
