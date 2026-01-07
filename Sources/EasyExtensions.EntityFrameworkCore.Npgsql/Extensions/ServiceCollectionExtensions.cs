@@ -1,10 +1,11 @@
-﻿using EasyExtensions.EntityFrameworkCore.Npgsql.Builders;
+﻿using EasyExtensions.Abstractions;
+using EasyExtensions.EntityFrameworkCore.Npgsql.Builders;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Migrations;
+using EasyExtensions.EntityFrameworkCore.Npgsql.Providers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 {
@@ -28,17 +29,24 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         /// builder.Services.AddPostgresDbContext&lt;MyDbContext&gt;(f =&gt; { f.ConfigurationSection = "Db"; });
         /// </code>
         /// </example>
-        public static IServiceCollection AddPostgresDbContext<TContext>(this IServiceCollection services,
-            Action<PostgresOptionsBuilder>? setup = null, Action<DbContextOptionsBuilder>? setupContextOptions = null) where TContext : DbContext
+        public static IServiceCollection AddPostgresDbContext<TContext>(
+            this IServiceCollection services,
+            Action<PostgresOptionsBuilder>? setup = null,
+            Action<DbContextOptionsBuilder>? setupContextOptions = null)
+            where TContext : DbContext
         {
             PostgresOptionsBuilder contextFactory = new();
             setup?.Invoke(contextFactory);
 
-            services.AddDbContext<TContext>((sp, builder) =>
+            services.AddSingleton<IPostgresConnectionStringProvider>(sp =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
-                string connectionString = BuildConnectionString(configuration, contextFactory);
-                builder.UseNpgsql(connectionString);
+                return new PostgresConnectionStringProvider(configuration, contextFactory);
+            });
+            services.AddDbContext<TContext>((sp, builder) =>
+            {
+                var conStringProvider = sp.GetRequiredService<IPostgresConnectionStringProvider>();
+                builder.UseNpgsql(conStringProvider.GetConnectionString());
                 setupContextOptions?.Invoke(builder);
                 if (contextFactory.UseLazyLoadingProxies)
                 {
@@ -79,11 +87,15 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             PostgresOptionsBuilder contextFactory = new();
             setup?.Invoke(contextFactory);
 
-            services.AddDbContext<TContext, TImplementation>((sp, builder) =>
+            services.AddSingleton<IPostgresConnectionStringProvider>(sp =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
-                string connectionString = BuildConnectionString(configuration, contextFactory);
-                builder.UseNpgsql(connectionString);
+                return new PostgresConnectionStringProvider(configuration, contextFactory);
+            });
+            services.AddDbContext<TContext, TImplementation>((sp, builder) =>
+            {
+                var conStringProvider = sp.GetRequiredService<IPostgresConnectionStringProvider>();
+                builder.UseNpgsql(conStringProvider.GetConnectionString());
                 setupContextOptions?.Invoke(builder);
                 if (contextFactory.UseLazyLoadingProxies)
                 {
@@ -96,81 +108,6 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
                 services.AddScoped<IDesignTimeDbContextFactory<TImplementation>, DesignTimeDbContextFactory<TImplementation>>();
             }
             return services;
-        }
-
-        private static string BuildConnectionString(IConfiguration configuration, PostgresOptionsBuilder contextFactory)
-        {
-            bool isDevelopment = GetIsDevelopment(configuration);
-            var settings = configuration.GetSection(contextFactory.ConfigurationSection);
-            string host = GetSetting(settings, "Host", configuration, contextFactory);
-            string portStr = GetSetting(settings, "Port", configuration, contextFactory);
-            string username = GetSetting(settings, "Username", configuration, contextFactory);
-            string password = GetSetting(settings, "Password", configuration, contextFactory);
-            string database = GetSetting(settings, "Database", configuration, contextFactory);
-            if (isDevelopment)
-            {
-                database = TryGetSetting(settings, "DatabaseDev", configuration, contextFactory) ?? database;
-            }
-            NpgsqlConnectionStringBuilder builder = new()
-            {
-                Host = host,
-                Username = username,
-                Password = password,
-                Database = database,
-                Port = ushort.Parse(portStr),
-                Timezone = contextFactory.Timezone,
-                Encoding = contextFactory.Encoding,
-                Timeout = contextFactory.TimeoutSeconds,
-                MaxPoolSize = contextFactory.MaxPoolSize,
-                CommandTimeout = contextFactory.TimeoutSeconds,
-                IncludeErrorDetail = contextFactory.IncludeErrorDetail,
-            };
-            contextFactory.SetupConnectionString?.Invoke(builder);
-            return builder.ConnectionString;
-        }
-
-        private static string? TryGetSetting(IConfigurationSection settings, string key, IConfiguration configuration, PostgresOptionsBuilder contextFactory)
-        {
-            if (configuration[contextFactory.ConfigurationPrefix + key] is string value)
-            {
-                return value;
-            }
-            if (!settings.Exists())
-            {
-                return null;
-            }
-            return settings[key];
-        }
-
-        private static string GetSetting(IConfigurationSection settings,
-            string key,
-            IConfiguration configuration,
-            PostgresOptionsBuilder contextFactory,
-            string? defaultValue = null)
-        {
-            if (configuration[contextFactory.ConfigurationPrefix + key] is string value)
-            {
-                return value;
-            }
-            if (!settings.Exists())
-            {
-                if (defaultValue is not null)
-                {
-                    return defaultValue;
-                }
-                throw new KeyNotFoundException($"{contextFactory.ConfigurationSection} section or {contextFactory.ConfigurationPrefix}{key} is not set");
-            }
-            return settings[key] ?? throw new KeyNotFoundException($"{settings.Path}:{key} is not set");
-        }
-
-        private static bool GetIsDevelopment(IConfiguration configuration)
-        {
-            bool result = (Environment.GetEnvironmentVariable("ENVIRONMENT") ?? string.Empty) == "Development";
-            if (!result)
-            {
-                result = (configuration["ASPNETCORE_ENVIRONMENT"] ?? string.Empty) == "Development";
-            }
-            return result;
         }
     }
 }
