@@ -22,5 +22,10 @@ namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
         /// </summary>
         [Required]
         public string Password { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the two-factor authentication code provided by the user.
+        /// </summary>
+        public string? TwoFactorCode { get; set; }
     }
 }
