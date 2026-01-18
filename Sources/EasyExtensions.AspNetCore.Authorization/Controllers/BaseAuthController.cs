@@ -32,6 +32,31 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         public IPAddress RequestIP => IPAddress.Parse(Request.GetRemoteAddress());
 
         /// <summary>
+        /// Logs out the current user by revoking the refresh token and removing the authentication cookie.
+        /// </summary>
+        /// <remarks>This endpoint supports GET, POST, and DELETE HTTP methods. If a refresh token cookie
+        /// is present, it is revoked and deleted. If no refresh token is found, the operation completes without
+        /// error.</remarks>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the logout operation. Returns a success message if
+        /// the user was logged out.</returns>
+        [HttpGet("logout")]
+        [HttpPost("logout")]
+        [HttpDelete("logout")]
+        public async Task<IActionResult> Logout([FromQuery] string? token = "")
+        {
+            if (Request.Cookies.TryGetValue(CookieRefreshTokenName, out string? refreshToken))
+            {
+                await RevokeRefreshTokenAsync(refreshToken);
+                Response.Cookies.Delete(CookieRefreshTokenName);
+            }
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                await RevokeRefreshTokenAsync(token);
+            }
+            return Ok("Logged out successfully");
+        }
+
+        /// <summary>
         /// Changes the password for the currently authenticated user.
         /// </summary>
         /// <param name="request">The request containing the current and new passwords.</param>
@@ -247,6 +272,15 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// <param name="authType">The type of authentication used for the user when logged in for the first time.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         public abstract Task SaveAndRevokeRefreshTokenAsync(Guid userId, string oldRefreshToken, string newRefreshToken, AuthType authType);
+
+        /// <summary>
+        /// Revokes the specified refresh token, invalidating it for future use.
+        /// </summary>
+        /// <remarks>After revocation, the specified refresh token can no longer be used to obtain new
+        /// access tokens. This method is typically used to log out a user or to respond to a security event.</remarks>
+        /// <param name="refreshToken">The refresh token to revoke. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous revoke operation.</returns>
+        public abstract Task RevokeRefreshTokenAsync(string refreshToken);
 
         /// <summary>
         /// Asynchronously retrieves the unique identifier of a user associated with the specified refresh token.

@@ -2,9 +2,6 @@
 using EasyExtensions.EntityFrameworkCore.Npgsql.Builders;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Providers
 {

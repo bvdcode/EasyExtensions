@@ -23,6 +23,10 @@ namespace EasyExtensions.AspNetCore.Sentry.Factories
                 return null;
             }
             var context = httpContextAccessor.HttpContext;
+            if (context.User?.Identity == null || !context.User.Identity.IsAuthenticated)
+            {
+                return null;
+            }
             var claims = httpContextAccessor.HttpContext.User.Claims;
             int userId = httpContextAccessor.HttpContext.User.TryGetId();
             bool hasUserId = httpContextAccessor.HttpContext.User.TryGetUserId(out Guid guidUserId);
