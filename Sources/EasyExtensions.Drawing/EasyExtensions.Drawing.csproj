@@ -33,7 +33,7 @@
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
 		<ProjectReference Include="..\EasyExtensions.Fonts\EasyExtensions.Fonts.csproj" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102" PrivateAssets="All" />
 	</ItemGroup>
 
 </Project>
