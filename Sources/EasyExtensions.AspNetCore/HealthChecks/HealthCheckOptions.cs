@@ -1,4 +1,7 @@
-﻿namespace EasyExtensions.AspNetCore.HealthChecks
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+namespace EasyExtensions.AspNetCore.HealthChecks
 {
     /// <summary>
     /// Options for health checks - you can enable or disable checks here.

@@ -1,4 +1,7 @@
-﻿using EasyExtensions.Handlers;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.Handlers;
 using System.Net.Http;
 
 namespace EasyExtensions.Clients

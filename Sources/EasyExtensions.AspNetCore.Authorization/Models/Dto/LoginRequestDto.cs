@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using System.ComponentModel.DataAnnotations;
 
 namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
 {
@@ -22,5 +25,10 @@ namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
         /// </summary>
         [Required]
         public string Password { get; set; } = null!;
+
+        /// <summary>
+        /// Gets or sets the two-factor authentication code provided by the user.
+        /// </summary>
+        public string? TwoFactorCode { get; set; }
     }
 }

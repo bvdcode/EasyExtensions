@@ -1,4 +1,7 @@
-﻿namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
 {
     /// <summary>
     /// Represents a pair of OAuth 2.0 tokens used for API authentication and token renewal.

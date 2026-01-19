@@ -6,7 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
-		<PackageLicenseExpression>AGPL-3.0-only</PackageLicenseExpression>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -20,7 +20,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NUnit3TestAdapter" Version="6.0.1" />
+		<PackageReference Include="NUnit3TestAdapter" Version="6.1.0" />
 		<ProjectReference Include="..\EasyExtensions.Crypto\EasyExtensions.Crypto.csproj" />
 		<Using Include="NUnit.Framework" />
 	</ItemGroup>

@@ -1,4 +1,7 @@
-﻿using EasyExtensions.Abstractions;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.Abstractions;
 using EasyExtensions.AspNetCore.Authorization.Abstractions;
 using EasyExtensions.AspNetCore.Authorization.Models.Dto;
 using EasyExtensions.AspNetCore.Extensions;

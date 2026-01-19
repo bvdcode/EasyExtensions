@@ -1,4 +1,7 @@
-﻿namespace EasyExtensions.Models.Enums
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+namespace EasyExtensions.Models.Enums
 {
     /// <summary>
     /// Specifies the set of roles that can be assigned to a user within the system.

@@ -1,4 +1,7 @@
-﻿using EasyExtensions.AspNetCore.Authorization.Models;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.AspNetCore.Authorization.Models;
 using EasyExtensions.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;

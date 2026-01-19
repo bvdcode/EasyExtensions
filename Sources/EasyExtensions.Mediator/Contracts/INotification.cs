@@ -1,4 +1,7 @@
-﻿namespace EasyExtensions.Mediator.Contracts
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+namespace EasyExtensions.Mediator.Contracts
 {
     /// <summary>
     /// Defines a marker interface for notification messages used in a messaging or event-driven system.

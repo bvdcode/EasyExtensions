@@ -1,4 +1,7 @@
-﻿using EasyExtensions.EntityFrameworkCore.Abstractions;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.EntityFrameworkCore.Abstractions;
 using EasyExtensions.EntityFrameworkCore.Exceptions;
 using Gridify;
 using Gridify.EntityFramework;

@@ -1,4 +1,7 @@
-﻿namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
 {
     /// <summary>
     /// Represents a request to refresh an authentication token using the current password.

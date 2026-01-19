@@ -1,4 +1,7 @@
-﻿using EasyExtensions.AspNetCore.Extensions;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Sentry;
 using System;

@@ -1,4 +1,7 @@
-﻿using EasyExtensions.AspNetCore.Sentry.Factories;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.AspNetCore.Sentry.Factories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Sentry;

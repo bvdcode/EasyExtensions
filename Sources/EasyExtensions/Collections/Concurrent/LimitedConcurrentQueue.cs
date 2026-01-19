@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace EasyExtensions.Collections.Concurrent

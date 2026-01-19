@@ -1,4 +1,7 @@
-﻿using EasyExtensions.Helpers;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.Helpers;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;

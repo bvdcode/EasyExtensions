@@ -1,4 +1,7 @@
-﻿using EasyExtensions.EntityFrameworkCore.Database;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.EntityFrameworkCore.Database;
 using EasyExtensions.EntityFrameworkCore.HealthChecks;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Extensions;
 using Microsoft.Extensions.Configuration;
