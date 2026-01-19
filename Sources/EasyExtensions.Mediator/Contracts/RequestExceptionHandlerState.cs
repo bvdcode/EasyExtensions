@@ -1,4 +1,7 @@
-﻿namespace EasyExtensions.Mediator.Contracts
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+namespace EasyExtensions.Mediator.Contracts
 {
     /// <summary>
     /// Represents the state of an exception handler for a request, including whether the exception has been handled and

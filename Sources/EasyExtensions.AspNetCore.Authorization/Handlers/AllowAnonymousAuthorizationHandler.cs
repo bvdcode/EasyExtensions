@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
 
 namespace EasyExtensions.AspNetCore.Authorization.Handlers

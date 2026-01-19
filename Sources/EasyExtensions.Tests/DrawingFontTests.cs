@@ -1,4 +1,7 @@
-﻿using EasyExtensions.Drawing.Helpers;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.Drawing.Helpers;
 using EasyExtensions.Fonts.Resources;
 
 namespace EasyExtensions.Tests

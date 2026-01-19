@@ -1,4 +1,7 @@
-﻿namespace EasyExtensions.EntityFrameworkCore.Exceptions
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+namespace EasyExtensions.EntityFrameworkCore.Exceptions
 {
     /// <summary>
     /// The exception that is thrown when an entity type is invalid.

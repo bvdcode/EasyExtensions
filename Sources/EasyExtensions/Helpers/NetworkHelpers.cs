@@ -1,4 +1,7 @@
-﻿using EasyExtensions.Models;
+﻿// SPDX-License-Identifier: MIT
+// Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
+
+using EasyExtensions.Models;
 using EasyExtensions.Models.Enums;
 using System;
 using System.Net;
