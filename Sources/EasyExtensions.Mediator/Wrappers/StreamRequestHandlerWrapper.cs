@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using EasyExtensions.Mediator.Contracts;
 
 namespace EasyExtensions.Mediator.Wrappers
 {
@@ -50,8 +51,7 @@ namespace EasyExtensions.Mediator.Wrappers
                         (TRequest)request,
                         () => NextWrapper(next(), cancellationToken),
                         cancellationToken
-                    )
-                )();
+                    ))();
 
             await foreach (var item in items.WithCancellation(cancellationToken))
             {

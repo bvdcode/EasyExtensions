@@ -1,3 +1,4 @@
+using EasyExtensions.Mediator.Contracts;
 using System.Collections.Generic;
 using System.Threading;
 

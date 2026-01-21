@@ -285,7 +285,25 @@ namespace EasyExtensions.Mediator.Registration
             return combinations.Select(types => requestGenericTypeDefinition.MakeGenericType(types.ToArray())).ToList();
         }
 
-        // Method to generate combinations recursively
+        /// <summary>
+        /// Generates all possible combinations by selecting one type from each list of types, producing a list of type
+        /// combinations suitable for generic type construction.
+        /// </summary>
+        /// <remarks>This method is typically used to generate all possible sets of type arguments for a
+        /// generic type, given multiple candidate types for each parameter. The number of combinations grows
+        /// multiplicatively with the size of the input lists, so use caution with large inputs. The operation can be
+        /// cancelled via the provided cancellation token.</remarks>
+        /// <param name="requestType">The generic type definition for which combinations are being generated. Used for validation and exception
+        /// messages.</param>
+        /// <param name="lists">A list of lists, where each inner list contains possible types for a corresponding generic type parameter.
+        /// Each combination will select one type from each inner list.</param>
+        /// <param name="depth">The current recursion depth. This parameter is used internally and should typically be left at its default
+        /// value.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>A list of combinations, where each combination is a list of types representing one possible selection of
+        /// types from the input lists. The result will be empty if any input list is empty.</returns>
+        /// <exception cref="ArgumentException">Thrown if the number of generic type parameters exceeds the allowed maximum, if any inner list exceeds the
+        /// allowed maximum length, or if the total number of combinations exceeds the allowed maximum.</exception>
         public static List<List<Type>> GenerateCombinations(Type requestType, List<List<Type>> lists, int depth = 0, CancellationToken cancellationToken = default)
         {
             if (depth == 0)

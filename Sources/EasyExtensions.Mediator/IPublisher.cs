@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using EasyExtensions.Mediator.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EasyExtensions.Mediator
