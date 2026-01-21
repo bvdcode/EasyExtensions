@@ -20,6 +20,19 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Registers handlers and mediator types from the calling assembly automatically.
+        /// </summary>
+        /// <remarks>This method automatically discovers the calling assembly and registers all handlers found within it.
+        /// It is equivalent to calling AddMediator(config => config.RegisterServicesFromAssembly(callingAssembly)).</remarks>
+        /// <param name="services">Service collection</param>
+        /// <returns>Service collection</returns>
+        public static IServiceCollection AddMediator(this IServiceCollection services)
+        {
+            var callingAssembly = System.Reflection.Assembly.GetCallingAssembly();
+            return services.AddMediator(config => config.RegisterServicesFromAssembly(callingAssembly));
+        }
+
+        /// <summary>
         /// Registers handlers and mediator types from the specified assemblies
         /// </summary>
         /// <param name="services">Service collection</param>
