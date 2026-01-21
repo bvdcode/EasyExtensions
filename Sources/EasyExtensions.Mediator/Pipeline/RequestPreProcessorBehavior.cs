@@ -1,29 +1,30 @@
-namespace MediatR.Pipeline;
-
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Behavior for executing all <see cref="IRequestPreProcessor{TRequest}"/> instances before handling a request
-/// </summary>
-/// <typeparam name="TRequest"></typeparam>
-/// <typeparam name="TResponse"></typeparam>
-public class RequestPreProcessorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+namespace EasyExtensions.Mediator.Pipeline
 {
-    private readonly IEnumerable<IRequestPreProcessor<TRequest>> _preProcessors;
-
-    public RequestPreProcessorBehavior(IEnumerable<IRequestPreProcessor<TRequest>> preProcessors) 
-        => _preProcessors = preProcessors;
-
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    /// <summary>
+    /// Behavior for executing all <see cref="IRequestPreProcessor{TRequest}"/> instances before handling a request
+    /// </summary>
+    /// <typeparam name="TRequest"></typeparam>
+    /// <typeparam name="TResponse"></typeparam>
+    public class RequestPreProcessorBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    where TRequest : notnull
     {
-        foreach (var processor in _preProcessors)
-        {
-            await processor.Process(request, cancellationToken).ConfigureAwait(false);
-        }
+        private readonly IEnumerable<IRequestPreProcessor<TRequest>> _preProcessors;
 
-        return await next(cancellationToken).ConfigureAwait(false);
+        public RequestPreProcessorBehavior(IEnumerable<IRequestPreProcessor<TRequest>> preProcessors)
+            => _preProcessors = preProcessors;
+
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        {
+            foreach (var processor in _preProcessors)
+            {
+                await processor.Process(request, cancellationToken).ConfigureAwait(false);
+            }
+
+            return await next(cancellationToken).ConfigureAwait(false);
+        }
     }
 }

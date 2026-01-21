@@ -2,10 +2,11 @@
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace MediatR;
-
-public interface INotificationPublisher
+namespace EasyExtensions.Mediator
 {
-    Task Publish(IEnumerable<NotificationHandlerExecutor> handlerExecutors, INotification notification,
-        CancellationToken cancellationToken);
+    public interface INotificationPublisher
+    {
+        Task Publish(IEnumerable<NotificationHandlerExecutor> handlerExecutors, INotification notification,
+            CancellationToken cancellationToken);
+    }
 }

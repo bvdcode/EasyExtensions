@@ -1,7 +1,20 @@
+using EasyExtensions.Mediator.Contracts;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MediatR;
+namespace EasyExtensions.Mediator
+{
+    public class NotificationHandlerExecutor
+    {
+        public object HandlerInstance { get; }
+        public Func<INotification, CancellationToken, Task> HandlerCallback { get; }
 
-public record NotificationHandlerExecutor(object HandlerInstance, Func<INotification, CancellationToken, Task> HandlerCallback);
+
+        public NotificationHandlerExecutor(object handlerInstance, Func<INotification, CancellationToken, Task> handlerCallback)
+        {
+            HandlerInstance = handlerInstance;
+            HandlerCallback = handlerCallback;
+        }
+    }
+}

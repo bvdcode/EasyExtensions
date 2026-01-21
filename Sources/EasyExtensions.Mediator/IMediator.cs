@@ -1,8 +1,9 @@
-namespace MediatR;
-
-/// <summary>
-/// Defines a mediator to encapsulate request/response and publishing interaction patterns
-/// </summary>
-public interface IMediator : ISender, IPublisher
+namespace EasyExtensions.Mediator
 {
+    /// <summary>
+    /// Defines a mediator to encapsulate request/response and publishing interaction patterns
+    /// </summary>
+    public interface IMediator : ISender, IPublisher
+    {
+    }
 }
