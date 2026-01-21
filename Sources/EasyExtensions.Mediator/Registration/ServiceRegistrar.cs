@@ -11,13 +11,13 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace EasyExtensions.Mediator.Registration
 {
     /// <summary>
-    /// Provides methods for registering MediatR handlers, behaviors, and related services with an IServiceCollection,
+    /// Provides methods for registering Mediator handlers, behaviors, and related services with an IServiceCollection,
     /// including support for generic handler registration limits and registration timeouts.
     /// </summary>
-    /// <remarks>This class is intended for advanced scenarios where fine-grained control over MediatR service
+    /// <remarks>This class is intended for advanced scenarios where fine-grained control over Mediator service
     /// registration is required, such as limiting the number of generic handler registrations or enforcing timeouts
     /// during registration. All methods are static and thread-safe. Typically, these methods are used during
-    /// application startup to configure dependency injection for MediatR-based applications.</remarks>
+    /// application startup to configure dependency injection for Mediator-based applications.</remarks>
     public static class ServiceRegistrar
     {
         private static int MaxGenericTypeParameters;
@@ -26,7 +26,7 @@ namespace EasyExtensions.Mediator.Registration
         private static int RegistrationTimeout;
 
         /// <summary>
-        /// Configures the limitations for generic request handler registrations using the specified MediatR service
+        /// Configures the limitations for generic request handler registrations using the specified Mediator service
         /// configuration.
         /// </summary>
         /// <remarks>This method updates the global limitations for generic request handler registrations.
@@ -34,7 +34,7 @@ namespace EasyExtensions.Mediator.Registration
         /// registration. Changes take effect immediately and may impact subsequent handler registrations.</remarks>
         /// <param name="configuration">The configuration object that specifies the maximum allowed generic type parameters, types closing, generic
         /// type registrations, and registration timeout for generic request handler registrations. Cannot be null.</param>
-        public static void SetGenericRequestHandlerRegistrationLimitations(MediatRServiceConfiguration configuration)
+        public static void SetGenericRequestHandlerRegistrationLimitations(MediatorServiceConfiguration configuration)
         {
             MaxGenericTypeParameters = configuration.MaxGenericTypeParameters;
             MaxTypesClosing = configuration.MaxTypesClosing;
@@ -43,21 +43,21 @@ namespace EasyExtensions.Mediator.Registration
         }
 
         /// <summary>
-        /// Registers MediatR handler and related classes with the specified service collection, enforcing a timeout for
+        /// Registers Mediator handler and related classes with the specified service collection, enforcing a timeout for
         /// the registration process.
         /// </summary>
-        /// <remarks>This method enforces a timeout when registering MediatR classes to help prevent
+        /// <remarks>This method enforces a timeout when registering Mediator classes to help prevent
         /// application startup delays due to long-running or stalled registrations. The timeout duration is determined
         /// by the value of the RegistrationTimeout field.</remarks>
-        /// <param name="services">The service collection to which MediatR classes will be added. Cannot be null.</param>
-        /// <param name="configuration">The configuration settings to use for MediatR registration. Cannot be null.</param>
+        /// <param name="services">The service collection to which Mediator classes will be added. Cannot be null.</param>
+        /// <param name="configuration">The configuration settings to use for Mediator registration. Cannot be null.</param>
         /// <exception cref="TimeoutException">Thrown if the registration process does not complete within the configured timeout period.</exception>
-        public static void AddMediatRClassesWithTimeout(IServiceCollection services, MediatRServiceConfiguration configuration)
+        public static void AddMediatorClassesWithTimeout(IServiceCollection services, MediatorServiceConfiguration configuration)
         {
             using var cts = new CancellationTokenSource(RegistrationTimeout);
             try
             {
-                AddMediatRClasses(services, configuration, cts.Token);
+                AddMediatorClasses(services, configuration, cts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -66,21 +66,21 @@ namespace EasyExtensions.Mediator.Registration
         }
 
         /// <summary>
-        /// Registers MediatR handler and processor classes found in the specified assemblies with the dependency
+        /// Registers Mediator handler and processor classes found in the specified assemblies with the dependency
         /// injection container.
         /// </summary>
         /// <remarks>This method scans the assemblies provided in the configuration for implementations of
-        /// MediatR interfaces such as <see cref="IRequestHandler{TRequest,TResponse}"/>, <see
+        /// Mediator interfaces such as <see cref="IRequestHandler{TRequest,TResponse}"/>, <see
         /// cref="INotificationHandler{TNotification}"/>, and related processor interfaces, and registers them with the
-        /// dependency injection container. If <see cref="MediatRServiceConfiguration.AutoRegisterRequestProcessors"/>
+        /// dependency injection container. If <see cref="MediatorServiceConfiguration.AutoRegisterRequestProcessors"/>
         /// is enabled, request pre- and post-processors are also registered. Only concrete, open generic types that
         /// match the expected interface arity are registered. This method is typically called during application
-        /// startup to enable MediatR pipeline behaviors and handlers.</remarks>
-        /// <param name="services">The service collection to which MediatR handler and processor implementations will be added.</param>
-        /// <param name="configuration">The configuration specifying which assemblies to scan and registration options for MediatR services.</param>
+        /// startup to enable Mediator pipeline behaviors and handlers.</remarks>
+        /// <param name="services">The service collection to which Mediator handler and processor implementations will be added.</param>
+        /// <param name="configuration">The configuration specifying which assemblies to scan and registration options for Mediator services.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the registration process. The default value is <see
         /// cref="CancellationToken.None"/>.</param>
-        public static void AddMediatRClasses(IServiceCollection services, MediatRServiceConfiguration configuration, CancellationToken cancellationToken = default)
+        public static void AddMediatorClasses(IServiceCollection services, MediatorServiceConfiguration configuration, CancellationToken cancellationToken = default)
         {
             var assembliesToScan = configuration.AssembliesToRegister.Distinct().ToArray();
 
@@ -132,7 +132,7 @@ namespace EasyExtensions.Mediator.Registration
             IServiceCollection services,
             IEnumerable<Assembly> assembliesToScan,
             bool addIfAlreadyExists,
-            MediatRServiceConfiguration configuration,
+            MediatorServiceConfiguration configuration,
             CancellationToken cancellationToken = default)
         {
             var concretions = new List<Type>();
@@ -464,16 +464,16 @@ namespace EasyExtensions.Mediator.Registration
         }
 
         /// <summary>
-        /// Registers the required MediatR services and pipeline behaviors into the specified service collection using
+        /// Registers the required Mediator services and pipeline behaviors into the specified service collection using
         /// the provided configuration.
         /// </summary>
         /// <remarks>This method uses TryAdd and TryAddEnumerable to avoid overwriting existing service
-        /// registrations. It registers core MediatR interfaces, notification publishers, and any configured pipeline
+        /// registrations. It registers core Mediator interfaces, notification publishers, and any configured pipeline
         /// behaviors, pre-processors, and post-processors according to the provided configuration.</remarks>
-        /// <param name="services">The service collection to which MediatR services and behaviors will be added. Cannot be null.</param>
-        /// <param name="serviceConfiguration">The configuration that specifies MediatR implementation types, lifetimes, and pipeline behaviors to
+        /// <param name="services">The service collection to which Mediator services and behaviors will be added. Cannot be null.</param>
+        /// <param name="serviceConfiguration">The configuration that specifies Mediator implementation types, lifetimes, and pipeline behaviors to
         /// register. Cannot be null.</param>
-        public static void AddRequiredServices(IServiceCollection services, MediatRServiceConfiguration serviceConfiguration)
+        public static void AddRequiredServices(IServiceCollection services, MediatorServiceConfiguration serviceConfiguration)
         {
             // Use TryAdd, so any existing ServiceFactory/IMediator registration doesn't get overridden
             services.TryAdd(new ServiceDescriptor(typeof(IMediator), serviceConfiguration.MediatorImplementationType, serviceConfiguration.Lifetime));

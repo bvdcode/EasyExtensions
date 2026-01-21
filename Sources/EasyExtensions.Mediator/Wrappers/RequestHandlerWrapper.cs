@@ -70,7 +70,7 @@ namespace EasyExtensions.Mediator.Wrappers
     /// request and response types.
     /// </summary>
     /// <remarks>This class enables the execution of request handlers and associated pipeline behaviors for a
-    /// given request and response type. It is typically used internally by the MediatR framework to facilitate dynamic
+    /// given request and response type. It is typically used internally by the Mediator framework to facilitate dynamic
     /// invocation of request handlers and pipeline behaviors. Thread safety and lifetime management depend on the
     /// underlying service provider and registered handlers.</remarks>
     /// <typeparam name="TRequest">The type of the request message. Must implement <see cref="IRequest{TResponse}"/>.</typeparam>
@@ -117,10 +117,10 @@ namespace EasyExtensions.Mediator.Wrappers
     }
 
     /// <summary>
-    /// Provides a wrapper implementation for handling requests of a specific type using the MediatR pipeline and
+    /// Provides a wrapper implementation for handling requests of a specific type using the Mediator pipeline and
     /// service provider.
     /// </summary>
-    /// <remarks>This class is typically used internally by the MediatR framework to invoke request handlers
+    /// <remarks>This class is typically used internally by the Mediator framework to invoke request handlers
     /// and pipeline behaviors for a given request type. It resolves the appropriate <see
     /// cref="IRequestHandler{TRequest}"/> and any registered <see cref="IPipelineBehavior{TRequest, Unit}"/> instances
     /// from the provided <see cref="IServiceProvider"/>.</remarks>
