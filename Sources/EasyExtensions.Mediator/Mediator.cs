@@ -98,12 +98,12 @@ namespace EasyExtensions.Mediator
         /// <remarks>The request is dispatched to a handler based on its runtime type. If multiple
         /// handlers are registered for the same request type, the behavior is implementation-specific. The method
         /// supports both requests with and without a response type.</remarks>
-        /// <param name="request">The request object to send. Must implement either IRequest or IRequest<TResponse>.</param>
+        /// <param name="request">The request object to send. Must implement either IRequest or IRequest with a response type.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the request operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the response from the handler,
         /// or null if the request does not produce a response.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the request parameter is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if the request object does not implement IRequest or IRequest<TResponse>.</exception>
+        /// <exception cref="ArgumentException">Thrown if the request object does not implement IRequest or IRequest with a response type.</exception>
         /// <exception cref="InvalidOperationException">Thrown if a handler wrapper cannot be created for the specified request type.</exception>
         public Task<object?> Send(object request, CancellationToken cancellationToken = default)
         {
@@ -234,12 +234,12 @@ namespace EasyExtensions.Mediator
         /// <remarks>The returned stream is evaluated asynchronously. Consumers should enumerate the
         /// stream using await foreach. Each call to this method resolves the appropriate handler for the request type
         /// using dependency injection.</remarks>
-        /// <param name="request">The request object to process. Must implement the IStreamRequest<TResponse> interface.</param>
+        /// <param name="request">The request object to process. Must implement the IStreamRequest interface.</param>
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the stream operation.</param>
         /// <returns>An asynchronous stream of response objects corresponding to the request. The stream may be empty if there
         /// are no results.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the request parameter is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if the request object does not implement the IStreamRequest<TResponse> interface.</exception>
+        /// <exception cref="ArgumentException">Thrown if the request object does not implement the IStreamRequest interface.</exception>
         /// <exception cref="InvalidOperationException">Thrown if a handler wrapper for the request type cannot be created.</exception>
         public IAsyncEnumerable<object?> CreateStream(object request, CancellationToken cancellationToken = default)
         {
