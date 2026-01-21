@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
+using EasyExtensions.Mediator.Contracts;
 
 namespace EasyExtensions.Mediator
 {

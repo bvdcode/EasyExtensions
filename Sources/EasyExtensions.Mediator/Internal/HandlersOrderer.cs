@@ -15,12 +15,12 @@ namespace EasyExtensions.Mediator.Internal
             }
 
             var requestObjectDetails = new ObjectDetails(request);
-            var handlerObjectsDetails = handlers.Select(static s => new ObjectDetails(s)).ToList();
+            var handlerObjectsDetails = handlers.Select(s => new ObjectDetails(s)).ToList();
 
             var uniqueHandlers = RemoveOverridden(handlerObjectsDetails).ToArray();
             Array.Sort(uniqueHandlers, requestObjectDetails);
 
-            return uniqueHandlers.Select(static s => s.Value).ToList();
+            return uniqueHandlers.Select(s => s.Value).ToList();
         }
 
         private static IEnumerable<ObjectDetails> RemoveOverridden(IList<ObjectDetails> handlersData)
@@ -45,7 +45,7 @@ namespace EasyExtensions.Mediator.Internal
                 }
             }
 
-            return handlersData.Where(static w => !w.IsOverridden);
+            return handlersData.Where(w => !w.IsOverridden);
         }
     }
 }

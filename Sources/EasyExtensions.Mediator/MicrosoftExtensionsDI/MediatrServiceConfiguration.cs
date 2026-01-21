@@ -1,15 +1,25 @@
-﻿using System;
+﻿using EasyExtensions.Mediator;
+using EasyExtensions.Mediator.Entities;
+using EasyExtensions.Mediator.NotificationPublishers;
+using EasyExtensions.Mediator.Pipeline;
+using EasyExtensions.Mediator.Registration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MediatR;
-using MediatR.Entities;
-using MediatR.NotificationPublishers;
-using MediatR.Pipeline;
-using MediatR.Registration;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
+    /// <summary>
+    /// Provides configuration options for registering MediatR services and behaviors with a dependency injection
+    /// container.
+    /// </summary>
+    /// <remarks>Use this class to customize how MediatR handlers, behaviors, processors, and related services
+    /// are discovered and registered during application startup. Configuration options include assembly scanning,
+    /// service lifetimes, notification publishing strategies, and constraints for generic handler registration. Most
+    /// methods return the current instance to allow fluent configuration.</remarks>
     public class MediatRServiceConfiguration
     {
         /// <summary>
@@ -38,32 +48,32 @@ namespace Microsoft.Extensions.DependencyInjection
         public ServiceLifetime Lifetime { get; set; } = ServiceLifetime.Transient;
 
         /// <summary>
-        /// Request exception action processor strategy. Default value is <see cref="DependencyInjection.RequestExceptionActionProcessorStrategy.ApplyForUnhandledExceptions"/>
+        /// Request exception action processor strategy. Default value is <see cref="RequestExceptionActionProcessorStrategy.ApplyForUnhandledExceptions"/>
         /// </summary>
         public RequestExceptionActionProcessorStrategy RequestExceptionActionProcessorStrategy { get; set; }
             = RequestExceptionActionProcessorStrategy.ApplyForUnhandledExceptions;
 
-        internal List<Assembly> AssembliesToRegister { get; } = new();
+        internal List<Assembly> AssembliesToRegister { get; } = new List<Assembly>();
 
         /// <summary>
         /// List of behaviors to register in specific order
         /// </summary>
-        public List<ServiceDescriptor> BehaviorsToRegister { get; } = new();
+        public List<ServiceDescriptor> BehaviorsToRegister { get; } = new List<ServiceDescriptor>();
 
         /// <summary>
         /// List of stream behaviors to register in specific order
         /// </summary>
-        public List<ServiceDescriptor> StreamBehaviorsToRegister { get; } = new();
+        public List<ServiceDescriptor> StreamBehaviorsToRegister { get; } = new List<ServiceDescriptor>();
 
         /// <summary>
         /// List of request pre processors to register in specific order
         /// </summary>
-        public List<ServiceDescriptor> RequestPreProcessorsToRegister { get; } = new();
+        public List<ServiceDescriptor> RequestPreProcessorsToRegister { get; } = new List<ServiceDescriptor>();
 
         /// <summary>
         /// List of request post processors to register in specific order
         /// </summary>
-        public List<ServiceDescriptor> RequestPostProcessorsToRegister { get; } = new();
+        public List<ServiceDescriptor> RequestPostProcessorsToRegister { get; } = new List<ServiceDescriptor>();
 
         /// <summary>
         /// Automatically register processors during assembly scanning
@@ -508,7 +518,5 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return this;
         }
-
-
     }
 }

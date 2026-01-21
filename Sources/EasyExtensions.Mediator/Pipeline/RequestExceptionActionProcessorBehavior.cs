@@ -1,3 +1,4 @@
+using EasyExtensions.Mediator.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,26 @@ namespace EasyExtensions.Mediator.Pipeline
     {
         private readonly IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the RequestExceptionActionProcessorBehavior class using the specified service
+        /// provider.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider used to resolve dependencies required by the behavior. Cannot be null.</param>
         public RequestExceptionActionProcessorBehavior(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
+        /// <summary>
+        /// Handles the specified request by invoking the next handler in the pipeline and applying any registered
+        /// exception actions if an exception occurs.
+        /// </summary>
+        /// <remarks>If an exception is thrown during the execution of the next handler, any registered
+        /// exception actions for the exception type are invoked before the exception is rethrown. Exception actions are
+        /// executed in the order they are registered and may themselves throw exceptions.</remarks>
+        /// <param name="request">The request message to process. Cannot be null.</param>
+        /// <param name="next">A delegate representing the next handler in the pipeline to invoke. Cannot be null.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response produced by the
+        /// handler pipeline.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if an exception action method cannot be invoked or does not return a valid task.</exception>
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             try
@@ -34,9 +53,9 @@ namespace EasyExtensions.Mediator.Pipeline
 
                 var actionsForException = exceptionTypes
                     .SelectMany(exceptionType => GetActionsForException(exceptionType, request))
-                    .GroupBy(static actionForException => actionForException.Action.GetType())
-                    .Select(static actionForException => actionForException.First())
-                    .Select(static actionForException => (MethodInfo: GetMethodInfoForAction(actionForException.ExceptionType), actionForException.Action))
+                    .GroupBy(actionForException => actionForException.Action.GetType())
+                    .Select(actionForException => actionForException.First())
+                    .Select(actionForException => (MethodInfo: GetMethodInfoForAction(actionForException.ExceptionType), actionForException.Action))
                     .ToList();
 
                 foreach (var actionForException in actionsForException)

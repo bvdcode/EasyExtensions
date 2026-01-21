@@ -3,14 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using EasyExtensions.Mediator.Contracts;
 using EasyExtensions.Mediator.Pipeline;
-using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-
 namespace EasyExtensions.Mediator.Registration
 {
+    /// <summary>
+    /// Provides methods for registering MediatR handlers, behaviors, and related services with an IServiceCollection,
+    /// including support for generic handler registration limits and registration timeouts.
+    /// </summary>
+    /// <remarks>This class is intended for advanced scenarios where fine-grained control over MediatR service
+    /// registration is required, such as limiting the number of generic handler registrations or enforcing timeouts
+    /// during registration. All methods are static and thread-safe. Typically, these methods are used during
+    /// application startup to configure dependency injection for MediatR-based applications.</remarks>
     public static class ServiceRegistrar
     {
         private static int MaxGenericTypeParameters;
@@ -18,6 +25,15 @@ namespace EasyExtensions.Mediator.Registration
         private static int MaxGenericTypeRegistrations;
         private static int RegistrationTimeout;
 
+        /// <summary>
+        /// Configures the limitations for generic request handler registrations using the specified MediatR service
+        /// configuration.
+        /// </summary>
+        /// <remarks>This method updates the global limitations for generic request handler registrations.
+        /// These settings affect how many generic handler types can be registered and the constraints applied during
+        /// registration. Changes take effect immediately and may impact subsequent handler registrations.</remarks>
+        /// <param name="configuration">The configuration object that specifies the maximum allowed generic type parameters, types closing, generic
+        /// type registrations, and registration timeout for generic request handler registrations. Cannot be null.</param>
         public static void SetGenericRequestHandlerRegistrationLimitations(MediatRServiceConfiguration configuration)
         {
             MaxGenericTypeParameters = configuration.MaxGenericTypeParameters;
@@ -26,24 +42,46 @@ namespace EasyExtensions.Mediator.Registration
             RegistrationTimeout = configuration.RegistrationTimeout;
         }
 
+        /// <summary>
+        /// Registers MediatR handler and related classes with the specified service collection, enforcing a timeout for
+        /// the registration process.
+        /// </summary>
+        /// <remarks>This method enforces a timeout when registering MediatR classes to help prevent
+        /// application startup delays due to long-running or stalled registrations. The timeout duration is determined
+        /// by the value of the RegistrationTimeout field.</remarks>
+        /// <param name="services">The service collection to which MediatR classes will be added. Cannot be null.</param>
+        /// <param name="configuration">The configuration settings to use for MediatR registration. Cannot be null.</param>
+        /// <exception cref="TimeoutException">Thrown if the registration process does not complete within the configured timeout period.</exception>
         public static void AddMediatRClassesWithTimeout(IServiceCollection services, MediatRServiceConfiguration configuration)
         {
-            using (var cts = new CancellationTokenSource(RegistrationTimeout))
+            using var cts = new CancellationTokenSource(RegistrationTimeout);
+            try
             {
-                try
-                {
-                    AddMediatRClasses(services, configuration, cts.Token);
-                }
-                catch (OperationCanceledException)
-                {
-                    throw new TimeoutException("The generic handler registration process timed out.");
-                }
+                AddMediatRClasses(services, configuration, cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                throw new TimeoutException("The generic handler registration process timed out.");
             }
         }
 
+        /// <summary>
+        /// Registers MediatR handler and processor classes found in the specified assemblies with the dependency
+        /// injection container.
+        /// </summary>
+        /// <remarks>This method scans the assemblies provided in the configuration for implementations of
+        /// MediatR interfaces such as <see cref="IRequestHandler{TRequest,TResponse}"/>, <see
+        /// cref="INotificationHandler{TNotification}"/>, and related processor interfaces, and registers them with the
+        /// dependency injection container. If <see cref="MediatRServiceConfiguration.AutoRegisterRequestProcessors"/>
+        /// is enabled, request pre- and post-processors are also registered. Only concrete, open generic types that
+        /// match the expected interface arity are registered. This method is typically called during application
+        /// startup to enable MediatR pipeline behaviors and handlers.</remarks>
+        /// <param name="services">The service collection to which MediatR handler and processor implementations will be added.</param>
+        /// <param name="configuration">The configuration specifying which assemblies to scan and registration options for MediatR services.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the registration process. The default value is <see
+        /// cref="CancellationToken.None"/>.</param>
         public static void AddMediatRClasses(IServiceCollection services, MediatRServiceConfiguration configuration, CancellationToken cancellationToken = default)
         {
-
             var assembliesToScan = configuration.AssembliesToRegister.Distinct().ToArray();
 
             ConnectImplementationsToTypesClosing(typeof(IRequestHandler<,>), services, assembliesToScan, false, configuration, cancellationToken);
@@ -60,11 +98,11 @@ namespace EasyExtensions.Mediator.Registration
             }
 
             var multiOpenInterfaces = new List<Type>
-        {
-            typeof(INotificationHandler<>),
-            typeof(IRequestExceptionHandler<,,>),
-            typeof(IRequestExceptionAction<,>)
-        };
+            {
+                typeof(INotificationHandler<>),
+                typeof(IRequestExceptionHandler<,,>),
+                typeof(IRequestExceptionAction<,>)
+            };
 
             if (configuration.AutoRegisterRequestProcessors)
             {
@@ -75,7 +113,6 @@ namespace EasyExtensions.Mediator.Registration
             foreach (var multiOpenInterface in multiOpenInterfaces)
             {
                 var arity = multiOpenInterface.GetGenericArguments().Length;
-
                 var concretions = assembliesToScan
                     .SelectMany(a => a.DefinedTypes)
                     .Where(type => type.FindInterfacesThatClose(multiOpenInterface).Any())
@@ -200,9 +237,7 @@ namespace EasyExtensions.Mediator.Registration
                 {
                     services.TryAddTransient(@interface, type.MakeGenericType(@interface.GenericTypeArguments));
                 }
-                catch (Exception)
-                {
-                }
+                catch (Exception) { }
             }
         }
 
@@ -241,12 +276,12 @@ namespace EasyExtensions.Mediator.Registration
             var requestType = openRequestHandlerInterface.GenericTypeArguments.First();
 
             if (requestType.IsGenericParameter)
+            {
                 return null;
+            }
 
             var requestGenericTypeDefinition = requestType.GetGenericTypeDefinition();
-
             var combinations = GenerateCombinations(requestType, typesThatCanCloseForEachParameter, 0, cancellationToken);
-
             return combinations.Select(types => requestGenericTypeDefinition.MakeGenericType(types.ToArray())).ToList();
         }
 
@@ -257,12 +292,16 @@ namespace EasyExtensions.Mediator.Registration
             {
                 // Initial checks
                 if (MaxGenericTypeParameters > 0 && lists.Count > MaxGenericTypeParameters)
+                {
                     throw new ArgumentException($"Error registering the generic type: {requestType.FullName}. The number of generic type parameters exceeds the maximum allowed ({MaxGenericTypeParameters}).");
+                }
 
                 foreach (var list in lists)
                 {
                     if (MaxTypesClosing > 0 && list.Count > MaxTypesClosing)
+                    {
                         throw new ArgumentException($"Error registering the generic type: {requestType.FullName}. One of the generic type parameter's count of types that can close exceeds the maximum length allowed ({MaxTypesClosing}).");
+                    }
                 }
 
                 // Calculate the total number of combinations
@@ -271,15 +310,18 @@ namespace EasyExtensions.Mediator.Registration
                 {
                     totalCombinations *= list.Count;
                     if (MaxGenericTypeParameters > 0 && totalCombinations > MaxGenericTypeRegistrations)
+                    {
                         throw new ArgumentException($"Error registering the generic type: {requestType.FullName}. The total number of generic type registrations exceeds the maximum allowed ({MaxGenericTypeRegistrations}).");
+                    }
                 }
             }
 
             if (depth >= lists.Count)
+            {
                 return new List<List<Type>> { new List<Type>() };
+            }
 
             cancellationToken.ThrowIfCancellationRequested();
-
             var currentList = lists[depth];
             var childCombinations = GenerateCombinations(requestType, lists, depth + 1, cancellationToken);
             var combinations = new List<List<Type>>();
@@ -302,9 +344,10 @@ namespace EasyExtensions.Mediator.Registration
             foreach (var concretion in concretions)
             {
                 var concreteRequests = GetConcreteRequestTypes(openRequestInterface, concretion, assembliesToScan, cancellationToken);
-
                 if (concreteRequests is null)
+                {
                     continue;
+                }
 
                 var registrationTypes = concreteRequests
                     .Select(concreteRequest => GetConcreteRegistrationTypes(openRequestInterface, concreteRequest, concretion));
@@ -321,16 +364,20 @@ namespace EasyExtensions.Mediator.Registration
         {
             var openInterface = closedInterface.GetGenericTypeDefinition();
             var arguments = closedInterface.GenericTypeArguments;
-
             var concreteArguments = openConcretion.GenericTypeArguments;
             return arguments.Length == concreteArguments.Length && openConcretion.CanBeCastTo(openInterface);
         }
 
         private static bool CanBeCastTo(this Type pluggedType, Type pluginType)
         {
-            if (pluggedType == null) return false;
-
-            if (pluggedType == pluginType) return true;
+            if (pluggedType == null)
+            {
+                return false;
+            }
+            if (pluggedType == pluginType)
+            {
+                return true;
+            }
 
             return pluginType.IsAssignableFrom(pluggedType);
         }
@@ -347,9 +394,15 @@ namespace EasyExtensions.Mediator.Registration
 
         private static IEnumerable<Type> FindInterfacesThatClosesCore(Type pluggedType, Type templateType)
         {
-            if (pluggedType == null) yield break;
+            if (pluggedType == null)
+            {
+                yield break;
+            }
 
-            if (!pluggedType.IsConcrete()) yield break;
+            if (!pluggedType.IsConcrete())
+            {
+                yield break;
+            }
 
             if (templateType.IsInterface)
             {
@@ -367,7 +420,10 @@ namespace EasyExtensions.Mediator.Registration
                 yield return pluggedType.BaseType!;
             }
 
-            if (pluggedType.BaseType == typeof(object)) yield break;
+            if (pluggedType.BaseType == typeof(object))
+            {
+                yield break;
+            }
 
             foreach (var interfaceType in FindInterfacesThatClosesCore(pluggedType.BaseType!, templateType))
             {
@@ -382,10 +438,23 @@ namespace EasyExtensions.Mediator.Registration
 
         private static void Fill<T>(this IList<T> list, T value)
         {
-            if (list.Contains(value)) return;
+            if (list.Contains(value))
+            {
+                return;
+            }
             list.Add(value);
         }
 
+        /// <summary>
+        /// Registers the required MediatR services and pipeline behaviors into the specified service collection using
+        /// the provided configuration.
+        /// </summary>
+        /// <remarks>This method uses TryAdd and TryAddEnumerable to avoid overwriting existing service
+        /// registrations. It registers core MediatR interfaces, notification publishers, and any configured pipeline
+        /// behaviors, pre-processors, and post-processors according to the provided configuration.</remarks>
+        /// <param name="services">The service collection to which MediatR services and behaviors will be added. Cannot be null.</param>
+        /// <param name="serviceConfiguration">The configuration that specifies MediatR implementation types, lifetimes, and pipeline behaviors to
+        /// register. Cannot be null.</param>
         public static void AddRequiredServices(IServiceCollection services, MediatRServiceConfiguration serviceConfiguration)
         {
             // Use TryAdd, so any existing ServiceFactory/IMediator registration doesn't get overridden

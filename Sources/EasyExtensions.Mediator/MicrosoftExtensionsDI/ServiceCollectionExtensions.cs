@@ -1,10 +1,12 @@
+using EasyExtensions.Mediator;
+using EasyExtensions.Mediator.Pipeline;
+using EasyExtensions.Mediator.Registration;
 using System;
 using System.Linq;
-using MediatR;
-using MediatR.Pipeline;
-using MediatR.Registration;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.DependencyInjection
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     /// <summary>
     /// Extensions to scan for MediatR handlers and registers them.
@@ -46,13 +48,9 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 throw new ArgumentException("No assemblies found to scan. Supply at least one assembly to scan for handlers.");
             }
-
             ServiceRegistrar.SetGenericRequestHandlerRegistrationLimitations(configuration);
-
             ServiceRegistrar.AddMediatRClassesWithTimeout(services, configuration);
-
             ServiceRegistrar.AddRequiredServices(services, configuration);
-
             return services;
         }
     }

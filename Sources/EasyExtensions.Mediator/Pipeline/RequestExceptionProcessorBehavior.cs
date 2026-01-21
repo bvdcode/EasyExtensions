@@ -1,3 +1,4 @@
+using EasyExtensions.Mediator.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,27 @@ namespace EasyExtensions.Mediator.Pipeline
     {
         private readonly IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the RequestExceptionProcessorBehavior class using the specified service
+        /// provider.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider used to resolve dependencies required by the behavior. Cannot be null.</param>
         public RequestExceptionProcessorBehavior(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
+        /// <summary>
+        /// Handles the request by invoking the next handler in the pipeline and processes any exceptions using
+        /// registered exception handlers.
+        /// </summary>
+        /// <remarks>If an exception occurs during request processing, registered exception handlers are
+        /// invoked in order of specificity. If an exception is handled and a response is provided, that response is
+        /// returned; otherwise, the original exception is rethrown.</remarks>
+        /// <param name="request">The request message to be handled. Cannot be null.</param>
+        /// <param name="next">A delegate representing the next handler in the pipeline. Cannot be null.</param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response produced by the
+        /// handler or an exception handler.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if an exception handler does not return a Task or if the exception is marked as handled but no
+        /// response is provided.</exception>
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             try
@@ -36,9 +56,9 @@ namespace EasyExtensions.Mediator.Pipeline
 
                 var handlersForException = exceptionTypes
                     .SelectMany(exceptionType => GetHandlersForException(exceptionType, request))
-                    .GroupBy(static handlerForException => handlerForException.Handler.GetType())
-                    .Select(static handlerForException => handlerForException.First())
-                    .Select(static handlerForException => (MethodInfo: GetMethodInfoForHandler(handlerForException.ExceptionType), handlerForException.Handler))
+                    .GroupBy(handlerForException => handlerForException.Handler.GetType())
+                    .Select(handlerForException => handlerForException.First())
+                    .Select(handlerForException => (MethodInfo: GetMethodInfoForHandler(handlerForException.ExceptionType), handlerForException.Handler))
                     .ToList();
 
                 foreach (var handlerForException in handlersForException)
@@ -86,9 +106,7 @@ namespace EasyExtensions.Mediator.Pipeline
         {
             var exceptionHandlerInterfaceType = typeof(IRequestExceptionHandler<,,>).MakeGenericType(typeof(TRequest), typeof(TResponse), exceptionType);
             var enumerableExceptionHandlerInterfaceType = typeof(IEnumerable<>).MakeGenericType(exceptionHandlerInterfaceType);
-
             var exceptionHandlers = (IEnumerable<object>)_serviceProvider.GetRequiredService(enumerableExceptionHandlerInterfaceType);
-
             return HandlersOrderer.Prioritize(exceptionHandlers.ToList(), request)
                 .Select(handler => (exceptionType, action: handler));
         }
@@ -96,11 +114,8 @@ namespace EasyExtensions.Mediator.Pipeline
         private static MethodInfo GetMethodInfoForHandler(Type exceptionType)
         {
             var exceptionHandlerInterfaceType = typeof(IRequestExceptionHandler<,,>).MakeGenericType(typeof(TRequest), typeof(TResponse), exceptionType);
-
-            var handleMethodInfo = exceptionHandlerInterfaceType.GetMethod(nameof(IRequestExceptionHandler<TRequest, TResponse, Exception>.Handle))
-                               ?? throw new InvalidOperationException($"Could not find method {nameof(IRequestExceptionHandler<TRequest, TResponse, Exception>.Handle)} on type {exceptionHandlerInterfaceType}");
-
-            return handleMethodInfo;
+            return exceptionHandlerInterfaceType.GetMethod(nameof(IRequestExceptionHandler<TRequest, TResponse, Exception>.Handle))
+                ?? throw new InvalidOperationException($"Could not find method {nameof(IRequestExceptionHandler<TRequest, TResponse, Exception>.Handle)} on type {exceptionHandlerInterfaceType}");
         }
     }
 }

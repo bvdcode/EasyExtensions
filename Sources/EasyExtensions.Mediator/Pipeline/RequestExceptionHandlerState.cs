@@ -14,7 +14,7 @@ namespace EasyExtensions.Mediator.Pipeline
         /// <summary>
         /// The response that is returned if <see cref="Handled"/> is <code>true</code>.
         /// </summary>
-        public TResponse? Response { get; private set; }
+        public TResponse Response { get; private set; } = default!;
 
         /// <summary>
         /// Call to indicate whether the current exception should be considered handled and the specified response should be returned.
