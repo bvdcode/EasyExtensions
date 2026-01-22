@@ -2,6 +2,7 @@
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace EasyExtensions.Helpers
@@ -15,6 +16,26 @@ namespace EasyExtensions.Helpers
     /// analysis.</remarks>
     public static class UserAgentHelpers
     {
+        private static readonly Func<string, UserAgentDeviceInfo?>[] _parsers = new Func<string, UserAgentDeviceInfo?>[]
+        {
+            TryParseBot,
+            TryParseScript,
+            TryParseTv,
+            TryParseConsole,
+            TryParseIos,
+            TryParseAndroid,
+            TryParseChromeOs,
+            TryParseDesktop,
+            TryParseMobileFallback,
+            TryParseServerFallback,
+        };
+
+        private static readonly Dictionary<string, string> _androidModelAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["SM-G981B"] = "Samsung S20",
+            ["SM-S918B"] = "Samsung S23 Ultra",
+        };
+
         /// <summary>
         /// Determines the type of device based on the provided user agent string.
         /// </summary>
@@ -27,90 +48,33 @@ namespace EasyExtensions.Helpers
         /// Returns "Unknown" if the user agent is null or whitespace.</returns>
         public static string GetDevice(string userAgent)
         {
+            return GetDeviceInfo(userAgent).FriendlyName ?? "Unknown";
+        }
+
+        /// <summary>
+        /// Attempts to identify device information from the specified user agent string.
+        /// </summary>
+        /// <param name="userAgent">The user agent string to analyze. Cannot be null, but may be empty or whitespace.</param>
+        /// <returns>A <see cref="UserAgentDeviceInfo"/> object containing the detected device information. If the device type
+        /// cannot be determined, the returned object will have <see cref="UserAgentDeviceType.Unknown"/> as the device
+        /// type.</returns>
+        public static UserAgentDeviceInfo GetDeviceInfo(string userAgent)
+        {
             if (string.IsNullOrWhiteSpace(userAgent))
             {
-                return "Unknown";
-            }
-            var ua = userAgent;
-            var ual = ua.ToLowerInvariant();
-
-            // bots / scripts
-            if (ContainsAny(ual, "bot", "crawler", "spider", "slurp", "bingpreview", "facebookexternalhit", "monitoring", "uptime"))
-            {
-                return "Bot";
-            }
-            if (ContainsAny(ual, "curl/", "wget/", "httpclient", "libwww", "okhttp", "java/"))
-            {
-                return "Script";
+                return new UserAgentDeviceInfo(UserAgentDeviceType.Unknown, null, "Unknown");
             }
 
-            // TVs / consoles
-            if (ContainsAny(ual, "smart-tv", "smarttv", "hbbtv", "appletv", "googletv"))
+            foreach (var parser in _parsers)
             {
-                return "Smart TV";
-            }
-            if (ContainsAny(ual, "playstation", "xbox", "nintendo switch", "steam deck"))
-            {
-                return "Game Console";
-            }
-
-            // iOS
-            if (ual.Contains("ipod"))
-            {
-                return "iPod";
-            }
-            if (ual.Contains("ipad"))
-            {
-                return "iPad";
-            }
-            if (ual.Contains("iphone"))
-            {
-                return "iPhone";
-            }
-
-            // Android (try to extract model between "; ... Build/")
-            if (ual.Contains("android"))
-            {
-                var m = Regex.Match(ua, @";\s*([^;]+?)\s+Build/", RegexOptions.IgnoreCase);
-                var model = m.Success ? SanitizeModel(m.Groups[1].Value) : null;
-                var isMobile = ual.Contains("mobile"); // tablets often lack "mobile"
-                if (isMobile)
+                var info = parser(userAgent);
+                if (info != null)
                 {
-                    return model?.Length > 0 ? $"Android Phone ({model})" : "Android Phone";
+                    return info;
                 }
-                return model?.Length > 0 ? $"Android Tablet ({model})" : "Android Tablet";
             }
 
-            // ChromeOS
-            if (ual.Contains("cros"))
-            {
-                return "Chromebook";
-            }
-
-            // Desktop OS
-            if (ual.Contains("windows nt"))
-            {
-                return "Windows PC";
-            }
-            if (ual.Contains("macintosh") || ual.Contains("mac os x"))
-            {
-                return "Mac";
-            }
-            if (ual.Contains("linux"))
-            {
-                return "Linux PC";
-            }
-
-            // Fallbacks (some rare UAs only say "Mobile")
-            if (ual.Contains("mobile"))
-            {
-                return "Mobile";
-            }
-            if (ual.Contains("server"))
-            {
-                return "Server";
-            }
-            return "Unknown";
+            return new UserAgentDeviceInfo(UserAgentDeviceType.Unknown, null, "Unknown");
         }
 
         // small helpers
@@ -121,6 +85,154 @@ namespace EasyExtensions.Helpers
                 if (haystack.Contains(n)) return true;
             }
             return false;
+        }
+
+        private static UserAgentDeviceInfo? TryParseBot(string ua)
+        {
+            var ual = ua.ToLowerInvariant();
+            if (ContainsAny(ual, "bot", "crawler", "spider", "slurp", "bingpreview", "facebookexternalhit", "monitoring", "uptime"))
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.Bot, null, "Bot");
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseScript(string ua)
+        {
+            var ual = ua.ToLowerInvariant();
+            if (ContainsAny(ual, "curl/", "wget/", "httpclient", "libwww", "okhttp", "java/"))
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.Script, null, "Script");
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseTv(string ua)
+        {
+            var ual = ua.ToLowerInvariant();
+            if (ContainsAny(ual, "smart-tv", "smarttv", "hbbtv", "appletv", "googletv"))
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.SmartTv, null, "Smart TV");
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseConsole(string ua)
+        {
+            var ual = ua.ToLowerInvariant();
+            if (ContainsAny(ual, "playstation", "xbox", "nintendo switch", "steam deck"))
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.GameConsole, null, "Game Console");
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseIos(string ua)
+        {
+            var ual = ua.ToLowerInvariant();
+            if (ual.Contains("ipod")) return new UserAgentDeviceInfo(UserAgentDeviceType.IPod, null, "iPod");
+            if (ual.Contains("ipad")) return new UserAgentDeviceInfo(UserAgentDeviceType.IPad, null, "iPad");
+            if (ual.Contains("iphone")) return new UserAgentDeviceInfo(UserAgentDeviceType.IPhone, null, "iPhone");
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseAndroid(string ua)
+        {
+            var ual = ua.ToLowerInvariant();
+            if (!ual.Contains("android")) return null;
+
+            var isMobile = ual.Contains("mobile");
+            var model = TryExtractAndroidModel(ua);
+            if (model != null && _androidModelAliases.TryGetValue(model, out var alias))
+            {
+                model = alias;
+            }
+
+            if (isMobile)
+            {
+                return model?.Length > 0
+                    ? new UserAgentDeviceInfo(UserAgentDeviceType.AndroidPhone, model, $"Android Phone ({model})")
+                    : new UserAgentDeviceInfo(UserAgentDeviceType.AndroidPhone, null, "Android Phone");
+            }
+
+            return model?.Length > 0
+                ? new UserAgentDeviceInfo(UserAgentDeviceType.AndroidTablet, model, $"Android Tablet ({model})")
+                : new UserAgentDeviceInfo(UserAgentDeviceType.AndroidTablet, null, "Android Tablet");
+        }
+
+        private static string? TryExtractAndroidModel(string ua)
+        {
+            // Pattern 1: ...; <model> Build/...
+            var m = Regex.Match(ua, @";\s*([^;]+?)\s+Build/", RegexOptions.IgnoreCase);
+            if (m.Success)
+            {
+                var model = SanitizeModel(m.Groups[1].Value);
+                return model.Length > 0 ? model : null;
+            }
+
+            // Pattern 2: (Linux; Android 13; SM-G981B)  => take token after Android version
+            var p = Regex.Match(ua, @"\(([^)]*)\)");
+            if (!p.Success) return null;
+
+            var parts = p.Groups[1].Value.Split(';');
+            for (var i = 0; i < parts.Length; i++)
+            {
+                var token = parts[i].Trim();
+                if (!token.StartsWith("Android", StringComparison.OrdinalIgnoreCase)) continue;
+
+                var next = i + 1 < parts.Length ? parts[i + 1].Trim() : null;
+                if (string.IsNullOrWhiteSpace(next)) return null;
+
+                // ignore common noise tokens
+                if (next.Equals("wv", StringComparison.OrdinalIgnoreCase) || next.Equals("mobile", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                var model = SanitizeModel(next);
+                return model.Length > 0 ? model : null;
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseChromeOs(string ua)
+        {
+            if (ua.IndexOf("CrOS", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.Chromebook, null, "Chromebook");
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseDesktop(string ua)
+        {
+            var ual = ua.ToLowerInvariant();
+
+            if (ual.Contains("windows nt")) return new UserAgentDeviceInfo(UserAgentDeviceType.WindowsPc, null, "Windows PC");
+            if (ual.Contains("macintosh") || ual.Contains("mac os x")) return new UserAgentDeviceInfo(UserAgentDeviceType.Mac, null, "Mac");
+
+            // must be after android match to avoid classifying Android as Linux
+            if (ual.Contains("linux")) return new UserAgentDeviceInfo(UserAgentDeviceType.LinuxPc, null, "Linux PC");
+
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseMobileFallback(string ua)
+        {
+            if (ua.IndexOf("Mobile", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.Mobile, null, "Mobile");
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceInfo? TryParseServerFallback(string ua)
+        {
+            if (ua.IndexOf("server", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.Server, null, "Server");
+            }
+            return null;
         }
 
         private static string SanitizeModel(string raw)
