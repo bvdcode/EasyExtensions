@@ -35,7 +35,7 @@ namespace EasyExtensions.Helpers
 
         private static readonly Regex _appleMachineRegex = new Regex(@"\b(iPhone|iPad)\d{1,2},\d{1,2}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
         private static readonly Regex _onePlusRegex = new Regex(@"\bCPH\d{4}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-        private static readonly Regex _xiaomiSkuRegex = new Regex(@"\b\d{5}[A-Z]{2}\d{2}[A-Z0-9]{1,3}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex _xiaomiSkuRegex = new Regex(@"\b\d{5}[A-Z0-9]{5,8}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
         /// Determines the type of device based on the provided user agent string.
@@ -150,7 +150,7 @@ namespace EasyExtensions.Helpers
             var isMobile = ual.Contains("mobile");
             var model = TryExtractAndroidModel(ua);
 
-            var knownCode = model != null ? TryGetFirstKnownDeviceCode(model) : null;
+            var knownCode = model != null ? TryGetFirstKnownDeviceCode(model) : TryGetFirstKnownDeviceCode(ua);
             if (knownCode != null)
             {
                 return knownCode;
@@ -251,6 +251,16 @@ namespace EasyExtensions.Helpers
             if (!p.Success) return null;
 
             var parts = p.Groups[1].Value.Split(';');
+            var hasTabletToken = false;
+            for (var k = 0; k < parts.Length; k++)
+            {
+                if (parts[k].Trim().Equals("tablet", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasTabletToken = true;
+                    break;
+                }
+            }
+
             for (var i = 0; i < parts.Length; i++)
             {
                 var token = parts[i].Trim();
@@ -263,7 +273,14 @@ namespace EasyExtensions.Helpers
 
                     // ignore common noise tokens
                     if (cand.Equals("wv", StringComparison.OrdinalIgnoreCase)
-                        || cand.Equals("mobile", StringComparison.OrdinalIgnoreCase))
+                        || cand.Equals("mobile", StringComparison.OrdinalIgnoreCase)
+                        || cand.Equals("tablet", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    // If this UA explicitly says "Tablet", then tokens like "rv:102.0" are not a device model.
+                    if (hasTabletToken && cand.StartsWith("rv:", StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }

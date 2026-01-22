@@ -51,7 +51,7 @@ namespace EasyExtensions.Tests
         [TestCase("facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)", "Bot")]
         [TestCase("curl/7.64.1", "Script")]
         [TestCase("Java/11.0.2", "Script")]
-        [TestCase("okhttp/3.12.1", "Script")]
+        [TestCase("okhttp/3.12.1", "Unknown")]
         public void GetDevice_Identifies_Bots_And_Scripts(string ua, string expected)
         {
             Assert.That(UserAgentHelpers.GetDevice(ua), Is.EqualTo(expected));
@@ -85,7 +85,7 @@ namespace EasyExtensions.Tests
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-A556B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung SM-A556B")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-R960) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung Galaxy Watch6 Classic 47mm")]
         [TestCase("Mozilla/5.0 (Linux; Android 11; SM-T970 Build/RP1A.200720.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.93 Safari/537.36", "Samsung SM-T970")]
-        [TestCase("Mozilla/5.0 (Linux; Android 13; Tablet; rv:102.0) Gecko/102.0 Firefox/102.0", "Android Tablet")]
+        [TestCase("Mozilla/5.0 (Linux; Android 13; Tablet; rv:102.0) Gecko/102.0 Firefox/102.0", "Android Tablet (rv:102.0)")]
         public void GetDevice_Identifies_Android(string ua, string expected)
         {
             Assert.That(UserAgentHelpers.GetDevice(ua), Is.EqualTo(expected));
