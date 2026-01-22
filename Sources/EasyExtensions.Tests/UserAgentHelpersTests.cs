@@ -43,7 +43,7 @@ namespace EasyExtensions.Tests
         [TestCase("   ", "Unknown")]
         public void GetDevice_Returns_Unknown_For_NullOrWhitespace(string? ua, string expected)
         {
-            Assert.That(UserAgentHelpers.GetDevice(ua!), Is.EqualTo(expected));
+            Assert.That(UserAgentHelpers.GetDevice(ua), Is.EqualTo(expected));
         }
 
         [TestCase("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "Bot")]
@@ -83,7 +83,7 @@ namespace EasyExtensions.Tests
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung Galaxy S20")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung Galaxy S23 Ultra")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-A556B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung SM-A556B")]
-        [TestCase("Mozilla/5.0 (Linux; Android 13; SM-R960) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung SM-R960")]
+        [TestCase("Mozilla/5.0 (Linux; Android 13; SM-R960) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung Galaxy Watch6 Classic 47mm")]
         [TestCase("Mozilla/5.0 (Linux; Android 11; SM-T970 Build/RP1A.200720.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.93 Safari/537.36", "Android Tablet (SM-T970)")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; Tablet; rv:102.0) Gecko/102.0 Firefox/102.0", "Android Tablet")]
         public void GetDevice_Identifies_Android(string ua, string expected)

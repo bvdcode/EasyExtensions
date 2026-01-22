@@ -22,6 +22,7 @@ namespace EasyExtensions.Helpers
             TryParseScript,
             TryParseTv,
             TryParseConsole,
+            TryParseKnownDeviceCode,
             TryParseIos,
             TryParseAndroid,
             TryParseChromeOs,
@@ -30,7 +31,11 @@ namespace EasyExtensions.Helpers
             TryParseServerFallback,
         };
 
-        private static readonly Regex _samsungModelRegex = new Regex(@"\bSM-[A-Z]\d{3}[A-Z0-9]?\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex _samsungModelRegex = new Regex(@"\bSM-[A-Z]\d{3}[A-Z0-9]{0,4}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        private static readonly Regex _appleMachineRegex = new Regex(@"\b(iPhone|iPad)\d{1,2},\d{1,2}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex _onePlusRegex = new Regex(@"\bCPH\d{4}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex _xiaomiSkuRegex = new Regex(@"\b\d{5}[A-Z]{2}\d{2}[A-Z0-9]{1,3}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
         /// Determines the type of device based on the provided user agent string.
@@ -42,7 +47,7 @@ namespace EasyExtensions.Helpers
         /// <param name="userAgent">The user agent string to analyze for device identification. Cannot be null or whitespace.</param>
         /// <returns>A string representing the detected device type, such as "iPhone", "Android Phone", "Windows PC", or "Bot".
         /// Returns "Unknown" if the user agent is null or whitespace.</returns>
-        public static string GetDevice(string userAgent)
+        public static string GetDevice(string? userAgent)
         {
             return GetDeviceInfo(userAgent).FriendlyName ?? "Unknown";
         }
@@ -54,7 +59,7 @@ namespace EasyExtensions.Helpers
         /// <returns>A <see cref="UserAgentDeviceInfo"/> object containing the detected device information. If the device type
         /// cannot be determined, the returned object will have <see cref="UserAgentDeviceType.Unknown"/> as the device
         /// type.</returns>
-        public static UserAgentDeviceInfo GetDeviceInfo(string userAgent)
+        public static UserAgentDeviceInfo GetDeviceInfo(string? userAgent)
         {
             if (string.IsNullOrWhiteSpace(userAgent))
             {
@@ -71,6 +76,11 @@ namespace EasyExtensions.Helpers
             }
 
             return new UserAgentDeviceInfo(UserAgentDeviceType.Unknown, null, "Unknown");
+        }
+
+        private static UserAgentDeviceInfo? TryParseKnownDeviceCode(string ua)
+        {
+            return TryGetFirstKnownDeviceCode(ua);
         }
 
         // small helpers
@@ -96,7 +106,7 @@ namespace EasyExtensions.Helpers
         private static UserAgentDeviceInfo? TryParseScript(string ua)
         {
             var ual = ua.ToLowerInvariant();
-            if (ContainsAny(ual, "curl/", "wget/", "httpclient", "libwww", "okhttp", "java/"))
+            if (ContainsAny(ual, "curl/", "wget/", "httpclient", "libwww", "java/"))
             {
                 return new UserAgentDeviceInfo(UserAgentDeviceType.Script, null, "Script");
             }
@@ -174,11 +184,34 @@ namespace EasyExtensions.Helpers
 
         private static UserAgentDeviceInfo? TryGetFirstKnownDeviceCode(string value)
         {
-            // Currently we support Samsung-style model codes, but this can be expanded.
+            // Lookup-only: we only return a match if the extracted code exists in KnownDeviceCodes.Map.
+
+            // 1) Samsung
             var samsungCode = GetFirstSamsungModelCode(value);
             if (samsungCode != null && KnownDeviceCodes.Map.TryGetValue(samsungCode, out var knownSamsung))
             {
                 return knownSamsung;
+            }
+
+            // 2) Apple machine ids (useful in SDK/logs, typically not present in Safari UA)
+            var am = _appleMachineRegex.Match(value);
+            if (am.Success && KnownDeviceCodes.Map.TryGetValue(am.Value, out var knownApple))
+            {
+                return knownApple;
+            }
+
+            // 3) OnePlus CPH
+            var op = _onePlusRegex.Match(value);
+            if (op.Success && KnownDeviceCodes.Map.TryGetValue(op.Value, out var knownOp))
+            {
+                return knownOp;
+            }
+
+            // 4) Xiaomi-ish SKU (rough; match then lookup)
+            var xi = _xiaomiSkuRegex.Match(value);
+            if (xi.Success && KnownDeviceCodes.Map.TryGetValue(xi.Value, out var knownXi))
+            {
+                return knownXi;
             }
             return null;
         }
@@ -192,7 +225,9 @@ namespace EasyExtensions.Helpers
                 return UserAgentDeviceType.SamsungTablet;
             }
 
-            if (samsungModelCode.StartsWith("SM-R", StringComparison.OrdinalIgnoreCase) || samsungModelCode.StartsWith("SM-W", StringComparison.OrdinalIgnoreCase))
+            if (samsungModelCode.StartsWith("SM-R", StringComparison.OrdinalIgnoreCase)
+                || samsungModelCode.StartsWith("SM-W", StringComparison.OrdinalIgnoreCase)
+                || samsungModelCode.StartsWith("SM-L", StringComparison.OrdinalIgnoreCase))
             {
                 return UserAgentDeviceType.SamsungWatch;
             }
@@ -221,17 +256,23 @@ namespace EasyExtensions.Helpers
                 var token = parts[i].Trim();
                 if (!token.StartsWith("Android", StringComparison.OrdinalIgnoreCase)) continue;
 
-                var next = i + 1 < parts.Length ? parts[i + 1].Trim() : null;
-                if (string.IsNullOrWhiteSpace(next)) return null;
-
-                // ignore common noise tokens
-                if (next.Equals("wv", StringComparison.OrdinalIgnoreCase) || next.Equals("mobile", StringComparison.OrdinalIgnoreCase))
+                for (var j = i + 1; j < parts.Length; j++)
                 {
-                    return null;
+                    var cand = parts[j].Trim();
+                    if (string.IsNullOrWhiteSpace(cand)) continue;
+
+                    // ignore common noise tokens
+                    if (cand.Equals("wv", StringComparison.OrdinalIgnoreCase)
+                        || cand.Equals("mobile", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var model = SanitizeModel(cand);
+                    return model.Length > 0 ? model : null;
                 }
 
-                var model = SanitizeModel(next);
-                return model.Length > 0 ? model : null;
+                return null;
             }
             return null;
         }
