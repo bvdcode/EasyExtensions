@@ -6,7 +6,7 @@
 		<Authors>Vadim Belov, Jimmy Bogard</Authors>
 		<Company>bvdcode</Company>
 		<Product>EasyExtensions.Mediator</Product>
-		<Description>Fork of MediatR before it became commercial. Ready-to-use library for simplifying the development of .NET applications.</Description>
+		<Description>Fork of MediatR based on v12.5.0 under MIT. Ready-to-use library for simplifying the development of .NET applications.</Description>
 		<Copyright>Copyright Jimmy Bogard</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
