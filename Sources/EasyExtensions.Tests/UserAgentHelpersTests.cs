@@ -78,13 +78,13 @@ namespace EasyExtensions.Tests
         }
 
         [TestCase("Mozilla/5.0 (Linux; Android 12; Pixel 6 Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/94.0.4606.61 Mobile Safari/537.36", "Android Phone (Pixel 6)")]
-        [TestCase("Mozilla/5.0 (Linux; Android 10; SM-G973F Build/QP1A.190711.020) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36", "Android Phone (SM-G973F)")]
-        [TestCase("Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36", "Android Phone")]
+        [TestCase("Mozilla/5.0 (Linux; Android 10; SM-G973F Build/QP1A.190711.020) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36", "Samsung SM-G973F")]
+        [TestCase("Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Mobile Safari/537.36", "Samsung SM-G973F")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung Galaxy S20")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung Galaxy S23 Ultra")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-A556B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung SM-A556B")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; SM-R960) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36", "Samsung Galaxy Watch6 Classic 47mm")]
-        [TestCase("Mozilla/5.0 (Linux; Android 11; SM-T970 Build/RP1A.200720.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.93 Safari/537.36", "Android Tablet (SM-T970)")]
+        [TestCase("Mozilla/5.0 (Linux; Android 11; SM-T970 Build/RP1A.200720.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.93 Safari/537.36", "Samsung SM-T970")]
         [TestCase("Mozilla/5.0 (Linux; Android 13; Tablet; rv:102.0) Gecko/102.0 Firefox/102.0", "Android Tablet")]
         public void GetDevice_Identifies_Android(string ua, string expected)
         {
@@ -118,6 +118,67 @@ namespace EasyExtensions.Tests
             const string ua = "Mozilla/5.0 (Linux; Android 13; SM-R960) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36";
             var info = UserAgentHelpers.GetDeviceInfo(ua);
             Assert.That(info.Type, Is.EqualTo(UserAgentDeviceType.SamsungWatch));
+        }
+
+        [Test]
+        public void GetDeviceInfo_Samsung_U1_Suffix_IsExtracted_WhenWvPresent()
+        {
+            const string ua = "Mozilla/5.0 (Linux; Android 14; wv; SM-S928U1 Build/UQ1A.240105.004) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/120.0.0.0 Mobile Safari/537.36";
+            var info = UserAgentHelpers.GetDeviceInfo(ua);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(info.Type, Is.EqualTo(UserAgentDeviceType.SamsungPhone));
+                Assert.That(info.FriendlyName, Does.Contain("Samsung"));
+                Assert.That(info.Model, Is.Not.Empty);
+            }
+        }
+
+        [Test]
+        public void GetDeviceInfo_AppleMachineId_IsResolved_FromWholeString()
+        {
+            const string ua = "SomeApp/1.0 (iPhone17,2; iOS 18.0)";
+            var info = UserAgentHelpers.GetDeviceInfo(ua);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(info.Type, Is.EqualTo(UserAgentDeviceType.ApplePhone));
+                Assert.That(info.FriendlyName, Is.Not.Empty);
+            }
+        }
+
+        [Test]
+        public void GetDeviceInfo_OnePlus_CPH_IsResolved()
+        {
+            const string ua = "Mozilla/5.0 (Linux; Android 13; CPH2581) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
+            var info = UserAgentHelpers.GetDeviceInfo(ua);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(info.Type, Is.EqualTo(UserAgentDeviceType.OnePlusPhone));
+                Assert.That(info.FriendlyName, Does.Contain("OnePlus"));
+            }
+        }
+
+        [Test]
+        public void GetDeviceInfo_XiaomiSku_IsResolved()
+        {
+            const string ua = "Mozilla/5.0 (Linux; Android 14; 23127PN0CG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
+            var info = UserAgentHelpers.GetDeviceInfo(ua);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(info.Type, Is.EqualTo(UserAgentDeviceType.XiaomiPhone));
+                Assert.That(info.FriendlyName, Is.Not.Empty);
+            }
+        }
+
+        [Test]
+        public void GetDeviceInfo_OkHttp_IsNotClassifiedAsScript()
+        {
+            const string ua = "okhttp/3.12.1";
+            var info = UserAgentHelpers.GetDeviceInfo(ua);
+            Assert.That(info.Type, Is.Not.EqualTo(UserAgentDeviceType.Script));
         }
     }
 }
