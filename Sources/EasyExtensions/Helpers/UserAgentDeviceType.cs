@@ -64,6 +64,41 @@ namespace EasyExtensions.Helpers
         AndroidTablet,
 
         /// <summary>
+        /// A Samsung phone device.
+        /// </summary>
+        SamsungPhone,
+
+        /// <summary>
+        /// A Samsung tablet device.
+        /// </summary>
+        SamsungTablet,
+
+        /// <summary>
+        /// A Samsung watch device.
+        /// </summary>
+        SamsungWatch,
+
+        /// <summary>
+        /// A Google phone device.
+        /// </summary>
+        GooglePhone,
+
+        /// <summary>
+        /// A OnePlus phone device.
+        /// </summary>
+        OnePlusPhone,
+
+        /// <summary>
+        /// A Xiaomi/Redmi/POCO phone device.
+        /// </summary>
+        XiaomiPhone,
+
+        /// <summary>
+        /// An Apple device identified by machine identifier (for example, iPhone16,1).
+        /// </summary>
+        ApplePhone,
+
+        /// <summary>
         /// A ChromeOS device (Chromebook).
         /// </summary>
         Chromebook,

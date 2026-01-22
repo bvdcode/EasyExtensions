@@ -30,11 +30,7 @@ namespace EasyExtensions.Helpers
             TryParseServerFallback,
         };
 
-        private static readonly Dictionary<string, string> _androidModelAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["SM-G981B"] = "Samsung S20",
-            ["SM-S918B"] = "Samsung S23 Ultra",
-        };
+        private static readonly Regex _samsungModelRegex = new Regex(@"\bSM-[A-Z]\d{3}[A-Z0-9]?\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         /// <summary>
         /// Determines the type of device based on the provided user agent string.
@@ -143,9 +139,19 @@ namespace EasyExtensions.Helpers
 
             var isMobile = ual.Contains("mobile");
             var model = TryExtractAndroidModel(ua);
-            if (model != null && _androidModelAliases.TryGetValue(model, out var alias))
+
+            var knownCode = model != null ? TryGetFirstKnownDeviceCode(model) : null;
+            if (knownCode != null)
             {
-                model = alias;
+                return knownCode;
+            }
+
+            // Samsung detection (SM-*) fallback
+            var samsungCode = model != null ? GetFirstSamsungModelCode(model) : null;
+            if (samsungCode != null)
+            {
+                var samsungType = ResolveSamsungType(samsungCode);
+                return new UserAgentDeviceInfo(samsungType, samsungCode, "Samsung " + samsungCode);
             }
 
             if (isMobile)
@@ -158,6 +164,41 @@ namespace EasyExtensions.Helpers
             return model?.Length > 0
                 ? new UserAgentDeviceInfo(UserAgentDeviceType.AndroidTablet, model, $"Android Tablet ({model})")
                 : new UserAgentDeviceInfo(UserAgentDeviceType.AndroidTablet, null, "Android Tablet");
+        }
+
+        private static string? GetFirstSamsungModelCode(string value)
+        {
+            var m = _samsungModelRegex.Match(value);
+            return m.Success ? m.Value : null;
+        }
+
+        private static UserAgentDeviceInfo? TryGetFirstKnownDeviceCode(string value)
+        {
+            // Currently we support Samsung-style model codes, but this can be expanded.
+            var samsungCode = GetFirstSamsungModelCode(value);
+            if (samsungCode != null && KnownDeviceCodes.Map.TryGetValue(samsungCode, out var knownSamsung))
+            {
+                return knownSamsung;
+            }
+            return null;
+        }
+
+        private static UserAgentDeviceType ResolveSamsungType(string samsungModelCode)
+        {
+            // Heuristics based on common Samsung model code families.
+            // This is intentionally simple and can be extended with more rules.
+            if (samsungModelCode.StartsWith("SM-T", StringComparison.OrdinalIgnoreCase) || samsungModelCode.StartsWith("SM-X", StringComparison.OrdinalIgnoreCase))
+            {
+                return UserAgentDeviceType.SamsungTablet;
+            }
+
+            if (samsungModelCode.StartsWith("SM-R", StringComparison.OrdinalIgnoreCase) || samsungModelCode.StartsWith("SM-W", StringComparison.OrdinalIgnoreCase))
+            {
+                return UserAgentDeviceType.SamsungWatch;
+            }
+
+            // Default to phone (most SM-* are phones).
+            return UserAgentDeviceType.SamsungPhone;
         }
 
         private static string? TryExtractAndroidModel(string ua)
