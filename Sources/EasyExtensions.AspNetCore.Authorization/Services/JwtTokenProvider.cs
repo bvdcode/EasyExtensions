@@ -18,6 +18,8 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
         private readonly JwtSettings _jwtSettings = _configuration.GetJwtSettings();
         private readonly SymmetricSecurityKey _securityKey = new(Encoding.UTF8.GetBytes(_configuration.GetJwtSettings().Key));
 
+        public TimeSpan TokenLifetime => TimeSpan.FromMinutes(_jwtSettings.LifetimeMinutes);
+
         public bool ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
