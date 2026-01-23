@@ -64,6 +64,8 @@ namespace EasyExtensions.Crypto
         private readonly bool _strictLengthCheck;
         private readonly RandomNumberGenerator _rng;
         private readonly long? _memoryLimitBytes;
+        private readonly long _pipePauseWriterThresholdBytes;
+        private readonly long _pipeResumeWriterThresholdBytes;
         private static readonly ArrayPool<byte> BufferPool = ArrayPool<byte>.Shared;
         private readonly int ConcurrencyLevel = Math.Min(4, Environment.ProcessorCount);
 
@@ -120,6 +122,18 @@ namespace EasyExtensions.Crypto
             _strictLengthCheck = strictLengthCheck;
             _rng = rng ?? RandomNumberGenerator.Create();
             _memoryLimitBytes = memoryLimitBytes;
+
+            const long defaultPipePause = 1L * 1024L * 1024L;
+            long pipePause = defaultPipePause;
+            if (memoryLimitBytes.HasValue)
+            {
+                // Keep outer Pipe buffering small and independent from internal windowing.
+                // Optionally respect the provided memory cap, without letting it grow unbounded.
+                pipePause = Math.Min(defaultPipePause, Math.Max(256L * 1024L, memoryLimitBytes.Value / 64));
+            }
+            _pipePauseWriterThresholdBytes = pipePause;
+            _pipeResumeWriterThresholdBytes = Math.Max(1, pipePause / 2);
+
             if (threads.HasValue)
             {
                 if (threads.Value < 1 || threads.Value > _maxThreads)
@@ -289,9 +303,8 @@ namespace EasyExtensions.Crypto
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), $"Chunk size must be between {MinChunkSize} and {MaxChunkSize} bytes.");
             }
 
-            int effectiveWindowCap = ComputeEffectiveWindowCap(chunkSize);
-            long pauseThreshold = (long)Math.Clamp(chunkSize, MinChunkSize, MaxChunkSize) * Math.Clamp(effectiveWindowCap, 4, int.MaxValue);
-            long resumeThreshold = pauseThreshold / 2;
+            long pauseThreshold = _pipePauseWriterThresholdBytes;
+            long resumeThreshold = _pipeResumeWriterThresholdBytes;
             var pipe = new Pipe(new PipeOptions(
                 pool: MemoryPool<byte>.Shared,
                 readerScheduler: null,
@@ -340,10 +353,8 @@ namespace EasyExtensions.Crypto
                 throw new ArgumentException("Input stream must be readable.", nameof(input));
             }
 
-            long perChunkGuess = DefaultChunkSize;
-            int effectiveWindowCap = ComputeEffectiveWindowCap((int)perChunkGuess);
-            long pauseThreshold = perChunkGuess * Math.Clamp(effectiveWindowCap, 4, int.MaxValue);
-            long resumeThreshold = pauseThreshold / 2;
+            long pauseThreshold = _pipePauseWriterThresholdBytes;
+            long resumeThreshold = _pipeResumeWriterThresholdBytes;
             var pipe = new Pipe(new PipeOptions(
                 pool: MemoryPool<byte>.Shared,
                 readerScheduler: null,
