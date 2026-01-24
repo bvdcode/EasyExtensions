@@ -85,7 +85,7 @@ namespace EasyExtensions.Clients
             {
                 DefaultRequestHeaders =
                 {
-                    { "User-Agent", "EasyExtensions.Clients/1.0" }
+                    { "User-Agent", "EasyExtensions.Clients/3.0" }
                 }
             };
             var response = await http.GetFromJsonAsync<IpApiCoResponse>(url)

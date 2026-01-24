@@ -27,7 +27,9 @@ namespace EasyExtensions.EntityFrameworkCore.Extensions
             {
                 foreach (var migration in migrations)
                 {
+#pragma warning disable CA1873 // Avoid potentially expensive logging
                     logger?.LogInformation("Applying migration {Migration}.", migration);
+#pragma warning restore CA1873 // Avoid potentially expensive logging
                 }
                 context.Database.Migrate();
                 logger?.LogInformation("Migrations applied.");

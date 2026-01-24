@@ -13,6 +13,11 @@ namespace EasyExtensions.AspNetCore.Authorization.Abstractions
     public interface ITokenProvider
     {
         /// <summary>
+        /// Gets the duration for which a generated token remains valid before expiration.
+        /// </summary>
+        TimeSpan TokenLifetime { get; }
+
+        /// <summary>
         /// Creates a token with claims.
         /// </summary>
         /// <param name="claimBuilder"> Optional claim builder. </param>

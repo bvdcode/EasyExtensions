@@ -61,5 +61,11 @@ namespace EasyExtensions.EntityFrameworkCore.Database
         /// </summary>
         [Column("device")]
         public string? Device { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unique identifier for the session associated with this entity.
+        /// </summary>
+        [Column("session_id")]
+        public string? SessionId { get; set; }
     }
 }

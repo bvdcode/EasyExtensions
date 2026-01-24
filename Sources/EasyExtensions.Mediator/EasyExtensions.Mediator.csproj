@@ -3,11 +3,11 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<Nullable>enable</Nullable>
-		<Authors>Vadim Belov</Authors>
+		<Authors>Vadim Belov, Jimmy Bogard</Authors>
 		<Company>bvdcode</Company>
 		<Product>EasyExtensions.Mediator</Product>
-		<Description>Ready-to-use library for simplifying the development of .NET applications.</Description>
-		<Copyright>Copyright © Vadim Belov 2025</Copyright>
+		<Description>Fork of MediatR based on v12.5.0 under MIT. Ready-to-use library for simplifying the development of .NET applications.</Description>
+		<Copyright>Copyright Jimmy Bogard</Copyright>
 		<Summary>Ready-to-use library for simplifying the development of .NET applications.</Summary>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<Title>EasyExtensions.Mediator</Title>
@@ -18,7 +18,7 @@
 		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Mediator/packageIcon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<IncludeSymbols>true</IncludeSymbols>
@@ -28,8 +28,8 @@
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
-		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
 	</ItemGroup>
 	
 </Project>
