@@ -3,13 +3,13 @@
 
 using System.Net;
 
-namespace EasyExtensions.EntityFrameworkCore.Exceptions
+namespace EasyExtensions.AspNetCore.Exceptions
 {
     /// <summary>
-    /// Entity not found exception.
+    /// Represents an exception that is thrown when a requested entity cannot be found.
     /// </summary>
-    /// <param name="objectName"> Object name. </param>
-    [Serializable]
+    /// <param name="objectName">The name of the entity that was not found. This value is included in the exception details to identify the
+    /// missing entity.</param>
     public class EntityNotFoundException(string objectName)
         : WebApiException(HttpStatusCode.NotFound, objectName, "Entity was not found")
     { }

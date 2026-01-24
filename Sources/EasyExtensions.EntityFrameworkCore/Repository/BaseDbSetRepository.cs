@@ -2,7 +2,6 @@
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
 using EasyExtensions.EntityFrameworkCore.Abstractions;
-using EasyExtensions.EntityFrameworkCore.Exceptions;
 using Gridify;
 using Gridify.EntityFramework;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +35,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         public virtual async Task<TItem> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var found = await db.FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
-            return found ?? throw new EntityNotFoundException(typeof(TItem).Name + $"[id:{id}]");
+            return found ?? throw new InvalidOperationException(typeof(TItem).Name + $"[id:{id}]");
         }
 
         /// <summary>
@@ -246,8 +245,7 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         /// <exception cref="InvalidOperationException">Thrown when no entity is found that matches the predicate.</exception>
         public virtual async Task<TItem> FirstAsync(Expression<Func<TItem, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await db.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken)
-                ?? throw new EntityNotFoundException($"No entity found that matches the predicate: {predicate}");
+            return await db.FirstAsync(predicate, cancellationToken: cancellationToken);
         }
 
         /// <summary>

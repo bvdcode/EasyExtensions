@@ -3,17 +3,24 @@
 
 using EasyExtensions.Abstractions;
 using EasyExtensions.Models;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 
-namespace EasyExtensions.EntityFrameworkCore.Exceptions
+namespace EasyExtensions.AspNetCore.Exceptions
 {
     /// <summary>
-    /// Base web api exception.
+    /// Represents an exception that is thrown to indicate an error response from a Web API, including an associated
+    /// HTTP status code and object name.
     /// </summary>
-    /// <param name="statusCode"> HTTP status code. </param>
-    /// <param name="objectName"> Object name. </param>
-    /// <param name="message"> Exception message. </param>
+    /// <remarks>Use this exception to return detailed error information from Web API actions, including a
+    /// status code and object-specific error details. The exception can be used to generate standardized error
+    /// responses for clients.</remarks>
+    /// <param name="statusCode">The HTTP status code to associate with the exception. Indicates the nature of the error as defined by the HTTP
+    /// protocol.</param>
+    /// <param name="objectName">The name of the object or entity related to the error. Used to identify the source of the error in the response.</param>
+    /// <param name="message">The error message that describes the reason for the exception.</param>
     public class WebApiException(HttpStatusCode statusCode, string objectName, string message) : Exception(message), IHttpError
     {
         /// <summary>
