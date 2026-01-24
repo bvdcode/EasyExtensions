@@ -16,7 +16,7 @@ public class AesGcmStreamCipherPipeTests
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 11, threads: 2);
-        byte[] data = [.. Enumerable.Range(0, 3 * AesGcmStreamCipher.MinChunkSize + 123).Select(i => (byte)(i & 0xFF))];
+        byte[] data = [.. Enumerable.Range(0, (3 * AesGcmStreamCipher.MinChunkSize) + 123).Select(i => (byte)(i & 0xFF))];
 
         using var input1 = new MemoryStream(data);
         using var directOut = new MemoryStream();
@@ -45,7 +45,7 @@ public class AesGcmStreamCipherPipeTests
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 12, threads: 2);
-        byte[] data = [.. Enumerable.Range(0, 5 * AesGcmStreamCipher.MinChunkSize + 777).Select(i => (byte)(i & 0xFF))];
+        byte[] data = [.. Enumerable.Range(0, (5 * AesGcmStreamCipher.MinChunkSize) + 777).Select(i => (byte)(i & 0xFF))];
 
         using var input = new MemoryStream(data);
         var encStream = await cipher.EncryptAsync(input, chunkSize: AesGcmStreamCipher.MinChunkSize);
@@ -79,7 +79,7 @@ public class AesGcmStreamCipherPipeTests
         {
             while (true)
             {
-                int r = await stream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+                int r = await stream.ReadAsync(buffer, cts.Token);
                 if (r == 0) break;
                 totalRead += r;
                 await Task.Delay(5); // slow down to increase chance of cancellation
@@ -115,7 +115,7 @@ public class AesGcmStreamCipherPipeTests
         {
             while (true)
             {
-                int r = await decStream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+                int r = await decStream.ReadAsync(buffer, cts.Token);
                 if (r == 0) break;
                 totalRead += r;
                 await Task.Delay(5); // slow down to increase chance of cancellation
@@ -155,7 +155,7 @@ public class AesGcmStreamCipherPipeTests
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 16);
-        byte[] data = [.. Enumerable.Range(0, 3 * AesGcmStreamCipher.MinChunkSize + 10).Select(i => (byte)(i & 0xFF))];
+        byte[] data = [.. Enumerable.Range(0, (3 * AesGcmStreamCipher.MinChunkSize) + 10).Select(i => (byte)(i & 0xFF))];
         using var input = new MemoryStream(data);
         var encStream = await cipher.EncryptAsync(input, chunkSize: AesGcmStreamCipher.MinChunkSize);
         using var ciphertextCollected = new MemoryStream();

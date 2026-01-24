@@ -55,7 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddMediator(this IServiceCollection services,
             MediatorServiceConfiguration configuration)
         {
-            if (!configuration.AssembliesToRegister.Any())
+            if (configuration.AssembliesToRegister.Count == 0)
             {
                 throw new ArgumentException("No assemblies found to scan. Supply at least one assembly to scan for handlers.");
             }
