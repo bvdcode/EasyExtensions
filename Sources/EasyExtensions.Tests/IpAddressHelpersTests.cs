@@ -135,11 +135,7 @@ namespace EasyExtensions.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => IpAddressHelpers.GetMaskAddress(invalidSubnetMask, AddressFamily.InterNetwork));
         }
 
-
-
         // IPv6 tests
-
-
         [Test]
         public void ConvertIpV6ToNumber_ValidInput_ValidOutput()
         {
@@ -149,11 +145,9 @@ namespace EasyExtensions.Tests
             Assert.That(actual, Is.EqualTo(expected));
         }
 
-
         // 2607:fb90:7328:47bf:3dfe:3f80:a256:8f65
         // network: 2607:fb90:7300::/40
         // broadcast: 2607:fb90:73ff:ffff:ffff:ffff:ffff:ffff
-
         [Test]
         public void GetNetworkV6Address_ValidInput_ValidOutput()
         {
@@ -295,7 +289,6 @@ namespace EasyExtensions.Tests
             string broadcastAddress = "2.125.55.255";
             forceParsed = IpAddressHelpers.IpToNumber(broadcastAddress);
             Assert.That(forceParsed, Is.EqualTo(expectedBroadcast));
-
 
             var subnet = IpAddressHelpers.ExtractMask(network);
             Assert.That(subnet?.ToString(), Is.EqualTo("255.255.252.0"));

@@ -236,6 +236,47 @@ namespace EasyExtensions.Helpers
             return UserAgentDeviceType.SamsungPhone;
         }
 
+        private static string[]? TryGetParenthesesParts(string ua)
+        {
+            var p = Regex.Match(ua, @"\(([^)]*)\)");
+            return p.Success ? p.Groups[1].Value.Split(';') : null;
+        }
+
+        private static bool HasTabletToken(string[] parts)
+        {
+            foreach (var part in parts)
+            {
+                if (part.Trim().Equals("tablet", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsAndroidToken(string token)
+        {
+            return token.StartsWith("Android", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsNoiseModelToken(string token, bool hasTabletToken)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return true;
+            }
+
+            if (token.Equals("wv", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("mobile", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("tablet", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return hasTabletToken && token.StartsWith("rv:", StringComparison.OrdinalIgnoreCase);
+        }
+
         private static string? TryExtractAndroidModel(string ua)
         {
             // Pattern 1: ...; <model> Build/...
@@ -247,40 +288,25 @@ namespace EasyExtensions.Helpers
             }
 
             // Pattern 2: (Linux; Android 13; SM-G981B)  => take token after Android version
-            var p = Regex.Match(ua, @"\(([^)]*)\)");
-            if (!p.Success) return null;
-
-            var parts = p.Groups[1].Value.Split(';');
-            var hasTabletToken = false;
-            for (var k = 0; k < parts.Length; k++)
+            var parts = TryGetParenthesesParts(ua);
+            if (parts == null)
             {
-                if (parts[k].Trim().Equals("tablet", StringComparison.OrdinalIgnoreCase))
-                {
-                    hasTabletToken = true;
-                    break;
-                }
+                return null;
             }
 
+            var hasTabletToken = HasTabletToken(parts);
             for (var i = 0; i < parts.Length; i++)
             {
                 var token = parts[i].Trim();
-                if (!token.StartsWith("Android", StringComparison.OrdinalIgnoreCase)) continue;
+                if (!IsAndroidToken(token))
+                {
+                    continue;
+                }
 
                 for (var j = i + 1; j < parts.Length; j++)
                 {
                     var cand = parts[j].Trim();
-                    if (string.IsNullOrWhiteSpace(cand)) continue;
-
-                    // ignore common noise tokens
-                    if (cand.Equals("wv", StringComparison.OrdinalIgnoreCase)
-                        || cand.Equals("mobile", StringComparison.OrdinalIgnoreCase)
-                        || cand.Equals("tablet", StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-
-                    // If this UA explicitly says "Tablet", then tokens like "rv:102.0" are not a device model.
-                    if (hasTabletToken && cand.StartsWith("rv:", StringComparison.OrdinalIgnoreCase))
+                    if (IsNoiseModelToken(cand, hasTabletToken))
                     {
                         continue;
                     }
@@ -291,6 +317,7 @@ namespace EasyExtensions.Helpers
 
                 return null;
             }
+
             return null;
         }
 
