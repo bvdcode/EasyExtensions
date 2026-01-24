@@ -10,6 +10,6 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// </summary>
     /// <param name="objectName">The name of the object associated with the unauthorized or invalid request.</param>
     public class BadRequestException(string objectName)
-        : WebApiException(HttpStatusCode.BadRequest, objectName, "Unathorized")
+        : WebApiException(HttpStatusCode.BadRequest, objectName, "Bad request")
     { }
 }

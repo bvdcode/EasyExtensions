@@ -136,9 +136,9 @@ namespace EasyExtensions.Mediator.Registration
             CancellationToken cancellationToken = default)
         {
             var concretions = new List<Type>();
-            var interfaces = new List<Type>();
+            var interfaces = new HashSet<Type>();
             var genericConcretions = new List<Type>();
-            var genericInterfaces = new List<Type>();
+            var genericInterfaces = new HashSet<Type>();
 
             var types = assembliesToScan
                 .SelectMany(a => a.DefinedTypes)
@@ -154,55 +154,48 @@ namespace EasyExtensions.Mediator.Registration
                 if (!type.IsOpenGeneric())
                 {
                     concretions.Add(type);
-
-                    foreach (var interfaceType in interfaceTypes)
-                    {
-                        interfaces.Fill(interfaceType);
-                    }
+                    AddRangeDistinct(interfaces, interfaceTypes);
                 }
                 else
                 {
                     genericConcretions.Add(type);
-                    foreach (var interfaceType in interfaceTypes)
-                    {
-                        genericInterfaces.Fill(interfaceType);
-                    }
+                    AddRangeDistinct(genericInterfaces, interfaceTypes);
                 }
             }
 
-            foreach (var @interface in interfaces)
+            foreach (var iface in interfaces)
             {
-                var exactMatches = concretions.Where(x => x.CanBeCastTo(@interface)).ToList();
+                var exactMatches = concretions.Where(x => x.CanBeCastTo(iface)).ToList();
                 if (addIfAlreadyExists)
                 {
                     foreach (var type in exactMatches)
                     {
-                        services.AddTransient(@interface, type);
+                        services.AddTransient(iface, type);
                     }
                 }
                 else
                 {
                     if (exactMatches.Count > 1)
                     {
-                        exactMatches.RemoveAll(m => !IsMatchingWithInterface(m, @interface));
+                        exactMatches.RemoveAll(m => !IsMatchingWithInterface(m, iface));
                     }
 
                     foreach (var type in exactMatches)
                     {
-                        services.TryAddTransient(@interface, type);
+                        services.TryAddTransient(iface, type);
                     }
                 }
 
-                if (!@interface.IsOpenGeneric())
+                if (!iface.IsOpenGeneric())
                 {
-                    AddConcretionsThatCouldBeClosed(@interface, concretions, services);
+                    AddConcretionsThatCouldBeClosed(iface, concretions, services);
                 }
             }
 
-            foreach (var @interface in genericInterfaces)
+            foreach (var iface in genericInterfaces)
             {
-                var exactMatches = genericConcretions.Where(x => x.CanBeCastTo(@interface)).ToList();
-                AddAllConcretionsThatClose(@interface, exactMatches, services, assembliesToScan, cancellationToken);
+                var exactMatches = genericConcretions.Where(x => x.CanBeCastTo(iface)).ToList();
+                AddAllConcretionsThatClose(iface, exactMatches, services, assembliesToScan, cancellationToken);
             }
         }
 
@@ -454,13 +447,21 @@ namespace EasyExtensions.Mediator.Registration
             return !type.IsAbstract && !type.IsInterface;
         }
 
-        private static void Fill<T>(this IList<T> list, T value)
+        private static void AddRangeDistinct<T>(ISet<T> set, IEnumerable<T> values)
         {
-            if (list.Contains(value))
+            if (set == null)
             {
-                return;
+                throw new ArgumentNullException(nameof(set));
             }
-            list.Add(value);
+            if (values == null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            foreach (var value in values)
+            {
+                set.Add(value);
+            }
         }
 
         /// <summary>
@@ -498,13 +499,13 @@ namespace EasyExtensions.Mediator.Registration
                 RegisterBehaviorIfImplementationsExist(services, typeof(RequestExceptionActionProcessorBehavior<,>), typeof(IRequestExceptionAction<,>));
             }
 
-            if (serviceConfiguration.RequestPreProcessorsToRegister.Any())
+            if (serviceConfiguration.RequestPreProcessorsToRegister.Count > 0)
             {
                 services.TryAddEnumerable(new ServiceDescriptor(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>), ServiceLifetime.Transient));
                 services.TryAddEnumerable(serviceConfiguration.RequestPreProcessorsToRegister);
             }
 
-            if (serviceConfiguration.RequestPostProcessorsToRegister.Any())
+            if (serviceConfiguration.RequestPostProcessorsToRegister.Count > 0)
             {
                 services.TryAddEnumerable(new ServiceDescriptor(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>), ServiceLifetime.Transient));
                 services.TryAddEnumerable(serviceConfiguration.RequestPostProcessorsToRegister);
