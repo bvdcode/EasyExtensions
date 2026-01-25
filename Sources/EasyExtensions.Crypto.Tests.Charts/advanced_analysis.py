@@ -1,10 +1,8 @@
-import re
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import seaborn as sns
-from charts_utils import parse_test_results
-
+from test_parser import parse_test_results
 
 
 def create_advanced_plots(encrypt_data, decrypt_data):
