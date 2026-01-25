@@ -31,7 +31,6 @@ namespace EasyExtensions.Tests
             Assert.That(StringHelpers.IsMatch(left, right, threshold: 0.8), Is.False);
         }
 
-
         [Test]
         public void IsMatch_ValidInputZeroThresholdSameStrings_MustBeTrue()
         {
@@ -39,7 +38,6 @@ namespace EasyExtensions.Tests
             const string right = left;
             Assert.That(StringHelpers.IsMatch(left, right, threshold: 0), Is.True);
         }
-
 
         [Test]
         public void IsMatch_ValidInputZeroThresholdDiffStrings_MustBeTrue()

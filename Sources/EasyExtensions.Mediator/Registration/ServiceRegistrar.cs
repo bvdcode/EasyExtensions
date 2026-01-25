@@ -135,10 +135,29 @@ namespace EasyExtensions.Mediator.Registration
             MediatorServiceConfiguration configuration,
             CancellationToken cancellationToken = default)
         {
-            var concretions = new List<Type>();
-            var interfaces = new HashSet<Type>();
-            var genericConcretions = new List<Type>();
-            var genericInterfaces = new HashSet<Type>();
+            GatherTypesClosing(openRequestInterface, assembliesToScan, configuration,
+                out var concretions,
+                out var interfaces,
+                out var genericConcretions,
+                out var genericInterfaces);
+
+            RegisterClosedMatches(services, concretions, interfaces, addIfAlreadyExists);
+            RegisterGenericMatches(services, assembliesToScan, genericConcretions, genericInterfaces, cancellationToken);
+        }
+
+        private static void GatherTypesClosing(
+            Type openRequestInterface,
+            IEnumerable<Assembly> assembliesToScan,
+            MediatorServiceConfiguration configuration,
+            out List<Type> concretions,
+            out HashSet<Type> interfaces,
+            out List<Type> genericConcretions,
+            out HashSet<Type> genericInterfaces)
+        {
+            concretions = new List<Type>();
+            interfaces = new HashSet<Type>();
+            genericConcretions = new List<Type>();
+            genericInterfaces = new HashSet<Type>();
 
             var types = assembliesToScan
                 .SelectMany(a => a.DefinedTypes)
@@ -150,48 +169,65 @@ namespace EasyExtensions.Mediator.Registration
             foreach (var type in types)
             {
                 var interfaceTypes = type.FindInterfacesThatClose(openRequestInterface).ToArray();
-
-                if (!type.IsOpenGeneric())
-                {
-                    concretions.Add(type);
-                    AddRangeDistinct(interfaces, interfaceTypes);
-                }
-                else
+                if (type.IsOpenGeneric())
                 {
                     genericConcretions.Add(type);
                     AddRangeDistinct(genericInterfaces, interfaceTypes);
+                    continue;
                 }
-            }
 
+                concretions.Add(type);
+                AddRangeDistinct(interfaces, interfaceTypes);
+            }
+        }
+
+        private static void RegisterClosedMatches(
+            IServiceCollection services,
+            List<Type> concretions,
+            IEnumerable<Type> interfaces,
+            bool addIfAlreadyExists)
+        {
             foreach (var iface in interfaces)
             {
                 var exactMatches = concretions.Where(x => x.CanBeCastTo(iface)).ToList();
-                if (addIfAlreadyExists)
-                {
-                    foreach (var type in exactMatches)
-                    {
-                        services.AddTransient(iface, type);
-                    }
-                }
-                else
-                {
-                    if (exactMatches.Count > 1)
-                    {
-                        exactMatches.RemoveAll(m => !IsMatchingWithInterface(m, iface));
-                    }
-
-                    foreach (var type in exactMatches)
-                    {
-                        services.TryAddTransient(iface, type);
-                    }
-                }
+                RegisterMatches(services, iface, exactMatches, addIfAlreadyExists);
 
                 if (!iface.IsOpenGeneric())
                 {
                     AddConcretionsThatCouldBeClosed(iface, concretions, services);
                 }
             }
+        }
 
+        private static void RegisterMatches(IServiceCollection services, Type iface, List<Type> exactMatches, bool addIfAlreadyExists)
+        {
+            if (addIfAlreadyExists)
+            {
+                foreach (var type in exactMatches)
+                {
+                    services.AddTransient(iface, type);
+                }
+                return;
+            }
+
+            if (exactMatches.Count > 1)
+            {
+                exactMatches.RemoveAll(m => !IsMatchingWithInterface(m, iface));
+            }
+
+            foreach (var type in exactMatches)
+            {
+                services.TryAddTransient(iface, type);
+            }
+        }
+
+        private static void RegisterGenericMatches(
+            IServiceCollection services,
+            IEnumerable<Assembly> assembliesToScan,
+            List<Type> genericConcretions,
+            IEnumerable<Type> genericInterfaces,
+            CancellationToken cancellationToken)
+        {
             foreach (var iface in genericInterfaces)
             {
                 var exactMatches = genericConcretions.Where(x => x.CanBeCastTo(iface)).ToList();
