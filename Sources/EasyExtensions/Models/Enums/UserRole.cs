@@ -12,20 +12,18 @@ namespace EasyExtensions.Models.Enums
     public enum UserRole
     {
         /// <summary>
-        /// Indicates that the value is unknown or not specified.
+        /// Indicates that no options are set.
         /// </summary>
-        /// <remarks>Use this value when the actual value cannot be determined or is not applicable. This
-        /// is typically used as a default or placeholder value.</remarks>
-        Unknown = 1,
+        None = 0,
 
         /// <summary>
         /// Represents a standard user account with typical permissions and access rights.
         /// </summary>
-        User = 2,
+        User = 1,
 
         /// <summary>
         /// Specifies an administrator role with elevated permissions.
         /// </summary>
-        Admin = 4,
+        Admin = 2,
     }
 }
