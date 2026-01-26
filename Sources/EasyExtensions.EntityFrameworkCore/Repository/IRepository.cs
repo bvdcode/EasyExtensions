@@ -30,7 +30,6 @@ namespace EasyExtensions.EntityFrameworkCore.Repository
         [Obsolete("Use AddAsync() instead.")]
         Task<TItem> CreateAsync(TItem item, CancellationToken cancellationToken = default);
 
-
         /// <summary>
         /// Creates a new entity asynchronously.
         /// </summary>

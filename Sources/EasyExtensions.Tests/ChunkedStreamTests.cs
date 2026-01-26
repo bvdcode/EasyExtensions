@@ -59,7 +59,7 @@ namespace EasyExtensions.Tests
             {
                 Assert.That(chunks[0].Length, Is.EqualTo(chunkSize));
                 Assert.That(chunks[1].Length, Is.EqualTo(chunkSize));
-                Assert.That(chunks[2].Length, Is.EqualTo(totalSize - 2 * chunkSize));
+                Assert.That(chunks[2].Length, Is.EqualTo(totalSize - (2 * chunkSize)));
             }
 
             // Verify content of last chunk (do not dispose before reading)
@@ -211,7 +211,7 @@ namespace EasyExtensions.Tests
         {
             // Arrange: create stream larger than typical buffer sizes
             var chunkSize = 8 * 1024 * 1024; // 8 MB
-            var totalSize = chunkSize * 5 + chunkSize / 2; // 5.5 chunks
+            var totalSize = (chunkSize * 5) + (chunkSize / 2); // 5.5 chunks
             var data = new byte[totalSize];
             new Random(1234).NextBytes(data);
             using var baseStream = new MemoryStream(data);

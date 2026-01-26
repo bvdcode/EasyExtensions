@@ -153,7 +153,7 @@ namespace EasyExtensions.Crypto
                 return Math.Clamp(_windowCap, 4, int.MaxValue);
             }
             // Estimate per-window memory footprint: ciphertext buffer ~ chunkSize + headers/overhead ~ 64KB
-            long estimatedPerWindow = cs + 64L * 1024L;
+            long estimatedPerWindow = cs + (64L * 1024L);
             long maxWindowsByMem = Math.Max(4, _memoryLimitBytes.Value / Math.Max(estimatedPerWindow, 1));
             int effective = (int)Math.Clamp(maxWindowsByMem, 4, int.MaxValue);
             return Math.Min(_windowCap, effective);

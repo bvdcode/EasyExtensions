@@ -55,27 +55,36 @@ namespace EasyExtensions
         }
 
         /// <summary>
-        /// Calculate SHA256 hash of byte stream.
+        /// Computes the SHA-256 hash of the data in the specified stream and returns it as a lowercase hexadecimal
+        /// string.
         /// </summary>
-        /// <param name="stream"> Data to calculate hash. </param>
-        /// <returns> SHA256 hash of byte stream. </returns>
+        /// <remarks>The method reads from the current position of the stream to the end. After the
+        /// operation, the stream's position will be at the end of the stream. The caller is responsible for managing
+        /// the stream's position and lifetime.</remarks>
+        /// <param name="stream">The input stream containing the data to hash. The stream must be readable and positioned at the start of the
+        /// data to hash.</param>
+        /// <returns>A lowercase hexadecimal string representation of the SHA-256 hash of the stream's contents.</returns>
         public static string Sha256(this Stream stream)
         {
             using SHA256 sha = SHA256.Create();
             byte[] array = sha.ComputeHash(stream);
-            return BitConverter.ToString(array).Replace("-", string.Empty).ToLower();
+            return array.ToHexStringLower();
         }
 
         /// <summary>
-        /// Calculate SHA512 hash of byte stream.
+        /// Computes the SHA-512 hash of the data in the specified stream and returns it as a lowercase hexadecimal
+        /// string.
         /// </summary>
-        /// <param name="stream"> Data to calculate hash. </param>
-        /// <returns> SHA512 hash of byte stream. </returns>
+        /// <remarks>The method does not reset the position of the stream after computing the hash. The
+        /// caller is responsible for managing the stream's position and lifetime.</remarks>
+        /// <param name="stream">The input stream containing the data to hash. The stream must be readable and positioned at the start of the
+        /// data to hash.</param>
+        /// <returns>A lowercase hexadecimal string representing the SHA-512 hash of the stream's contents.</returns>
         public static string Sha512(this Stream stream)
         {
             using SHA512 sha = SHA512.Create();
             byte[] array = sha.ComputeHash(stream);
-            return BitConverter.ToString(array).Replace("-", string.Empty).ToLower();
+            return array.ToHexStringLower();
         }
     }
 }

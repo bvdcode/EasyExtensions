@@ -1,11 +1,14 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
-namespace EasyExtensions.EntityFrameworkCore.Exceptions
+using System;
+
+namespace EasyExtensions.AspNetCore.Exceptions
 {
     /// <summary>
-    /// The exception that is thrown when an entity type is invalid.
+    /// Represents an exception that is thrown when an entity is of an invalid type.
     /// </summary>
+    /// <param name="message">The message that describes the error.</param>
     public class EntityInvalidTypeException(string message) : Exception(message)
     {
         /// <summary>

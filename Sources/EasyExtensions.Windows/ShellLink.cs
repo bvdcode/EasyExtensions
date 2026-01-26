@@ -194,7 +194,6 @@ namespace EasyExtensions.Windows
             void SetPath([MarshalAs(UnmanagedType.LPStr)] string pszFile);
         }
 
-
         /// <summary>
         /// IShellLinkW interface for managing shell links (shortcuts) in Windows.
         /// </summary>

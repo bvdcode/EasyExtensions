@@ -59,7 +59,6 @@ namespace EasyExtensions.Mediator.Wrappers
             }
         }
 
-
         private static async IAsyncEnumerable<T> NextWrapper<T>(
             IAsyncEnumerable<T> items,
             [EnumeratorCancellation] CancellationToken cancellationToken)
