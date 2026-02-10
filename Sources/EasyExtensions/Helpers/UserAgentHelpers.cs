@@ -334,11 +334,20 @@ namespace EasyExtensions.Helpers
         {
             var ual = ua.ToLowerInvariant();
 
-            if (ual.Contains("windows nt")) return new UserAgentDeviceInfo(UserAgentDeviceType.WindowsPc, null, "Windows PC");
-            if (ual.Contains("macintosh") || ual.Contains("mac os x")) return new UserAgentDeviceInfo(UserAgentDeviceType.Mac, null, "Mac");
+            if (ual.Contains("windows nt"))
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.WindowsPc, null, "Windows PC");
+            }
+            if (ual.Contains("macintosh") || ual.Contains("mac os x"))
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.Mac, null, "Mac");
+            }
 
             // must be after android match to avoid classifying Android as Linux
-            if (ual.Contains("linux")) return new UserAgentDeviceInfo(UserAgentDeviceType.LinuxPc, null, "Linux PC");
+            if (ual.Contains("linux"))
+            {
+                return new UserAgentDeviceInfo(UserAgentDeviceType.LinuxPc, null, "Linux PC");
+            }
 
             return null;
         }

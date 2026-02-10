@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
+using EasyExtensions.Extensions;
+using System.Text;
+
 namespace EasyExtensions.Helpers
 {
     /// <summary>
@@ -36,6 +39,26 @@ namespace EasyExtensions.Helpers
             Type = type;
             Model = model;
             FriendlyName = friendlyName;
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object, including its type, model, and friendly name.
+        /// </summary>
+        /// <returns>A string containing the type, model, and friendly name of the object. If the model or friendly name is not
+        /// set, "Unknown Model" or "Unknown Device" is used, respectively.</returns>
+        override public string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append(Type.ToNiceString());
+            if (!string.IsNullOrEmpty(Model))
+            {
+                sb.Append($" ({Model})");
+            }
+            if (!string.IsNullOrEmpty(FriendlyName))
+            {
+                sb.Append($": {FriendlyName}");
+            }
+            return sb.ToString();
         }
     }
 }
