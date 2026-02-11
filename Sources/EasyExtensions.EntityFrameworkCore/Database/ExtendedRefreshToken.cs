@@ -67,5 +67,12 @@ namespace EasyExtensions.EntityFrameworkCore.Database
         /// </summary>
         [Column("session_id")]
         public string? SessionId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating when the device can store the refresh token forever without needing to re-authenticate.
+        /// This can be used to determine if the token should have an extended expiration time or if it should require periodic re-authentication.
+        /// </summary>
+        [Column("is_trusted")]
+        public bool IsTrusted { get; set; }
     }
 }
