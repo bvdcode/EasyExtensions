@@ -379,6 +379,17 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             return TimeSpan.FromDays(30);
         }
 
+        /// <summary>
+        /// Retrieves additional token claims for the specified user to be included in authentication tokens.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user for whom to retrieve additional token claims.</param>
+        /// <returns>An enumerable collection of key-value pairs representing additional claims to be added to the user's
+        /// authentication token. The collection is empty if no additional claims are available.</returns>
+        public virtual IEnumerable<KeyValuePair<string, string>> GetAdditionalTokenClaims(Guid userId)
+        {
+            return [];
+        }
+
         private string CreateAccessToken(Guid userId, IEnumerable<string> roles)
         {
             return _tokenProvider.CreateToken(cb =>
@@ -387,6 +398,10 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
                 foreach (string role in roles)
                 {
                     cb.Add(ClaimTypes.Role, role);
+                }
+                foreach (var claim in GetAdditionalTokenClaims(userId))
+                {
+                    cb.Add(claim.Key, claim.Value);
                 }
                 return cb;
             });
