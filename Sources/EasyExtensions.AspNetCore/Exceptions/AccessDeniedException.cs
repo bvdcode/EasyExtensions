@@ -14,7 +14,8 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// <param name="message">The error message that explains the reason for the exception. If not specified, a default message of "Access
     /// denied" is used.</param>
     public class AccessDeniedException(string objectName, string message = "Access denied")
-        : WebApiException(HttpStatusCode.Forbidden, objectName, message) { }
+        : WebApiException(HttpStatusCode.Forbidden, objectName, message)
+    { }
 
     /// <summary>
     /// Represents an exception that is thrown when access to a resource of type T is denied, typically corresponding to
@@ -23,5 +24,6 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// <typeparam name="T">The type of the resource for which access was denied.</typeparam>
     /// <param name="message">The error message that describes the reason for the access denial.</param>
     public class AccessDeniedException<T>(string message = "Access denied")
-        : AccessDeniedException(typeof(T).Name, message) { }
+        : AccessDeniedException(typeof(T).Name, message)
+    { }
 }

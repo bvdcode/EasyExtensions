@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using EasyExtensions.Mediator.Contracts;
+using System.Collections.Generic;
 using System.Threading;
-using EasyExtensions.Mediator.Contracts;
+using System.Threading.Tasks;
 
 namespace EasyExtensions.Mediator
 {

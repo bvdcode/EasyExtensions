@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
-using EasyExtensions.EntityFrameworkCore.Repository;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -41,17 +40,6 @@ namespace EasyExtensions.EntityFrameworkCore.Abstractions
         {
             get => UpdatedAt;
             set => UpdatedAt = value;
-        }
-
-        /// <summary>
-        /// Update entity method is calling in <see cref="BaseDbSetRepository{TItem}.UpdateAsync(TItem, CancellationToken)"/>.
-        /// Do not call this method from overriden method.
-        /// </summary>
-        /// <param name="entity">Entity to update.</param>
-        /// <exception cref="NotImplementedException">Update method is not overriden in inherited class.</exception>
-        public virtual void Update(BaseEntity<TId> entity)
-        {
-            throw new NotImplementedException("Update method is not overriden in inherited class.");
         }
     }
 }

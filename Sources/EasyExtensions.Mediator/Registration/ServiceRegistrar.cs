@@ -1,12 +1,12 @@
-﻿using System;
+﻿using EasyExtensions.Mediator.Contracts;
+using EasyExtensions.Mediator.Pipeline;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using EasyExtensions.Mediator.Contracts;
-using EasyExtensions.Mediator.Pipeline;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace EasyExtensions.Mediator.Registration
 {
