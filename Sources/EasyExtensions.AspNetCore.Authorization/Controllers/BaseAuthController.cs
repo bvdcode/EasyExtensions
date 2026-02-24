@@ -129,13 +129,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken, AuthType.Unknown);
-            Response.Cookies.Append(CookieRefreshTokenName, newRefreshToken, new()
-            {
-                Secure = true,
-                HttpOnly = true,
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
-            });
+            AddRefreshTokenToCookie(newRefreshToken);
             return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
@@ -185,13 +179,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Credentials);
             await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.None);
-            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
-            {
-                Secure = true,
-                HttpOnly = true,
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
-            });
+            AddRefreshTokenToCookie(refreshToken);
             return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
@@ -241,13 +229,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Google);
             await OnUserLoggingInAsync(userId.Value, AuthType.Google, AuthRejectionType.None);
-            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
-            {
-                Secure = true,
-                HttpOnly = true,
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
-            });
+            AddRefreshTokenToCookie(refreshToken);
             return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
@@ -390,7 +372,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             return [];
         }
 
-        private string CreateAccessToken(Guid userId, IEnumerable<string> roles)
+        private protected string CreateAccessToken(Guid userId, IEnumerable<string> roles)
         {
             return _tokenProvider.CreateToken(cb =>
             {
@@ -404,6 +386,17 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
                     cb.Add(claim.Key, claim.Value);
                 }
                 return cb;
+            });
+        }
+
+        private protected void AddRefreshTokenToCookie(string refreshToken)
+        {
+            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
+            {
+                Secure = true,
+                HttpOnly = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
             });
         }
     }

@@ -24,5 +24,10 @@ namespace EasyExtensions.Models.Enums
         /// Specifies the Google authentication provider.
         /// </summary>
         Google = 2,
+
+        /// <summary>
+        /// Specifies the Clover authentication provider.
+        /// </summary>
+        Clover = 3,
     }
 }
