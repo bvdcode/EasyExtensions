@@ -372,7 +372,18 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             return [];
         }
 
-        private protected string CreateAccessToken(Guid userId, IEnumerable<string> roles)
+        /// <summary>
+        /// Generates a JWT access token for the specified user, including their roles and any additional claims.
+        /// </summary>
+        /// <remarks>The generated token includes standard claims such as the subject identifier, as well
+        /// as any additional claims retrieved for the user. Roles are added as claims to support role-based
+        /// authorization scenarios.</remarks>
+        /// <param name="userId">The unique identifier of the user for whom the access token is being generated.</param>
+        /// <param name="roles">A collection of role names to be included as claims in the access token. Each role represents a permission
+        /// or group associated with the user.</param>
+        /// <returns>A string containing the generated JWT access token that can be used to authenticate the user in subsequent
+        /// requests.</returns>
+        internal protected string CreateAccessToken(Guid userId, IEnumerable<string> roles)
         {
             return _tokenProvider.CreateToken(cb =>
             {
@@ -389,7 +400,15 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             });
         }
 
-        private protected void AddRefreshTokenToCookie(string refreshToken)
+        /// <summary>
+        /// Adds the specified refresh token to the HTTP response cookies to support secure session renewal.
+        /// </summary>
+        /// <remarks>The refresh token cookie is configured with security best practices: it is marked as
+        /// secure, HTTP-only, and uses a strict SameSite policy to help prevent cross-site request forgery (CSRF)
+        /// attacks. The cookie's expiration is determined by the application's configured refresh token
+        /// lifetime.</remarks>
+        /// <param name="refreshToken">The refresh token to be stored in the response cookie. Cannot be null or empty.</param>
+        internal protected void AddRefreshTokenToCookie(string refreshToken)
         {
             Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
             {
