@@ -12,7 +12,8 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// error.</param>
     /// <param name="message">The error message that describes the reason for the bad request. The default is "Bad request".</param>
     public class BadRequestException(string objectName, string message = "Bad request")
-        : WebApiException(HttpStatusCode.BadRequest, objectName, message) { }
+        : WebApiException(HttpStatusCode.BadRequest, objectName, message)
+    { }
 
     /// <summary>
     /// Represents an exception that is thrown to indicate a bad request error associated with a specific resource type.
@@ -20,5 +21,6 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// <typeparam name="T">The type of the resource or entity related to the bad request.</typeparam>
     /// <param name="message">The error message that describes the reason for the bad request. The default is "Bad request".</param>
     public class BadRequestException<T>(string message = "Bad request")
-        : BadRequestException(typeof(T).Name, message) { }
+        : BadRequestException(typeof(T).Name, message)
+    { }
 }

@@ -14,7 +14,8 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// <param name="objectName">The name of the object or resource for which access was denied.</param>
     /// <param name="message">The error message that describes the reason for the unauthorized access. The default is "Unathorized".</param>
     public class UnauthorizedException(string objectName, string message = "Unathorized")
-        : WebApiException(HttpStatusCode.Unauthorized, objectName, message) { }
+        : WebApiException(HttpStatusCode.Unauthorized, objectName, message)
+    { }
 
     /// <summary>
     /// Represents an exception that is thrown when an operation is attempted without the required authorization for a
@@ -23,5 +24,6 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// <typeparam name="T">The type of the resource or entity for which authorization failed.</typeparam>
     /// <param name="message">The error message that explains the reason for the exception. The default is "Unathorized".</param>
     public class UnauthorizedException<T>(string message = "Unathorized")
-        : UnauthorizedException(typeof(T).Name, message) { }
+        : UnauthorizedException(typeof(T).Name, message)
+    { }
 }
