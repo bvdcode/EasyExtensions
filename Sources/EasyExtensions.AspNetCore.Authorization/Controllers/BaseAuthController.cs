@@ -153,7 +153,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             Guid? userId = await FindUserByUsernameAsync(request.Username);
             if (!userId.HasValue || userId == Guid.Empty)
             {
-                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.UserNotFound);
+                await OnUserLoggingInAsync(userId.GetValueOrDefault(), AuthType.Credentials, AuthRejectionType.UserNotFound);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             bool canLogin = await CanUserLoginAsync(userId.Value);
