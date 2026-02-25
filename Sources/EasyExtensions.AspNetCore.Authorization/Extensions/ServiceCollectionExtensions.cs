@@ -22,6 +22,11 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Represents the name of the parameter used to pass the access token.
+        /// </summary>
+        public const string AccessTokenParamName = "access_token";
+
+        /// <summary>
         /// Adds JWT authentication resolving <see cref="IConfiguration"/> from DI.
         /// Reads settings from JwtSettings section or flat fallback Jwt[Key] configuration values (see <see cref="ConfigurationExtensions.GetJwtSettings"/>).
         /// </summary>
@@ -92,10 +97,18 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
                     {
                         OnMessageReceived = context =>
                         {
-                            var accessToken = context.Request.Query["access_token"].ToString();
+                            var accessToken = context.Request.Query[AccessTokenParamName].ToString();
                             if (!string.IsNullOrEmpty(accessToken))
                             {
                                 context.Token = accessToken;
+                            }
+                            if (string.IsNullOrWhiteSpace(context.Token))
+                            {
+                                string? cookieToken = context.Request.Cookies[AccessTokenParamName];
+                                if (!string.IsNullOrEmpty(cookieToken))
+                                {
+                                    context.Token = cookieToken;
+                                }
                             }
                             return Task.CompletedTask;
                         }
