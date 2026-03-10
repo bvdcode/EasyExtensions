@@ -26,6 +26,11 @@ namespace EasyExtensions.AspNetCore.Stack.Builders
         internal bool AuthorizationEnabled { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to use secrets for configuration values.
+        /// </summary>
+        internal bool UseSecretVault { get; set; }
+
+        /// <summary>
         /// Enables authorization for the current EasyStackOptions instance.
         /// </summary>
         /// <returns>The current EasyStackOptions instance with authorization enabled.</returns>
@@ -64,6 +69,18 @@ namespace EasyExtensions.AspNetCore.Stack.Builders
 
                 hc.AddCheck<DatabaseHealthCheck<TDbContext>>("Database");
             };
+            return this;
+        }
+
+        /// <summary>
+        /// Configures whether sensitive information should be stored in the secret vault.
+        /// </summary>
+        /// <param name="useSecrets">A value indicating whether to enable the use of the secret vault. Set to <see langword="true"/> to use the
+        /// vault for sensitive information; otherwise, <see langword="false"/>.</param>
+        /// <returns>The current instance of <see cref="EasyStackOptions"/> to allow for method chaining.</returns>
+        public EasyStackOptions UseSecrets(bool useSecrets)
+        {
+            UseSecretVault = useSecrets;
             return this;
         }
     }
