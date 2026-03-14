@@ -22,10 +22,16 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Represents the name of the parameter used to pass the access token.
+        /// </summary>
+        public const string AccessTokenParamName = "access_token";
+
+        /// <summary>
         /// Adds JWT authentication resolving <see cref="IConfiguration"/> from DI.
         /// Reads settings from JwtSettings section or flat fallback Jwt[Key] configuration values (see <see cref="ConfigurationExtensions.GetJwtSettings"/>).
         /// </summary>
         /// <param name="services"><see cref="IServiceCollection"/> instance.</param>
+        /// <param name="useCookies">If <c>true</c>, JWT token will be read from cookies (if not found in query string).</param>
         /// <returns>Current <see cref="IServiceCollection"/> instance.</returns>
         /// <exception cref="KeyNotFoundException">When required JWT settings are missing.</exception>
         /// <remarks>
@@ -62,7 +68,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
         ///   <item><description><c>RequireHttpsMetadata = false</c> (adjust in production if needed).</description></item>
         /// </list>
         /// </remarks>
-        public static IServiceCollection AddJwt(this IServiceCollection services)
+        public static IServiceCollection AddJwt(this IServiceCollection services, bool useCookies = false)
         {
             services.AddScoped<ITokenProvider, JwtTokenProvider>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -92,10 +98,18 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
                     {
                         OnMessageReceived = context =>
                         {
-                            var accessToken = context.Request.Query["access_token"].ToString();
+                            var accessToken = context.Request.Query[AccessTokenParamName].ToString();
                             if (!string.IsNullOrEmpty(accessToken))
                             {
                                 context.Token = accessToken;
+                            }
+                            else if (useCookies && string.IsNullOrWhiteSpace(context.Token))
+                            {
+                                string? cookieToken = context.Request.Cookies[AccessTokenParamName];
+                                if (!string.IsNullOrEmpty(cookieToken))
+                                {
+                                    context.Token = cookieToken;
+                                }
                             }
                             return Task.CompletedTask;
                         }

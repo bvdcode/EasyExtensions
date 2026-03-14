@@ -129,13 +129,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             var roles = await GetUserRolesAsync(userId.Value);
             string accessToken = CreateAccessToken(userId.Value, roles);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, request.RefreshToken, newRefreshToken, AuthType.Unknown);
-            Response.Cookies.Append(CookieRefreshTokenName, newRefreshToken, new()
-            {
-                Secure = true,
-                HttpOnly = true,
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
-            });
+            AddRefreshTokenToCookie(newRefreshToken);
             return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
@@ -159,7 +153,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             Guid? userId = await FindUserByUsernameAsync(request.Username);
             if (!userId.HasValue || userId == Guid.Empty)
             {
-                await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.UserNotFound);
+                await OnUserLoggingInAsync(userId.GetValueOrDefault(), AuthType.Credentials, AuthRejectionType.UserNotFound);
                 return this.ApiUnauthorized("Invalid username or password");
             }
             bool canLogin = await CanUserLoginAsync(userId.Value);
@@ -185,13 +179,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Credentials);
             await OnUserLoggingInAsync(userId.Value, AuthType.Credentials, AuthRejectionType.None);
-            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
-            {
-                Secure = true,
-                HttpOnly = true,
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
-            });
+            AddRefreshTokenToCookie(refreshToken);
             return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
@@ -241,13 +229,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             string refreshToken = StringHelpers.CreateRandomString(64);
             await SaveAndRevokeRefreshTokenAsync(userId.Value, string.Empty, refreshToken, AuthType.Google);
             await OnUserLoggingInAsync(userId.Value, AuthType.Google, AuthRejectionType.None);
-            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
-            {
-                Secure = true,
-                HttpOnly = true,
-                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
-            });
+            AddRefreshTokenToCookie(refreshToken);
             return Ok(new TokenPairResponseDto
             {
                 AccessToken = accessToken,
@@ -390,7 +372,18 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
             return [];
         }
 
-        private string CreateAccessToken(Guid userId, IEnumerable<string> roles)
+        /// <summary>
+        /// Generates a JWT access token for the specified user, including their roles and any additional claims.
+        /// </summary>
+        /// <remarks>The generated token includes standard claims such as the subject identifier, as well
+        /// as any additional claims retrieved for the user. Roles are added as claims to support role-based
+        /// authorization scenarios.</remarks>
+        /// <param name="userId">The unique identifier of the user for whom the access token is being generated.</param>
+        /// <param name="roles">A collection of role names to be included as claims in the access token. Each role represents a permission
+        /// or group associated with the user.</param>
+        /// <returns>A string containing the generated JWT access token that can be used to authenticate the user in subsequent
+        /// requests.</returns>
+        internal protected string CreateAccessToken(Guid userId, IEnumerable<string> roles)
         {
             return _tokenProvider.CreateToken(cb =>
             {
@@ -404,6 +397,25 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
                     cb.Add(claim.Key, claim.Value);
                 }
                 return cb;
+            });
+        }
+
+        /// <summary>
+        /// Adds the specified refresh token to the HTTP response cookies to support secure session renewal.
+        /// </summary>
+        /// <remarks>The refresh token cookie is configured with security best practices: it is marked as
+        /// secure, HTTP-only, and uses a strict SameSite policy to help prevent cross-site request forgery (CSRF)
+        /// attacks. The cookie's expiration is determined by the application's configured refresh token
+        /// lifetime.</remarks>
+        /// <param name="refreshToken">The refresh token to be stored in the response cookie. Cannot be null or empty.</param>
+        internal protected void AddRefreshTokenToCookie(string refreshToken)
+        {
+            Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
+            {
+                Secure = true,
+                HttpOnly = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.Add(GetCookieExpirationTime()),
             });
         }
     }

@@ -133,7 +133,7 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
 
             // EasyVault - if URL presented in configuration
             bool isVaultPresented = !string.IsNullOrWhiteSpace(builder.Configuration[EasyVault.SDK.Extensions.ConfigurationExtensions.DefaultServerUrlKey]);
-            if (isVaultPresented)
+            if (isVaultPresented && options.UseSecretVault)
             {
                 EasyVault.SDK.Extensions.ConfigurationExtensions.AddSecrets(builder.Configuration);
                 logger.LogInformation("VaultApiUrl found in configuration, added EasyVault");

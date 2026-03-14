@@ -119,12 +119,8 @@ namespace EasyExtensions.Mediator
                 var requestInterfaceType = requestType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequest<>));
                 if (requestInterfaceType is null)
                 {
-                    requestInterfaceType = requestType.GetInterfaces().FirstOrDefault(i => i == typeof(IRequest));
-                    if (requestInterfaceType is null)
-                    {
-                        throw new ArgumentException($"{requestType.Name} does not implement {nameof(IRequest)}", nameof(request));
-                    }
-
+                    requestInterfaceType = requestType.GetInterfaces().FirstOrDefault(i => i == typeof(IRequest))
+                        ?? throw new ArgumentException($"{requestType.Name} does not implement {nameof(IRequest)}", nameof(request));
                     wrapperType = typeof(RequestHandlerWrapperImpl<>).MakeGenericType(requestType);
                 }
                 else
