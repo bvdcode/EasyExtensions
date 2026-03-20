@@ -36,7 +36,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Models.Dto
         /// Gets or sets the family name (surname) of the person.
         /// </summary>
         [JsonPropertyName("family_name")]
-        public string FamilyName { get; set; } = null!;
+        public string? FamilyName { get; set; }
 
         /// <summary>
         /// Gets or sets the URL of the user's profile picture.
