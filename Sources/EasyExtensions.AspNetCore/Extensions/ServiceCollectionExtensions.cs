@@ -2,18 +2,22 @@
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
 using EasyExtensions.Abstractions;
+using EasyExtensions.AspNetCore.Abstractions;
+using EasyExtensions.AspNetCore.Exceptions;
 using EasyExtensions.AspNetCore.Formatters;
 using EasyExtensions.AspNetCore.HealthChecks;
 using EasyExtensions.Helpers;
 using EasyExtensions.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using System;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace EasyExtensions.AspNetCore.Extensions
@@ -199,13 +203,9 @@ namespace EasyExtensions.AspNetCore.Extensions
             var exception = exceptionHandlerPathFeature.Error;
             if (exception is IHttpError httpError)
             {
-                var traceId = context.TraceIdentifier;
-                if (!string.IsNullOrEmpty(traceId))
-                {
-                    httpError.SetTraceIdentifier(traceId);
-                }
                 context.Response.StatusCode = (int)httpError.StatusCode;
-                await context.Response.WriteAsJsonAsync(httpError.GetErrorModel());
+                context.Response.ContentType = MediaTypeNames.Application.ProblemJson;
+                await context.Response.WriteAsJsonAsync(httpError.GetErrorModel(context.TraceIdentifier, context.Request.Path));
             }
         }
     }

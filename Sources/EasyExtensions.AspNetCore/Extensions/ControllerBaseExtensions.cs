@@ -186,7 +186,16 @@ namespace EasyExtensions.AspNetCore.Extensions
             };
         }
 
-        private static void AddTraceId(ControllerBase controller, ProblemDetails details)
+        /// <summary>
+        /// Adds the current HTTP request's trace identifier to the specified ProblemDetails instance as an extension
+        /// for enhanced request tracking.
+        /// </summary>
+        /// <remarks>If the HTTP context does not contain a trace identifier or if it is empty or
+        /// whitespace, no extension is added to the ProblemDetails instance. This method is useful for correlating
+        /// problem responses with server logs during troubleshooting.</remarks>
+        /// <param name="controller">The controller instance from which to obtain the HTTP context and its trace identifier. Cannot be null.</param>
+        /// <param name="details">The ProblemDetails object to which the trace identifier extension will be added. Cannot be null.</param>
+        public static void AddTraceId(ControllerBase controller, ProblemDetails details)
         {
             var traceId = controller.HttpContext.TraceIdentifier;
             if (!string.IsNullOrWhiteSpace(traceId))

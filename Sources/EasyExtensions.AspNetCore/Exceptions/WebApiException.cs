@@ -2,12 +2,18 @@
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
 using EasyExtensions.Abstractions;
+using EasyExtensions.AspNetCore.Abstractions;
+using EasyExtensions.AspNetCore.Extensions;
 using EasyExtensions.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Mime;
+using System.Net.NetworkInformation;
 
 namespace EasyExtensions.AspNetCore.Exceptions
 {
@@ -44,6 +50,7 @@ namespace EasyExtensions.AspNetCore.Exceptions
         /// <summary>
         /// Additional error details. This property can be used to provide extra 
         /// information about the error, such as validation errors, stack traces, or any
+        /// other relevant context that may help in understanding the error.
         /// </summary>
         public object? Extra { get; } = extra;
 
@@ -51,30 +58,40 @@ namespace EasyExtensions.AspNetCore.Exceptions
         /// Get error model.
         /// </summary>
         /// <returns> Error model. </returns>
-        public ErrorModel GetErrorModel()
+        public ProblemDetails GetErrorModel(string? traceId = null, string? path = null)
         {
-            int statusCode = (int)StatusCode;
-            return new()
+            if (!string.IsNullOrWhiteSpace(ObjectName))
             {
-                Status = statusCode,
-                Type = GetRfcType(StatusCode),
-                Title = ReasonPhrases.GetReasonPhrase(statusCode),
-                TraceId = Activity.Current?.Id ?? string.Empty,
-                Errors = new Dictionary<string, string>
+                var details = new ValidationProblemDetails
                 {
-                    { ObjectName, Message }
-                }
-            };
-        }
+                    Detail = this.Message,
+                    Instance = path ?? "/",
+                    Status = (int)StatusCode,
+                    Type = GetRfcType(StatusCode),
+                    Errors = new Dictionary<string, string[]>(),
+                    Extensions = new Dictionary<string, object?>(),
+                    Title = ReasonPhrases.GetReasonPhrase((int)StatusCode),
+                };
+                details.Extensions["traceId"] = traceId ?? Activity.Current?.Id ?? "-";
+                ControllerBaseExtensions.AddExtra(details, Extra);
+                details.Errors[ObjectName] = [Message];
 
-        /// <summary>
-        /// Sets the trace identifier for the current context.
-        /// </summary>
-        /// <param name="traceId">The unique identifier to associate with the current trace. Cannot be null.</param>
-        /// <exception cref="NotImplementedException">Thrown when the method is called, as the implementation is not provided.</exception>
-        public void SetTraceIdentifier(string traceId)
-        {
-            throw new NotImplementedException();
+                return details;
+            }
+
+            var problemDetails = new ProblemDetails
+            {
+                Detail = this.Message,
+                Instance = path ?? "/",
+                Status = (int)StatusCode,
+                Type = GetRfcType(StatusCode),
+                Extensions = new Dictionary<string, object?>(),
+                Title = ReasonPhrases.GetReasonPhrase((int)StatusCode),
+            };
+            problemDetails.Extensions["traceId"] = traceId ?? Activity.Current?.Id ?? "-";
+            ControllerBaseExtensions.AddExtra(problemDetails, Extra);
+
+            return problemDetails;
         }
 
         private static string GetRfcType(HttpStatusCode statusCode)
