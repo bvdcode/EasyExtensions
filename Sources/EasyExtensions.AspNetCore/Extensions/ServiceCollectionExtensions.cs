@@ -199,6 +199,11 @@ namespace EasyExtensions.AspNetCore.Extensions
             var exception = exceptionHandlerPathFeature.Error;
             if (exception is IHttpError httpError)
             {
+                var traceId = context.TraceIdentifier;
+                if (!string.IsNullOrEmpty(traceId))
+                {
+                    httpError.SetTraceIdentifier(traceId);
+                }
                 context.Response.StatusCode = (int)httpError.StatusCode;
                 await context.Response.WriteAsJsonAsync(httpError.GetErrorModel());
             }

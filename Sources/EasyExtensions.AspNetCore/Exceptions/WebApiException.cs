@@ -67,6 +67,16 @@ namespace EasyExtensions.AspNetCore.Exceptions
             };
         }
 
+        /// <summary>
+        /// Sets the trace identifier for the current context.
+        /// </summary>
+        /// <param name="traceId">The unique identifier to associate with the current trace. Cannot be null.</param>
+        /// <exception cref="NotImplementedException">Thrown when the method is called, as the implementation is not provided.</exception>
+        public void SetTraceIdentifier(string traceId)
+        {
+            throw new NotImplementedException();
+        }
+
         private static string GetRfcType(HttpStatusCode statusCode)
             => statusCode switch
             {
