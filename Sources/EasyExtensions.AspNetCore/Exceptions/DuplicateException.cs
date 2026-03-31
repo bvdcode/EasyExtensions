@@ -13,8 +13,10 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// creation attempts in resource management scenarios.</remarks>
     /// <param name="objectName">The name of the object that caused the conflict.</param>
     /// <param name="message">The error message that describes the reason for the conflict. The default is "Object already exists."</param>
-    public class DuplicateException(string objectName, string message = "Object already exists")
-        : WebApiException(HttpStatusCode.Conflict, objectName, message)
+    /// <param name="extra">Optional additional error details. This parameter can be used to provide extra information about the error, such as specific permission
+    /// requirements, user roles, or any other relevant context that may help in understanding the access denial.</param>
+    public class DuplicateException(string objectName, string message = "Object already exists", object? extra = null)
+        : WebApiException(HttpStatusCode.Conflict, objectName, message, extra)
     { }
 
     /// <summary>
@@ -23,7 +25,9 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// </summary>
     /// <typeparam name="T">The type of the object that caused the duplication error.</typeparam>
     /// <param name="message">The error message that explains the reason for the exception. The default is "Object already exists."</param>
-    public class DuplicateException<T>(string message = "Object already exists")
-        : DuplicateException(typeof(T).Name, message)
+    /// <param name="extra">Optional additional error details. This parameter can be used to provide extra information about the error, such as specific permission
+    /// requirements, user roles, or any other relevant context that may help in understanding the access denial.</param>
+    public class DuplicateException<T>(string message = "Object already exists", object? extra = null)
+        : DuplicateException(typeof(T).Name, message, extra)
     { }
 }

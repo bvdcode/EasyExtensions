@@ -195,7 +195,18 @@ namespace EasyExtensions.AspNetCore.Extensions
             }
         }
 
-        private static void AddExtra(ProblemDetails details, object? extra)
+        /// <summary>
+        /// Adds additional information to the specified <see cref="ProblemDetails"/> instance by populating its <see
+        /// cref="ProblemDetails.Extensions"/> property with key-value pairs from the provided object.
+        /// </summary>
+        /// <remarks>If <paramref name="extra"/> is a dictionary, its key-value pairs are added directly
+        /// to the <see cref="ProblemDetails.Extensions"/> property. If it is an object, its public properties
+        /// (excluding indexers) are added as key-value pairs. Existing keys in <see cref="ProblemDetails.Extensions"/>
+        /// may be overwritten.</remarks>
+        /// <param name="details">The <see cref="ProblemDetails"/> instance to which extra information will be added. Cannot be null.</param>
+        /// <param name="extra">An object containing additional data to add to the <see cref="ProblemDetails.Extensions"/> property. This
+        /// can be a dictionary with string keys or an object with public properties. If null, no changes are made.</param>
+        public static void AddExtra(this ProblemDetails details, object? extra)
         {
             if (extra is null)
             {

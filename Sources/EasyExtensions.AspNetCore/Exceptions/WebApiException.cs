@@ -3,6 +3,7 @@
 
 using EasyExtensions.Abstractions;
 using EasyExtensions.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +22,14 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// protocol.</param>
     /// <param name="objectName">The name of the object or entity related to the error. Used to identify the source of the error in the response.</param>
     /// <param name="message">The error message that describes the reason for the exception.</param>
-    public class WebApiException(HttpStatusCode statusCode, string objectName, string message) : Exception(message), IHttpError
+    /// <param name="extra">Optional additional error details. This parameter can be used to provide extra information about the error, such as specific permission
+    /// requirements, user roles, or any other relevant context that may help in understanding the access denial.</param>
+    public class WebApiException(
+        HttpStatusCode statusCode,
+        string objectName,
+        string message,
+        object? extra = null)
+            : Exception(message), IHttpError
     {
         /// <summary>
         /// HTTP status code.
@@ -34,11 +42,28 @@ namespace EasyExtensions.AspNetCore.Exceptions
         public string ObjectName { get; } = objectName;
 
         /// <summary>
+        /// Additional error details. This property can be used to provide extra 
+        /// information about the error, such as validation errors, stack traces, or any
+        /// </summary>
+        public object? Extra { get; } = extra;
+
+        /// <summary>
         /// Get error model.
         /// </summary>
         /// <returns> Error model. </returns>
         public ErrorModel GetErrorModel()
         {
+            ProblemDetails details = new ProblemDetails()
+            {
+                Status = (int)StatusCode,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                Title = "Web API actions errors occurred.",
+            };
+            string? traceId = Activity.Current?.Id ?? "-";
+            if (!string.IsNullOrWhiteSpace(traceId))
+            {
+                details.Extensions["traceId"] = traceId;
+            }
             return new()
             {
                 Status = (int)StatusCode,

@@ -14,7 +14,9 @@ namespace EasyExtensions.AspNetCore.Exceptions
         /// <summary>
         /// Throws an exception indicating that the entity type is invalid.
         /// </summary>
-        /// <exception cref="EntityInvalidTypeException">Thrown when the entity type is invalid.</exception>
+        /// <exception cref="EntityInvalidTypeException">Thrown when the entity type is invalid.</exception>'
+        /// <param name="value">The value that is being checked for the expected type.</param>
+        /// <param name="paramName">Optional name of the parameter being validated.</param>
         public static TEntity ThrowIfInvalidType<TEntity>(object? value, string? paramName = null)
         {
             if (value is not TEntity typed)
