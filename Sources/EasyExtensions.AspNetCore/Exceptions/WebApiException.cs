@@ -3,7 +3,7 @@
 
 using EasyExtensions.Abstractions;
 using EasyExtensions.Models;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -53,28 +53,33 @@ namespace EasyExtensions.AspNetCore.Exceptions
         /// <returns> Error model. </returns>
         public ErrorModel GetErrorModel()
         {
-            ProblemDetails details = new ProblemDetails()
-            {
-                Status = (int)StatusCode,
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                Title = "Web API actions errors occurred.",
-            };
-            string? traceId = Activity.Current?.Id ?? "-";
-            if (!string.IsNullOrWhiteSpace(traceId))
-            {
-                details.Extensions["traceId"] = traceId;
-            }
+            int statusCode = (int)StatusCode;
             return new()
             {
-                Status = (int)StatusCode,
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                Title = "Web API actions errors occurred.",
-                TraceId = Activity.Current?.Id ?? "-",
+                Status = statusCode,
+                Type = GetRfcType(StatusCode),
+                Title = ReasonPhrases.GetReasonPhrase(statusCode),
+                TraceId = Activity.Current?.Id ?? string.Empty,
                 Errors = new Dictionary<string, string>
                 {
                     { ObjectName, Message }
                 }
             };
         }
+
+        private static string GetRfcType(HttpStatusCode statusCode)
+            => statusCode switch
+            {
+                HttpStatusCode.BadRequest => "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                HttpStatusCode.Unauthorized => "https://tools.ietf.org/html/rfc7235#section-3.1",
+                HttpStatusCode.Forbidden => "https://tools.ietf.org/html/rfc7231#section-6.5.3",
+                HttpStatusCode.NotFound => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                HttpStatusCode.Conflict => "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+                HttpStatusCode.UnprocessableEntity => "https://tools.ietf.org/html/rfc4918#section-11.2",
+                HttpStatusCode.TooManyRequests => "https://tools.ietf.org/html/rfc6585#section-4",
+                HttpStatusCode.InternalServerError => "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                HttpStatusCode.ServiceUnavailable => "https://tools.ietf.org/html/rfc7231#section-6.6.4",
+                _ => "https://tools.ietf.org/html/rfc7231"
+            };
     }
 }
