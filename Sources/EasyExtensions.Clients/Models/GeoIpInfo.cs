@@ -41,6 +41,12 @@ namespace EasyExtensions.Clients.Models
         public int? Asn { get; init; }
 
         /// <summary>
+        /// Gets the U.S. metro code associated with the entity.
+        /// </summary>
+        [JsonPropertyName("usMetroCode")]
+        public int? UsMetroCode { get; init; }
+
+        /// <summary>
         /// Gets the name of the organization associated with the autonomous system number (ASN).
         /// </summary>
         [JsonPropertyName("asnOrganization")]
@@ -56,12 +62,14 @@ namespace EasyExtensions.Clients.Models
         /// Gets the latitude coordinate in decimal degrees.
         /// </summary>
         [JsonPropertyName("latitude")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
         public double? Latitude { get; init; }
 
         /// <summary>
         /// Gets the longitude coordinate in decimal degrees.
         /// </summary>
         [JsonPropertyName("longitude")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
         public double? Longitude { get; init; }
 
         /// <summary>
