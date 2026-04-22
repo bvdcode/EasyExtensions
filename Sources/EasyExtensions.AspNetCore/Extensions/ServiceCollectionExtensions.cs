@@ -3,14 +3,12 @@
 
 using EasyExtensions.Abstractions;
 using EasyExtensions.AspNetCore.Abstractions;
-using EasyExtensions.AspNetCore.Exceptions;
 using EasyExtensions.AspNetCore.Formatters;
 using EasyExtensions.AspNetCore.HealthChecks;
 using EasyExtensions.Helpers;
 using EasyExtensions.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

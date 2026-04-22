@@ -383,7 +383,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// or group associated with the user.</param>
         /// <returns>A string containing the generated JWT access token that can be used to authenticate the user in subsequent
         /// requests.</returns>
-        internal protected string CreateAccessToken(Guid userId, IEnumerable<string> roles)
+        protected internal string CreateAccessToken(Guid userId, IEnumerable<string> roles)
         {
             return _tokenProvider.CreateToken(cb =>
             {
@@ -408,7 +408,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Controllers
         /// attacks. The cookie's expiration is determined by the application's configured refresh token
         /// lifetime.</remarks>
         /// <param name="refreshToken">The refresh token to be stored in the response cookie. Cannot be null or empty.</param>
-        internal protected void AddRefreshTokenToCookie(string refreshToken)
+        protected internal void AddRefreshTokenToCookie(string refreshToken)
         {
             Response.Cookies.Append(CookieRefreshTokenName, refreshToken, new()
             {
