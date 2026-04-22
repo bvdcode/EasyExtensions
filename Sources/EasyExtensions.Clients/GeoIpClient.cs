@@ -1,5 +1,6 @@
 ﻿using EasyExtensions.Clients.Models;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 
 namespace EasyExtensions.Clients
 {
@@ -35,8 +36,14 @@ namespace EasyExtensions.Clients
             using var httpClient = new HttpClient();
             var response = await httpClient.GetAsync(url + ip, cancellationToken);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<GeoIpInfo>(cancellationToken: cancellationToken)
+            return await response.Content.ReadFromJsonAsync(GeoIpJsonSerializerContext.Default.GeoIpInfo, cancellationToken)
                 ?? throw new InvalidOperationException("Failed to deserialize GeoIpInfo.");
         }
+    }
+
+    [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+    [JsonSerializable(typeof(GeoIpInfo))]
+    internal partial class GeoIpJsonSerializerContext : JsonSerializerContext
+    {
     }
 }
