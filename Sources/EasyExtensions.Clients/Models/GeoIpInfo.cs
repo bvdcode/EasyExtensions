@@ -11,6 +11,12 @@ namespace EasyExtensions.Clients.Models
     public record GeoIpInfo
     {
         /// <summary>
+        /// Gets the IP address associated with the lookup result.
+        /// </summary>
+        [JsonPropertyName("ip")]
+        public string Ip { get; init; } = string.Empty;
+
+        /// <summary>
         /// Gets the country associated with the entity.
         /// </summary>
         [JsonPropertyName("country")]
