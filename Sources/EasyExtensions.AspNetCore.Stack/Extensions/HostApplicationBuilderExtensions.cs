@@ -101,10 +101,6 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
                 logger.LogInformation("Found job added: {job}", x.Name);
             });
 
-            // SignalR
-            builder.Services.AddSignalR();
-            logger.LogInformation("Added SignalR");
-
             // Setup Origins if presented in configuration, or allow all if asked
             string[] corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? [];
             if (corsOrigins.Length > 0)
@@ -153,6 +149,18 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
                 options.ConfigureDatabase.Invoke(builder.Services, healthChecksBuilder, builder.Configuration);
                 logger.LogInformation("Added Postgres DbContext and Database health check");
             }
+
+            // SignalR
+            if (options.ConfigureSignalR != null)
+            {
+                builder.Services.AddSignalR(options.ConfigureSignalR);
+                logger.LogInformation("Configured SignalR");
+            }
+            else
+            {
+                builder.Services.AddSignalR();
+            }
+            logger.LogInformation("Added SignalR");
 
             if (options.AuthorizationEnabled)
             {
