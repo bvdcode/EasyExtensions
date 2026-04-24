@@ -34,8 +34,8 @@
 		<ProjectReference Include="..\EasyExtensions.EntityFrameworkCore.Npgsql\EasyExtensions.EntityFrameworkCore.Npgsql.csproj" />
 		<ProjectReference Include="..\EasyExtensions.EntityFrameworkCore\EasyExtensions.EntityFrameworkCore.csproj" />
 		<ProjectReference Include="..\EasyExtensions.Quartz\EasyExtensions.Quartz.csproj" />
-		<PackageReference Include="EasyVault" Version="1.0.12" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.202" PrivateAssets="All" />
+		<PackageReference Include="EasyVault" Version="1.0.13" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.203" PrivateAssets="All" />
 	</ItemGroup>
 
 </Project>
