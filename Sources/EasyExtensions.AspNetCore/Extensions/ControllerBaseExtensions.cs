@@ -186,7 +186,16 @@ namespace EasyExtensions.AspNetCore.Extensions
             };
         }
 
-        private static void AddTraceId(ControllerBase controller, ProblemDetails details)
+        /// <summary>
+        /// Adds the current HTTP request's trace identifier to the specified ProblemDetails instance as an extension
+        /// for enhanced request tracking.
+        /// </summary>
+        /// <remarks>If the HTTP context does not contain a trace identifier or if it is empty or
+        /// whitespace, no extension is added to the ProblemDetails instance. This method is useful for correlating
+        /// problem responses with server logs during troubleshooting.</remarks>
+        /// <param name="controller">The controller instance from which to obtain the HTTP context and its trace identifier. Cannot be null.</param>
+        /// <param name="details">The ProblemDetails object to which the trace identifier extension will be added. Cannot be null.</param>
+        public static void AddTraceId(ControllerBase controller, ProblemDetails details)
         {
             var traceId = controller.HttpContext.TraceIdentifier;
             if (!string.IsNullOrWhiteSpace(traceId))
@@ -195,7 +204,18 @@ namespace EasyExtensions.AspNetCore.Extensions
             }
         }
 
-        private static void AddExtra(ProblemDetails details, object? extra)
+        /// <summary>
+        /// Adds additional information to the specified <see cref="ProblemDetails"/> instance by populating its <see
+        /// cref="ProblemDetails.Extensions"/> property with key-value pairs from the provided object.
+        /// </summary>
+        /// <remarks>If <paramref name="extra"/> is a dictionary, its key-value pairs are added directly
+        /// to the <see cref="ProblemDetails.Extensions"/> property. If it is an object, its public properties
+        /// (excluding indexers) are added as key-value pairs. Existing keys in <see cref="ProblemDetails.Extensions"/>
+        /// may be overwritten.</remarks>
+        /// <param name="details">The <see cref="ProblemDetails"/> instance to which extra information will be added. Cannot be null.</param>
+        /// <param name="extra">An object containing additional data to add to the <see cref="ProblemDetails.Extensions"/> property. This
+        /// can be a dictionary with string keys or an object with public properties. If null, no changes are made.</param>
+        public static void AddExtra(this ProblemDetails details, object? extra)
         {
             if (extra is null)
             {

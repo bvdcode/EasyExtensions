@@ -11,8 +11,10 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// <param name="objectName">The name of the object or entity associated with the bad request. This value is used to provide context for the
     /// error.</param>
     /// <param name="message">The error message that describes the reason for the bad request. The default is "Bad request".</param>
-    public class BadRequestException(string objectName, string message = "Bad request")
-        : WebApiException(HttpStatusCode.BadRequest, objectName, message)
+    /// <param name="extra">Optional additional error details. This parameter can be used to provide extra information about the error, such as specific permission
+    /// requirements, user roles, or any other relevant context that may help in understanding the access denial.</param>
+    public class BadRequestException(string objectName, string message = "Bad request", object? extra = null)
+        : WebApiException(HttpStatusCode.BadRequest, objectName, message, extra)
     { }
 
     /// <summary>
@@ -20,7 +22,9 @@ namespace EasyExtensions.AspNetCore.Exceptions
     /// </summary>
     /// <typeparam name="T">The type of the resource or entity related to the bad request.</typeparam>
     /// <param name="message">The error message that describes the reason for the bad request. The default is "Bad request".</param>
-    public class BadRequestException<T>(string message = "Bad request")
-        : BadRequestException(typeof(T).Name, message)
+    /// <param name="extra">Optional additional error details. This parameter can be used to provide extra information about the error, such as specific permission
+    /// requirements, user roles, or any other relevant context that may help in understanding the access denial.</param>
+    public class BadRequestException<T>(string message = "Bad request", object? extra = null)
+        : BadRequestException(typeof(T).Name, message, extra)
     { }
 }

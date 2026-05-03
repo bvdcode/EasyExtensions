@@ -27,8 +27,8 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<PackageReference Include="Quartz.AspNetCore" Version="3.16.1" />
+		<PackageReference Include="Quartz.AspNetCore" Version="3.18.0" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.104" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.203" PrivateAssets="All" />
 	</ItemGroup>
 </Project>

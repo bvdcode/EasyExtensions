@@ -2,6 +2,7 @@
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
 using EasyExtensions.Abstractions;
+using EasyExtensions.AspNetCore.Abstractions;
 using EasyExtensions.AspNetCore.Formatters;
 using EasyExtensions.AspNetCore.HealthChecks;
 using EasyExtensions.Helpers;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using System;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace EasyExtensions.AspNetCore.Extensions
@@ -200,7 +202,8 @@ namespace EasyExtensions.AspNetCore.Extensions
             if (exception is IHttpError httpError)
             {
                 context.Response.StatusCode = (int)httpError.StatusCode;
-                await context.Response.WriteAsJsonAsync(httpError.GetErrorModel());
+                context.Response.ContentType = MediaTypeNames.Application.ProblemJson;
+                await context.Response.WriteAsJsonAsync(httpError.GetErrorModel(context.TraceIdentifier, context.Request.Path));
             }
         }
     }

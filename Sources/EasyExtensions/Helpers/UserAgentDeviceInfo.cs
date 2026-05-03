@@ -46,7 +46,7 @@ namespace EasyExtensions.Helpers
         /// </summary>
         /// <returns>A string containing the type, model, and friendly name of the object. If the model or friendly name is not
         /// set, "Unknown Model" or "Unknown Device" is used, respectively.</returns>
-        override public string ToString()
+        public override string ToString()
         {
             var sb = new StringBuilder();
             sb.Append(Type.ToNiceString());

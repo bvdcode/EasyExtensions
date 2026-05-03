@@ -4,6 +4,7 @@
 using EasyExtensions.EntityFrameworkCore.Database;
 using EasyExtensions.EntityFrameworkCore.HealthChecks;
 using EasyExtensions.EntityFrameworkCore.Npgsql.Extensions;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -48,6 +49,14 @@ namespace EasyExtensions.AspNetCore.Stack.Builders
         /// collection, health checks builder, and configuration, allowing for flexible setup of database connectivity
         /// and monitoring.</remarks>
         public Action<IServiceCollection, IHealthChecksBuilder, IConfiguration>? ConfigureDatabase { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delegate that configures SignalR hub options.
+        /// </summary>
+        /// <remarks>Use this property to customize SignalR behavior by modifying the provided <see
+        /// cref="HubOptions"/> instance. This delegate is invoked during SignalR setup to apply additional
+        /// configuration, such as setting maximum message size or enabling detailed errors.</remarks>
+        public Action<HubOptions>? ConfigureSignalR { get; set; }
 
         /// <summary>
         /// Configures the application to use PostgreSQL as the database provider with the specified audited DbContext
