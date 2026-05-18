@@ -99,10 +99,12 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Providers
 
         private static bool GetIsDevelopment(IConfiguration configuration)
         {
-            bool result = (Environment.GetEnvironmentVariable("ENVIRONMENT") ?? string.Empty) == "Development";
+            bool result = (Environment.GetEnvironmentVariable("ENVIRONMENT") ?? string.Empty)
+                .Equals("development", StringComparison.CurrentCultureIgnoreCase);
             if (!result)
             {
-                result = (configuration["ASPNETCORE_ENVIRONMENT"] ?? string.Empty) == "Development";
+                result = (configuration["ASPNETCORE_ENVIRONMENT"] ?? string.Empty)
+                    .Equals("development", StringComparison.CurrentCultureIgnoreCase);
             }
             return result;
         }
