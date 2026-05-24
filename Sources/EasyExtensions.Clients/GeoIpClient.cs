@@ -7,19 +7,21 @@ using System.Text.Json.Serialization;
 namespace EasyExtensions.Clients
 {
     /// <summary>
-    /// Provides methods for retrieving geographic information based on IP addresses using the Splidex GeoIP service.
+    /// Provides methods for retrieving geographic information based on IP addresses using a GeoIP lookup service.
     /// </summary>
     public class GeoIpClient
     {
-        private const string url = "https://geoip.splidex.com/";
-        private const string currentHostCacheKey = "me";
-        private const int cacheSizeLimit = 4096;
+        private const string DefaultServerAddress = "https://geoip.splidex.com/";
+        private const string CurrentHostCacheKey = "me";
+        private const int CacheSizeLimit = 4096;
         private static readonly TimeSpan SlidingTtl = TimeSpan.FromDays(30);
         private static readonly TimeSpan AbsoluteTtl = TimeSpan.FromDays(90);
 
+        private static readonly HttpClient SharedHttpClient = new();
+
         private static readonly MemoryCache _cache = new(new MemoryCacheOptions
         {
-            SizeLimit = cacheSizeLimit
+            SizeLimit = CacheSizeLimit
         });
 
         private static readonly MemoryCacheEntryOptions _cacheOptions = new MemoryCacheEntryOptions()
@@ -27,10 +29,71 @@ namespace EasyExtensions.Clients
             .SetSlidingExpiration(SlidingTtl)
             .SetAbsoluteExpiration(AbsoluteTtl);
 
-        private static readonly HttpClient _httpClient = new()
+        private readonly Uri _serverAddress;
+        private readonly HttpClient _httpClient;
+
+        /// <summary>
+        /// Gets a shared client configured for the default Splidex GeoIP service.
+        /// </summary>
+        public static GeoIpClient Shared { get; } = new(new Uri(DefaultServerAddress), SharedHttpClient);
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoIpClient"/> class that uses the default Splidex GeoIP service.
+        /// </summary>
+        public GeoIpClient()
+            : this(DefaultServerAddress)
         {
-            BaseAddress = new Uri(url)
-        };
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoIpClient"/> class that uses the specified GeoIP server address.
+        /// </summary>
+        /// <param name="serverAddress">
+        /// The absolute GeoIP server address. It can point either to the service root or to a lookup endpoint, for example
+        /// <c>https://bridge.cottoncloud.dev/api/v1/lookup</c>.
+        /// </param>
+        public GeoIpClient(string serverAddress)
+            : this(CreateServerUri(serverAddress), SharedHttpClient)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoIpClient"/> class that uses the specified GeoIP server address.
+        /// </summary>
+        /// <param name="serverAddress">
+        /// The absolute GeoIP server address. It can point either to the service root or to a lookup endpoint.
+        /// </param>
+        public GeoIpClient(Uri serverAddress)
+            : this(serverAddress, SharedHttpClient)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoIpClient"/> class that uses the specified GeoIP server address
+        /// and HTTP client.
+        /// </summary>
+        /// <param name="serverAddress">
+        /// The absolute GeoIP server address. It can point either to the service root or to a lookup endpoint.
+        /// </param>
+        /// <param name="httpClient">The HTTP client used to send lookup requests.</param>
+        public GeoIpClient(string serverAddress, HttpClient httpClient)
+            : this(CreateServerUri(serverAddress), httpClient)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoIpClient"/> class that uses the specified GeoIP server address
+        /// and HTTP client.
+        /// </summary>
+        /// <param name="serverAddress">
+        /// The absolute GeoIP server address. It can point either to the service root or to a lookup endpoint.
+        /// </param>
+        /// <param name="httpClient">The HTTP client used to send lookup requests.</param>
+        public GeoIpClient(Uri serverAddress, HttpClient httpClient)
+        {
+            _serverAddress = ValidateServerUri(serverAddress);
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        }
 
         /// <summary>
         /// Asynchronously retrieves geolocation information for the current public IP address.
@@ -39,9 +102,9 @@ namespace EasyExtensions.Clients
         /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="GeoIpInfo"/> object
         /// with geolocation details for the current public IP address.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the response content cannot be deserialized into a <see cref="GeoIpInfo"/> object.</exception>
-        public static Task<GeoIpInfo> LookupAsync(CancellationToken cancellationToken = default)
+        public Task<GeoIpInfo> LookupAsync(CancellationToken cancellationToken = default)
         {
-            return LookupCoreAsync(currentHostCacheKey, string.Empty, cancellationToken);
+            return LookupCoreAsync(CurrentHostCacheKey, string.Empty, cancellationToken);
         }
 
         /// <summary>
@@ -52,7 +115,7 @@ namespace EasyExtensions.Clients
         /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="GeoIpInfo"/> object
         /// with geographic information for the specified IP address.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the response content cannot be deserialized into a <see cref="GeoIpInfo"/> object.</exception>
-        public static async Task<GeoIpInfo> LookupAsync(string ip, CancellationToken cancellationToken = default)
+        public async Task<GeoIpInfo> LookupAsync(string ip, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(ip))
             {
@@ -73,7 +136,7 @@ namespace EasyExtensions.Clients
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="GeoIpInfo"/>
         /// when lookup succeeds; otherwise <see langword="null"/>.</returns>
-        public static async Task<GeoIpInfo?> TryLookupAsync(CancellationToken cancellationToken = default)
+        public async Task<GeoIpInfo?> TryLookupAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -96,7 +159,7 @@ namespace EasyExtensions.Clients
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="GeoIpInfo"/>
         /// when lookup succeeds; otherwise <see langword="null"/>.</returns>
-        public static async Task<GeoIpInfo?> TryLookupAsync(string ip, CancellationToken cancellationToken = default)
+        public async Task<GeoIpInfo?> TryLookupAsync(string ip, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -112,14 +175,15 @@ namespace EasyExtensions.Clients
             }
         }
 
-        private static async Task<GeoIpInfo> LookupCoreAsync(string cacheKey, string requestPath, CancellationToken cancellationToken)
+        private async Task<GeoIpInfo> LookupCoreAsync(string lookupKey, string requestPath, CancellationToken cancellationToken)
         {
+            var cacheKey = CreateCacheKey(_serverAddress, lookupKey);
             if (_cache.TryGetValue(cacheKey, out GeoIpInfo? cachedResponse) && cachedResponse != null)
             {
                 return cachedResponse;
             }
 
-            var response = await _httpClient.GetAsync(requestPath, cancellationToken);
+            using var response = await _httpClient.GetAsync(CreateRequestUri(_serverAddress, requestPath), cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var geoIpInfo = await response.Content.ReadFromJsonAsync(GeoIpJsonSerializerContext.Default.GeoIpInfo, cancellationToken)
@@ -127,6 +191,59 @@ namespace EasyExtensions.Clients
 
             _cache.Set(cacheKey, geoIpInfo, _cacheOptions);
             return geoIpInfo;
+        }
+
+        private static Uri CreateServerUri(string serverAddress)
+        {
+            if (string.IsNullOrWhiteSpace(serverAddress))
+            {
+                throw new ArgumentException("Server address must be provided.", nameof(serverAddress));
+            }
+
+            if (!Uri.TryCreate(serverAddress, UriKind.Absolute, out var uri))
+            {
+                throw new ArgumentException("Server address must be an absolute URI.", nameof(serverAddress));
+            }
+
+            return ValidateServerUri(uri);
+        }
+
+        private static Uri ValidateServerUri(Uri serverAddress)
+        {
+            ArgumentNullException.ThrowIfNull(serverAddress);
+
+            if (!serverAddress.IsAbsoluteUri)
+            {
+                throw new ArgumentException("Server address must be an absolute URI.", nameof(serverAddress));
+            }
+
+            if (serverAddress.Scheme != Uri.UriSchemeHttp && serverAddress.Scheme != Uri.UriSchemeHttps)
+            {
+                throw new ArgumentException("Server address must use HTTP or HTTPS.", nameof(serverAddress));
+            }
+
+            return serverAddress;
+        }
+
+        private static Uri CreateRequestUri(Uri serverAddress, string requestPath)
+        {
+            if (string.IsNullOrEmpty(requestPath))
+            {
+                return serverAddress;
+            }
+
+            var builder = new UriBuilder(serverAddress);
+            var basePath = builder.Path.TrimEnd('/');
+            builder.Path = string.IsNullOrEmpty(basePath)
+                ? requestPath
+                : $"{basePath}/{requestPath}";
+
+            return builder.Uri;
+        }
+
+        private static string CreateCacheKey(Uri serverAddress, string lookupKey)
+        {
+            return $"{serverAddress.AbsoluteUri}|{lookupKey}";
         }
     }
 

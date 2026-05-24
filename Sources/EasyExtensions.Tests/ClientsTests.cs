@@ -2,6 +2,9 @@
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
 using EasyExtensions.Clients;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 
 namespace EasyExtensions.Tests
 {
@@ -84,7 +87,7 @@ namespace EasyExtensions.Tests
             const string ip = "8.8.8.8";
 
             // Act
-            var result = await GeoIpClient.LookupAsync(ip);
+            var result = await GeoIpClient.Shared.LookupAsync(ip);
 
             // Assert
             Assert.That(result, Is.Not.Null);
@@ -106,7 +109,7 @@ namespace EasyExtensions.Tests
             const string invalidIp = "999.999.999.999";
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentException>(async () => await GeoIpClient.LookupAsync(invalidIp));
+            Assert.ThrowsAsync<ArgumentException>(async () => await GeoIpClient.Shared.LookupAsync(invalidIp));
         }
 
         [Test]
@@ -118,7 +121,7 @@ namespace EasyExtensions.Tests
             const string invalidIp = "999.999.999.999";
 
             // Act
-            var result = await GeoIpClient.TryLookupAsync(invalidIp);
+            var result = await GeoIpClient.Shared.TryLookupAsync(invalidIp);
 
             // Assert
             Assert.That(result, Is.Null);
@@ -133,7 +136,7 @@ namespace EasyExtensions.Tests
             const string ip = "1.1.1.1";
 
             // Act
-            var result = await GeoIpClient.TryLookupAsync(ip);
+            var result = await GeoIpClient.Shared.TryLookupAsync(ip);
 
             // Assert
             Assert.That(result, Is.Not.Null);
@@ -152,7 +155,71 @@ namespace EasyExtensions.Tests
             await Task.Delay(DelayBetweenTests);
 
             // Act & Assert
-            Assert.DoesNotThrowAsync(async () => await GeoIpClient.TryLookupAsync());
+            Assert.DoesNotThrowAsync(async () => await GeoIpClient.Shared.TryLookupAsync());
+        }
+
+        [Test]
+        [Order(10)]
+        public async Task GeoIpClient_LookupAsync_CustomEndpoint_AppendsIpAfterEndpointPath()
+        {
+            // Arrange
+            var handler = new CapturingGeoIpHandler();
+            using var httpClient = new HttpClient(handler);
+            var client = new GeoIpClient("https://bridge.cottoncloud.dev/api/v1/lookup", httpClient);
+
+            // Act
+            var result = await client.LookupAsync("8.8.8.8");
+
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Ip, Is.EqualTo("8.8.8.8"));
+                Assert.That(handler.RequestUris.Single().ToString(), Is.EqualTo("https://bridge.cottoncloud.dev/api/v1/lookup/8.8.8.8"));
+            }
+        }
+
+        [Test]
+        [Order(11)]
+        public async Task GeoIpClient_LookupAsync_CustomEndpointWithoutIp_UsesEndpointAddressAsIs()
+        {
+            // Arrange
+            var handler = new CapturingGeoIpHandler();
+            using var httpClient = new HttpClient(handler);
+            var client = new GeoIpClient("https://bridge.cottoncloud.dev/api/v1/lookup", httpClient);
+
+            // Act
+            var result = await client.LookupAsync();
+
+            // Assert
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Ip, Is.EqualTo("8.8.8.8"));
+                Assert.That(handler.RequestUris.Single().ToString(), Is.EqualTo("https://bridge.cottoncloud.dev/api/v1/lookup"));
+            }
+        }
+
+        private sealed class CapturingGeoIpHandler : HttpMessageHandler
+        {
+            public List<Uri> RequestUris { get; } = [];
+
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                RequestUris.Add(request.RequestUri!);
+
+                const string json = """
+                    {
+                        "ip": "8.8.8.8",
+                        "country": "United States",
+                        "latitude": 37.751,
+                        "longitude": -97.822
+                    }
+                    """;
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(json, Encoding.UTF8, "application/json")
+                });
+            }
         }
     }
 }

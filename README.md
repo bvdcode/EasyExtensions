@@ -32,7 +32,7 @@ The repository is intentionally split into small NuGet packages. Install only th
 | [EasyExtensions.AspNetCore.Authorization](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Authorization/) | `net10.0` | JWT authentication setup, token creation, claim building, development authorization bypass, and a base auth controller with login, refresh, logout, password, and Google login hooks. |
 | [EasyExtensions.AspNetCore.Sentry](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Sentry/) | `net10.0` | Sentry ASP.NET Core integration with user capture. |
 | [EasyExtensions.AspNetCore.Stack](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Stack/) | `net10.0` | One-call application setup for controllers, logging, compression, Quartz, SignalR, CORS, health checks, optional PostgreSQL, optional authorization, and optional EasyVault secrets. |
-| [EasyExtensions.Clients](https://www.nuget.org/packages/EasyExtensions.Clients/) | `net10.0` | Cached IP lookup helpers backed by ipapi.co. |
+| [EasyExtensions.Clients](https://www.nuget.org/packages/EasyExtensions.Clients/) | `net10.0` | Cached IP lookup helpers backed by ipapi.co and configurable GeoIP endpoints. |
 | [EasyExtensions.Crypto](https://www.nuget.org/packages/EasyExtensions.Crypto/) | `net10.0` | Streaming AES-GCM encryption/decryption, per-chunk authentication, HKDF subkeys, secure random bytes, and hash helpers. |
 | [EasyExtensions.Drawing](https://www.nuget.org/packages/EasyExtensions.Drawing/) | `net10.0` | ImageSharp helpers for JPEG conversion, drawing text, blurred backgrounds, automatic brightness adjustment, and font integration. |
 | [EasyExtensions.EntityFrameworkCore](https://www.nuget.org/packages/EasyExtensions.EntityFrameworkCore/) | `net10.0` | Audited entities and DbContext base types, Gridify mapper registration, database health checks, and migration helpers. |
@@ -72,6 +72,17 @@ using System.Net;
 string digest = "hello".Sha512();
 IPAddress network = IPAddress.Parse("192.168.10.25").GetNetwork(24);
 string maskedEmail = StringHelpers.HideEmail("vadim@example.com");
+```
+
+### Clients
+
+```csharp
+using EasyExtensions.Clients;
+
+var defaultGeoIp = await GeoIpClient.Shared.LookupAsync("8.8.8.8");
+
+var bridgeGeoIpClient = new GeoIpClient("https://bridge.cottoncloud.dev/api/v1/lookup");
+var bridgeGeoIp = await bridgeGeoIpClient.LookupAsync("8.8.8.8");
 ```
 
 ### ASP.NET Core
