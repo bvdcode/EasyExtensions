@@ -101,6 +101,7 @@ namespace EasyExtensions.AspNetCore.Exceptions
                 HttpStatusCode.TooManyRequests => "https://tools.ietf.org/html/rfc6585#section-4",
                 HttpStatusCode.InternalServerError => "https://tools.ietf.org/html/rfc7231#section-6.6.1",
                 HttpStatusCode.ServiceUnavailable => "https://tools.ietf.org/html/rfc7231#section-6.6.4",
+                HttpStatusCode.InsufficientStorage => "https://tools.ietf.org/html/rfc4918#section-11.5",
                 _ => "https://tools.ietf.org/html/rfc7231"
             };
     }
