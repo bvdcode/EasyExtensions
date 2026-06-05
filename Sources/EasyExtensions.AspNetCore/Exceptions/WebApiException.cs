@@ -97,6 +97,7 @@ namespace EasyExtensions.AspNetCore.Exceptions
                 HttpStatusCode.Forbidden => "https://tools.ietf.org/html/rfc7231#section-6.5.3",
                 HttpStatusCode.NotFound => "https://tools.ietf.org/html/rfc7231#section-6.5.4",
                 HttpStatusCode.Conflict => "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+                HttpStatusCode.PreconditionFailed => "https://tools.ietf.org/html/rfc7232#section-4.2",
                 HttpStatusCode.UnprocessableEntity => "https://tools.ietf.org/html/rfc4918#section-11.2",
                 HttpStatusCode.TooManyRequests => "https://tools.ietf.org/html/rfc6585#section-4",
                 HttpStatusCode.InternalServerError => "https://tools.ietf.org/html/rfc7231#section-6.6.1",
