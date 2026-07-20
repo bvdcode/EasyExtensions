@@ -3,7 +3,6 @@
 
 using EasyExtensions.Clients;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 
 namespace EasyExtensions.Tests

@@ -9,7 +9,15 @@ namespace EasyExtensions.Clients
     /// <summary>
     /// Provides methods for retrieving geographic information based on IP addresses using a GeoIP lookup service.
     /// </summary>
-    public class GeoIpClient
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GeoIpClient"/> class that uses the specified GeoIP server address
+    /// and HTTP client.
+    /// </remarks>
+    /// <param name="serverAddress">
+    /// The absolute GeoIP server address. It can point either to the service root or to a lookup endpoint.
+    /// </param>
+    /// <param name="httpClient">The HTTP client used to send lookup requests.</param>
+    public class GeoIpClient(Uri serverAddress, HttpClient httpClient)
     {
         private const string DefaultServerAddress = "https://geoip.splidex.com/";
         private const string CurrentHostCacheKey = "me";
@@ -29,8 +37,8 @@ namespace EasyExtensions.Clients
             .SetSlidingExpiration(SlidingTtl)
             .SetAbsoluteExpiration(AbsoluteTtl);
 
-        private readonly Uri _serverAddress;
-        private readonly HttpClient _httpClient;
+        private readonly Uri _serverAddress = ValidateServerUri(serverAddress);
+        private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
         /// <summary>
         /// Gets a shared client configured for the default Splidex GeoIP service.
@@ -79,20 +87,6 @@ namespace EasyExtensions.Clients
         public GeoIpClient(string serverAddress, HttpClient httpClient)
             : this(CreateServerUri(serverAddress), httpClient)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GeoIpClient"/> class that uses the specified GeoIP server address
-        /// and HTTP client.
-        /// </summary>
-        /// <param name="serverAddress">
-        /// The absolute GeoIP server address. It can point either to the service root or to a lookup endpoint.
-        /// </param>
-        /// <param name="httpClient">The HTTP client used to send lookup requests.</param>
-        public GeoIpClient(Uri serverAddress, HttpClient httpClient)
-        {
-            _serverAddress = ValidateServerUri(serverAddress);
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
         /// <summary>
