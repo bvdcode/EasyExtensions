@@ -50,11 +50,14 @@ jobs:
         path: Sources/nupkg
         
   release:
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main' # only run job if on the master branch   
-    
-    steps:  
+    if: github.ref == 'refs/heads/main' # only run job if on the master branch
+    permissions:
+      id-token: write # required for NuGet Trusted Publishing (OIDC)
+      contents: read
+
+    steps:
     #Push NuGet package to GitHub packages
     - name: Download nuget package artifact
       uses: actions/download-artifact@v4.0.0
@@ -62,11 +65,21 @@ jobs:
         name: nupkg
     - name: Prep packages
       run: dotnet nuget add source --username bvdcode --password ${{ secrets.DEPLOY_GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/bvdcode/index.json"
-    - name: Push package to GitHub packages 
-      if: needs.build.outputs.CommitsSinceVersionSource > 0 #Only release if there has been a commit/version change  
-      run: |
-        dotnet nuget push *.nupkg --skip-duplicate --api-key ${{ secrets.DEPLOY_GITHUB_TOKEN }} --source "github"
-        dotnet nuget push *.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_KEY }} --source https://api.nuget.org/v3/index.json
+    - name: Push package to GitHub packages
+      if: needs.build.outputs.CommitsSinceVersionSource > 0 #Only release if there has been a commit/version change
+      run: dotnet nuget push *.nupkg --skip-duplicate --api-key ${{ secrets.DEPLOY_GITHUB_TOKEN }} --source "github"
+
+    #Trusted Publishing: exchange the GitHub OIDC token for a short-lived nuget.org API key (valid ~1 hour)
+    - name: NuGet login (OIDC → temp API key)
+      if: needs.build.outputs.CommitsSinceVersionSource > 0
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: bvd # nuget.org profile name that owns the trusted publishing policy
+
+    - name: Push package to nuget.org
+      if: needs.build.outputs.CommitsSinceVersionSource > 0
+      run: dotnet nuget push *.nupkg --skip-duplicate --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
     
     - name: Create Release
       if: needs.build.outputs.CommitsSinceVersionSource > 0 #Only release if there has been a commit/version change
