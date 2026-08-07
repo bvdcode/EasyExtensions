@@ -38,6 +38,33 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             Action<DbContextOptionsBuilder>? setupContextOptions = null)
             where TContext : DbContext
         {
+            Action<IServiceProvider, DbContextOptionsBuilder>? wrappedSetup = setupContextOptions is null
+                ? null
+                : (_, builder) => setupContextOptions(builder);
+            return services.AddPostgresDbContext<TContext>(setup, wrappedSetup);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="DbContext"/> to the <see cref="IServiceCollection"/> resolving <see cref="IConfiguration"/> from DI.
+        /// Builds the connection string from the configured section (default: "DatabaseSettings") and/or prefixed keys.
+        /// </summary>
+        /// <typeparam name="TContext"> The type of <see cref="DbContext"/> to add. </typeparam>
+        /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="setup"> Optional action to configure the <see cref="PostgresOptionsBuilder"/> (section name, prefix, pool size, etc). </param>
+        /// <param name="setupContextOptions"> Action to configure the <see cref="DbContextOptionsBuilder"/> with access to the <see cref="IServiceProvider"/> (e.g. add interceptors resolved from DI). </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        /// <exception cref="KeyNotFoundException"> When required database settings are missing. </exception>
+        /// <example>
+        /// <code>
+        /// builder.Services.AddPostgresDbContext&lt;MyDbContext&gt;(null, (sp, o) =&gt; o.AddInterceptors(sp.GetRequiredService&lt;MyInterceptor&gt;()));
+        /// </code>
+        /// </example>
+        public static IServiceCollection AddPostgresDbContext<TContext>(
+            this IServiceCollection services,
+            Action<PostgresOptionsBuilder>? setup,
+            Action<IServiceProvider, DbContextOptionsBuilder>? setupContextOptions)
+            where TContext : DbContext
+        {
             PostgresOptionsBuilder contextFactory = new();
             setup?.Invoke(contextFactory);
 
@@ -50,7 +77,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             {
                 var conStringProvider = sp.GetRequiredService<IPostgresConnectionStringProvider>();
                 builder.UseNpgsql(conStringProvider.GetConnectionString());
-                setupContextOptions?.Invoke(builder);
+                setupContextOptions?.Invoke(sp, builder);
                 if (contextFactory.UseLazyLoadingProxies)
                 {
                     builder.UseLazyLoadingProxies();
@@ -87,6 +114,35 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
                 where TContext : DbContext
                 where TImplementation : TContext
         {
+            Action<IServiceProvider, DbContextOptionsBuilder>? wrappedSetup = setupContextOptions is null
+                ? null
+                : (_, builder) => setupContextOptions(builder);
+            return services.AddPostgresDbContext<TContext, TImplementation>(setup, wrappedSetup);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="DbContext"/> to the <see cref="IServiceCollection"/> resolving <see cref="IConfiguration"/> from DI.
+        /// Builds the connection string from the configured section (default: "DatabaseSettings") and/or prefixed keys.
+        /// </summary>
+        /// <typeparam name="TContext"> The type of <see cref="DbContext"/> to add. </typeparam>
+        /// <typeparam name="TImplementation"> The implementation type of <see cref="DbContext"/> to add. </typeparam>
+        /// <param name="services"> The <see cref="IServiceCollection"/> instance. </param>
+        /// <param name="setup"> Optional action to configure the <see cref="PostgresOptionsBuilder"/> (section name, prefix, pool size, etc). </param>
+        /// <param name="setupContextOptions"> Action to configure the <see cref="DbContextOptionsBuilder"/> with access to the <see cref="IServiceProvider"/> (e.g. add interceptors resolved from DI). </param>
+        /// <returns> Current <see cref="IServiceCollection"/> instance. </returns>
+        /// <exception cref="KeyNotFoundException"> When required database settings are missing. </exception>
+        /// <example>
+        /// <code>
+        /// builder.Services.AddPostgresDbContext&lt;MyDbContext&gt;(null, (sp, o) =&gt; o.AddInterceptors(sp.GetRequiredService&lt;MyInterceptor&gt;()));
+        /// </code>
+        /// </example>
+        public static IServiceCollection AddPostgresDbContext<TContext, TImplementation>(
+            this IServiceCollection services,
+            Action<PostgresOptionsBuilder>? setup,
+            Action<IServiceProvider, DbContextOptionsBuilder>? setupContextOptions)
+                where TContext : DbContext
+                where TImplementation : TContext
+        {
             PostgresOptionsBuilder contextFactory = new();
             setup?.Invoke(contextFactory);
 
@@ -99,7 +155,7 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             {
                 var conStringProvider = sp.GetRequiredService<IPostgresConnectionStringProvider>();
                 builder.UseNpgsql(conStringProvider.GetConnectionString());
-                setupContextOptions?.Invoke(builder);
+                setupContextOptions?.Invoke(sp, builder);
                 if (contextFactory.UseLazyLoadingProxies)
                 {
                     builder.UseLazyLoadingProxies();
