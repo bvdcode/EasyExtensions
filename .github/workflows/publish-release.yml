@@ -16,18 +16,18 @@ jobs:
       CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }} 
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0 #fetch-depth is needed for GitVersion
-        
-    #Install and calculate the new version with GitVersion  
+
+    #Install and calculate the new version with GitVersion
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3.1.11
+      uses: gittools/actions/gitversion/setup@v4.7.0
       with:
-        versionSpec: 5.x
-        
+        versionSpec: 6.x #gittools v4.7.x requires GitVersion >=6.2.0 <7.0.0
+
     - name: Determine Version
-      uses: gittools/actions/gitversion/execute@v3.1.11
+      uses: gittools/actions/gitversion/execute@v4.7.0
       id: gitversion # step id used as reference for output values
     - name: Display GitVersion outputs
       run: |
@@ -36,7 +36,7 @@ jobs:
     
     #Build/pack the project
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.0.x
     - name: Build and Pack NuGet package
@@ -45,7 +45,7 @@ jobs:
           dotnet build --configuration Release
           dotnet pack --configuration Release --output nupkg -p:Version='${{ steps.gitversion.outputs.SemVer }}' 
     - name: Upload NuGet package to GitHub
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: nupkg
         path: Sources/nupkg
@@ -61,7 +61,7 @@ jobs:
     steps:
     #Push NuGet package to GitHub packages
     - name: Download nuget package artifact
-      uses: actions/download-artifact@v4.0.0
+      uses: actions/download-artifact@v8
       with:
         name: nupkg
     - name: Prep packages
@@ -88,5 +88,5 @@ jobs:
       with:
         tag: ${{ needs.build.outputs.Version }}
         name: Release ${{ needs.build.outputs.Version }}
-        artifacts: "nupkg/*"
+        artifacts: "*.nupkg,*.snupkg" #download-artifact extracts into the workspace root, not into a nupkg/ folder
         token: ${{ secrets.DEPLOY_GITHUB_TOKEN }}
