@@ -9,16 +9,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace EasyExtensions.AspNetCore.Authorization.Services
 {
-    internal class JwtTokenProvider(IConfiguration _configuration) : ITokenProvider
+    internal class JwtTokenProvider(IConfiguration _configuration, JwtSigningKeyStore _signingKeyStore) : ITokenProvider
     {
         private readonly JwtSettings _jwtSettings = _configuration.GetJwtSettings();
-        private readonly SymmetricSecurityKey _securityKey = new(Encoding.UTF8.GetBytes(_configuration.GetJwtSettings().Key));
 
         public TimeSpan TokenLifetime => TimeSpan.FromMinutes(_jwtSettings.LifetimeMinutes);
+
+        public void RotateKey()
+        {
+            _signingKeyStore.RotateKey();
+        }
 
         public bool ValidateToken(string token)
         {
@@ -31,7 +37,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = _jwtSettings.Issuer,
                 ValidAudience = _jwtSettings.Audience,
-                IssuerSigningKey = _securityKey
+                IssuerSigningKey = _signingKeyStore.CurrentKey
             };
             try
             {
@@ -47,7 +53,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
         public string CreateToken(TimeSpan lifetime, Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null)
         {
             var claims = claimBuilder == null ? [] : claimBuilder(new ClaimBuilder()).Build();
-            var credentials = new SigningCredentials(_securityKey, _jwtSettings.Algorithm);
+            var credentials = new SigningCredentials(_signingKeyStore.CurrentKey, _jwtSettings.Algorithm);
             var expirationDate = DateTime.UtcNow.Add(lifetime);
             var tokenDescriptor = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
@@ -68,6 +74,24 @@ namespace EasyExtensions.AspNetCore.Authorization.Services
         {
             TimeSpan lifetime = TimeSpan.FromMinutes(_jwtSettings.LifetimeMinutes);
             return CreateToken(lifetime, claimBuilder);
+        }
+    }
+
+    internal sealed class JwtSigningKeyStore
+    {
+        private SymmetricSecurityKey _currentKey;
+
+        public JwtSigningKeyStore(string key)
+        {
+            _currentKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        }
+
+        public SymmetricSecurityKey CurrentKey => Volatile.Read(ref _currentKey);
+
+        public void RotateKey()
+        {
+            int keySizeInBytes = CurrentKey.KeySize / 8;
+            Volatile.Write(ref _currentKey, new SymmetricSecurityKey(RandomNumberGenerator.GetBytes(keySizeInBytes)));
         }
     }
 }

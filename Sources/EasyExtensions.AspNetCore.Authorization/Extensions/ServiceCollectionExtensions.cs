@@ -70,6 +70,11 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
         /// </remarks>
         public static IServiceCollection AddJwt(this IServiceCollection services, bool useCookies = false)
         {
+            services.AddSingleton(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                return new JwtSigningKeyStore(configuration.GetJwtSettings().Key);
+            });
             services.AddScoped<ITokenProvider, JwtTokenProvider>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(); // Options configured via IConfigureOptions below
@@ -77,11 +82,10 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
             services.AddSingleton<IConfigureOptions<JwtBearerOptions>>(sp =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
+                var signingKeyStore = sp.GetRequiredService<JwtSigningKeyStore>();
                 return new ConfigureNamedOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     var jwtSettings = configuration.GetJwtSettings();
-                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(jwtSettings.Key);
-                    var key = new SymmetricSecurityKey(bytes);
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -90,7 +94,7 @@ namespace EasyExtensions.AspNetCore.Authorization.Extensions
                         ValidateAudience = true,
                         ValidAudience = jwtSettings.Audience,
                         ValidateLifetime = true,
-                        IssuerSigningKey = key,
+                        IssuerSigningKeyResolver = (_, _, _, _) => [signingKeyStore.CurrentKey],
                         ValidateIssuerSigningKey = true,
                         ClockSkew = TimeSpan.FromMinutes(5)
                     };

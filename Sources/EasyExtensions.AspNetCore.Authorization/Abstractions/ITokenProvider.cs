@@ -40,6 +40,11 @@ namespace EasyExtensions.AspNetCore.Authorization.Abstractions
         string CreateToken(TimeSpan lifetime, Func<ClaimBuilder, ClaimBuilder>? claimBuilder = null);
 
         /// <summary>
+        /// Replaces the signing key with a newly generated key.
+        /// </summary>
+        void RotateKey();
+
+        /// <summary>
         /// Validates a token.
         /// </summary>
         /// <param name="token"> Token to validate. </param>
