@@ -28,6 +28,7 @@ The repository is intentionally split into small NuGet packages. Install only th
 | Package | Target | Use when you need |
 | --- | --- | --- |
 | [EasyExtensions](https://www.nuget.org/packages/EasyExtensions/) | `netstandard2.1` | Core extensions and helpers for strings, hashes, streams, enums, dates, IP/networking, claims, random strings, queues, password hashing abstractions, Brotli HTTP helpers, and stream cipher abstractions. |
+| [EasyExtensions.Analyzers](https://www.nuget.org/packages/EasyExtensions.Analyzers/) | Roslyn | Maintainability rules for C# projects, including a configurable significant-line limit for source files. |
 | [EasyExtensions.AspNetCore](https://www.nuget.org/packages/EasyExtensions.AspNetCore/) | `net10.0` | ASP.NET Core helpers for exception responses, health checks, CORS, request metadata, rate limiting helpers, console logging, controllers, form files, CPU usage, and PBKDF2 password hashing registration. |
 | [EasyExtensions.AspNetCore.Authorization](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Authorization/) | `net10.0` | JWT authentication setup, token creation, claim building, development authorization bypass, and a base auth controller with login, refresh, logout, password, and Google login hooks. |
 | [EasyExtensions.AspNetCore.Sentry](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Sentry/) | `net10.0` | Sentry ASP.NET Core integration with user capture. |
@@ -49,6 +50,7 @@ Install packages individually:
 
 ```bash
 dotnet add package EasyExtensions
+dotnet add package EasyExtensions.Analyzers
 dotnet add package EasyExtensions.AspNetCore
 dotnet add package EasyExtensions.Crypto
 dotnet add package EasyExtensions.EntityFrameworkCore.Npgsql
@@ -59,6 +61,35 @@ For an opinionated ASP.NET Core setup, start with:
 ```bash
 dotnet add package EasyExtensions.AspNetCore.Stack
 ```
+
+The analyzer package enables the following warnings by default:
+
+| Rule | Enforces |
+| --- | --- |
+| `EEX0001` | C# files stay within a configurable significant-line limit; the default is 400. |
+| `EEX0002` | The `sealed` keyword is not used. |
+| `EEX0003` | Each file contains one top-level class, record, interface, or enum, except a Mediator request with its handlers. |
+| `EEX0004` | Every EF Core relationship has a dependent navigation using `[DeleteBehavior(DeleteBehavior.Restrict)]`. |
+| `EEX0005` | EF Core data models use data annotations instead of Fluent API model builders. |
+| `EEX0006` | Entities rooted in `DbSet<T>`, `[Table]`, or an existing `BaseEntity<T>` graph derive from `BaseEntity<T>`. |
+| `EEX0007` | `*Dto` types that declare an `Id` derive from `BaseDto<T>`. |
+| `EEX0008` | Concrete Quartz `IJob` implementations declare `JobTriggerAttribute`. |
+| `EEX0009` | EF Core raw SQL, Dapper query/execute APIs, and `DbCommand.CommandText` are not used. |
+| `EEX0010` | EF entity properties and fields do not end with `Utc`. |
+| `EEX0011` | Reflection entry points require an explicit diagnostic suppression. |
+| `EEX0012` | EF entity property initializers use only the approved `string.Empty`, `[]`, or `null!` forms. |
+| `EEX0013` | An enum is not duplicated by a same-named `*Dto` type. |
+| `EEX0014` | Local variables use explicit types, with exceptions for LINQ, anonymous types, tuple deconstruction, and visible generic construction types. |
+
+Blank lines, comment-only lines, and generated files are excluded from `EEX0001`. Configure its limit and severity in `.editorconfig`:
+
+```ini
+[*.cs]
+dotnet_code_quality.EEX0001.max_lines = 400
+dotnet_diagnostic.EEX0001.severity = error
+```
+
+For the complete strict policy, copy [Sources/EasyExtensions.Analyzers.Example/.editorconfig](Sources/EasyExtensions.Analyzers.Example/.editorconfig) and [Sources/EasyExtensions.Analyzers.Example/Directory.Build.props](Sources/EasyExtensions.Analyzers.Example/Directory.Build.props) to the root of the consuming repository. The policy promotes all `EEX` diagnostics to errors and also configures Microsoft rules for asynchronous calls, block-scoped namespaces, primary constructors, and pattern-based null checks. Both files are included in the NuGet package under `config/`.
 
 ## Quick Examples
 
@@ -161,7 +192,7 @@ using EasyExtensions.Quartz.Extensions;
 using Quartz;
 
 [JobTrigger(minutes: 5, startNow: true)]
-public sealed class CleanupJob : IJob
+public class CleanupJob : IJob
 {
     public Task Execute(IJobExecutionContext context)
     {

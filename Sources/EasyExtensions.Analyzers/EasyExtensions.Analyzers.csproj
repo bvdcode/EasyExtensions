@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<Authors>Vadim Belov</Authors>
+		<Company>bvdcode</Company>
+		<Product>EasyExtensions.Analyzers</Product>
+		<Description>Roslyn analyzers for EasyExtensions projects.</Description>
+		<Copyright>Copyright © Vadim Belov 2026</Copyright>
+		<Summary>Roslyn analyzers for EasyExtensions projects.</Summary>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<Title>EasyExtensions.Analyzers</Title>
+		<PackageId>EasyExtensions.Analyzers</PackageId>
+		<PackageTags>Roslyn,Analyzers,CSharp,CodeAnalysis,EasyExtensions</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>packageIcon.png</PackageIcon>
+		<PackageIconUrl>https://raw.githubusercontent.com/bvdcode/EasyExtensions/main/Sources/EasyExtensions.Analyzers/packageIcon.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/bvdcode/EasyExtensions</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/bvdcode/EasyExtensions</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<NoDefaultExcludes>true</NoDefaultExcludes>
+		<IsRoslynComponent>true</IsRoslynComponent>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+		<AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+		<None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="$(OutputPath)$(AssemblyName).pdb" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
+		<None Include="..\EasyExtensions.Analyzers.Example\.editorconfig" Pack="true" PackagePath="config\EasyExtensions.Analyzers.editorconfig" />
+		<None Include="..\EasyExtensions.Analyzers.Example\Directory.Build.props" Pack="true" PackagePath="config\Directory.Build.props" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.301" PrivateAssets="All" />
+	</ItemGroup>
+
+</Project>

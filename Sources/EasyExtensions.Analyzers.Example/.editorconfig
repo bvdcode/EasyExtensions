@@ -1,0 +1,34 @@
+root = true
+
+[*.cs]
+# EasyExtensions analyzers
+dotnet_code_quality.EEX0001.max_lines = 400
+dotnet_diagnostic.EEX0001.severity = error
+dotnet_diagnostic.EEX0002.severity = error
+dotnet_diagnostic.EEX0003.severity = error
+dotnet_diagnostic.EEX0004.severity = error
+dotnet_diagnostic.EEX0005.severity = error
+dotnet_diagnostic.EEX0006.severity = error
+dotnet_diagnostic.EEX0007.severity = error
+dotnet_diagnostic.EEX0008.severity = error
+dotnet_diagnostic.EEX0009.severity = error
+dotnet_diagnostic.EEX0010.severity = error
+dotnet_diagnostic.EEX0011.severity = error
+dotnet_diagnostic.EEX0012.severity = error
+dotnet_diagnostic.EEX0013.severity = error
+dotnet_diagnostic.EEX0014.severity = error
+
+# Call asynchronous APIs from asynchronous methods
+dotnet_diagnostic.CA1849.severity = error
+
+# Use block-scoped namespaces
+csharp_style_namespace_declarations = block_scoped:error
+dotnet_diagnostic.IDE0160.severity = error
+
+# Prefer primary constructors when Roslyn can safely offer the conversion
+csharp_style_prefer_primary_constructors = true:warning
+dotnet_diagnostic.IDE0290.severity = warning
+
+# Prefer pattern-based null checks
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
+dotnet_diagnostic.IDE0041.severity = warning

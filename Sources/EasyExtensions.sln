@@ -4,6 +4,12 @@ VisualStudioVersion = 18.0.11111.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions", "EasyExtensions\EasyExtensions.csproj", "{F9FE5371-F9ED-446E-BCF8-7FC2EE538A0B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Analyzers", "EasyExtensions.Analyzers\EasyExtensions.Analyzers.csproj", "{0C239272-F825-44DA-8380-CD8CBC7C56FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Analyzers.Tests", "EasyExtensions.Analyzers.Tests\EasyExtensions.Analyzers.Tests.csproj", "{01220DE8-0A6F-4A83-8159-8D2341C4EA7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyExtensions.Analyzers.Example", "EasyExtensions.Analyzers.Example\EasyExtensions.Analyzers.Example.csproj", "{7B6D526B-2A5D-45F4-A60A-A5D9FEC1D63E}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.Quartz", "EasyExtensions.Quartz\EasyExtensions.Quartz.csproj", "{364EC487-85F8-4CFE-92C1-2E7303082F97}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyExtensions.AspNetCore.Authorization", "EasyExtensions.AspNetCore.Authorization\EasyExtensions.AspNetCore.Authorization.csproj", "{D7463A1F-138A-4CD9-B0B7-C2C7B0D9BC52}"
@@ -51,6 +57,18 @@ Global
 		{F9FE5371-F9ED-446E-BCF8-7FC2EE538A0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9FE5371-F9ED-446E-BCF8-7FC2EE538A0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9FE5371-F9ED-446E-BCF8-7FC2EE538A0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C239272-F825-44DA-8380-CD8CBC7C56FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C239272-F825-44DA-8380-CD8CBC7C56FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C239272-F825-44DA-8380-CD8CBC7C56FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C239272-F825-44DA-8380-CD8CBC7C56FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01220DE8-0A6F-4A83-8159-8D2341C4EA7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01220DE8-0A6F-4A83-8159-8D2341C4EA7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01220DE8-0A6F-4A83-8159-8D2341C4EA7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01220DE8-0A6F-4A83-8159-8D2341C4EA7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B6D526B-2A5D-45F4-A60A-A5D9FEC1D63E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B6D526B-2A5D-45F4-A60A-A5D9FEC1D63E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B6D526B-2A5D-45F4-A60A-A5D9FEC1D63E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B6D526B-2A5D-45F4-A60A-A5D9FEC1D63E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{364EC487-85F8-4CFE-92C1-2E7303082F97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{364EC487-85F8-4CFE-92C1-2E7303082F97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{364EC487-85F8-4CFE-92C1-2E7303082F97}.Release|Any CPU.ActiveCfg = Release|Any CPU
