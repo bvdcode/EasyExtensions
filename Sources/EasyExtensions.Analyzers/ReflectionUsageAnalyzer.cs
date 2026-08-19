@@ -27,7 +27,6 @@ namespace EasyExtensions.Analyzers
 			IMethodSymbol method = invocation.TargetMethod;
 
 			if (IsReflectionType(method.ContainingType) ||
-				IsObjectGetType(method) ||
 				IsDynamicInvoke(method) ||
 				IsAttributeInspection(method))
 			{
@@ -49,7 +48,8 @@ namespace EasyExtensions.Analyzers
 		{
 			IPropertyReferenceOperation reference = (IPropertyReferenceOperation)context.Operation;
 
-			if (IsReflectionType(reference.Property.ContainingType))
+			if (IsReflectionType(reference.Property.ContainingType) &&
+				!IsSafeMetadataName(reference.Property))
 			{
 				Report(context, reference.Syntax.GetLocation(), reference.Property.ToDisplayString());
 			}
@@ -62,9 +62,20 @@ namespace EasyExtensions.Analyzers
 				namespaceName == "System" && (type.Name == "Type" || type.Name == "Activator");
 		}
 
-		private static bool IsObjectGetType(IMethodSymbol method)
+		private static bool IsSafeMetadataName(IPropertySymbol property)
 		{
-			return method.Name == "GetType" && method.ContainingType.SpecialType == SpecialType.System_Object;
+			if (property.Name == "FullName" &&
+				SymbolHelpers.Matches(property.ContainingType, "System", "Type", 0))
+			{
+				return true;
+			}
+
+			return property.Name == "Name" &&
+				SymbolHelpers.IsOrInheritsFrom(
+					property.ContainingType,
+					"System.Reflection",
+					"MemberInfo",
+					0);
 		}
 
 		private static bool IsDynamicInvoke(IMethodSymbol method)

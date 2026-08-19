@@ -76,7 +76,7 @@ The analyzer package enables the following warnings by default:
 | `EEX0008` | Concrete Quartz `IJob` implementations declare `JobTriggerAttribute`. |
 | `EEX0009` | EF Core raw SQL, Dapper query/execute APIs, and `DbCommand.CommandText` are not used. |
 | `EEX0010` | EF entity properties and fields do not end with `Utc`. |
-| `EEX0011` | Reflection entry points require an explicit diagnostic suppression. |
+| `EEX0011` | Reflection discovery, activation, and invocation APIs require an explicit diagnostic suppression; runtime type names are allowed. |
 | `EEX0012` | EF entity property initializers use only the approved `string.Empty`, `[]`, or `null!` forms. |
 | `EEX0013` | An enum is not duplicated by a same-named `*Dto` type. |
 | `EEX0014` | Local variables use explicit types, with exceptions for LINQ, anonymous types, tuple deconstruction, and visible generic construction types. |

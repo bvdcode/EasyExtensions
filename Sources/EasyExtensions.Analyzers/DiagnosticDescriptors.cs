@@ -98,12 +98,12 @@ namespace EasyExtensions.Analyzers
 
 		public static readonly DiagnosticDescriptor Reflection = new(
 			DiagnosticIds.Reflection,
-			"Reflection requires explicit approval",
-			"Reflection API '{0}' requires explicit approval and suppression of this diagnostic",
+			"Reflection discovery or invocation requires explicit approval",
+			"Reflection discovery or invocation API '{0}' requires explicit approval and suppression of this diagnostic",
 			"Usage",
 			DiagnosticSeverity.Warning,
 			isEnabledByDefault: true,
-			description: "Reflection APIs may only be used when the diagnostic is explicitly suppressed for an approved use.");
+			description: "Reflection discovery, activation, and invocation APIs may only be used when the diagnostic is explicitly suppressed for an approved use.");
 
 		public static readonly DiagnosticDescriptor EntityPropertyInitializer = new(
 			DiagnosticIds.EntityPropertyInitializer,
