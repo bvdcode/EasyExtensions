@@ -36,9 +36,7 @@ namespace EasyExtensions.Analyzers
 
 			if (!IsAllowed(
 				property,
-				declaration.Initializer.Value,
-				context.SemanticModel,
-				context.CancellationToken))
+				declaration.Initializer.Value))
 			{
 				context.ReportDiagnostic(Diagnostic.Create(
 					DiagnosticDescriptors.EntityPropertyInitializer,
@@ -49,9 +47,7 @@ namespace EasyExtensions.Analyzers
 
 		private static bool IsAllowed(
 			IPropertySymbol property,
-			ExpressionSyntax initializer,
-			SemanticModel semanticModel,
-			System.Threading.CancellationToken cancellationToken)
+			ExpressionSyntax initializer)
 		{
 			if (property.NullableAnnotation != NullableAnnotation.NotAnnotated)
 			{
@@ -60,10 +56,7 @@ namespace EasyExtensions.Analyzers
 
 			if (property.Type.SpecialType == SpecialType.System_String)
 			{
-				ISymbol? symbol = semanticModel.GetSymbolInfo(initializer, cancellationToken).Symbol;
-				return symbol is IFieldSymbol field &&
-					field.Name == "Empty" &&
-					field.ContainingType.SpecialType == SpecialType.System_String;
+				return IsNullForgiving(initializer);
 			}
 
 			if (IsCollection(property.Type))

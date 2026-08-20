@@ -49,6 +49,46 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task NonNullableStringNullForgiving_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using EasyExtensions.EntityFrameworkCore.Abstractions;
+				using System;
+
+				public class Customer : BaseEntity<Guid>
+				{
+					public string Name { get; set; } = null!;
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityPropertyInitializerAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task NonNullableStringEmpty_ReportsDiagnostic()
+		{
+			const string source = """
+				using EasyExtensions.EntityFrameworkCore.Abstractions;
+				using System;
+
+				public class Customer : BaseEntity<Guid>
+				{
+					public string Name { get; set; } = string.Empty;
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityPropertyInitializerAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
 		public async Task ApprovedInitializers_DoNotReportDiagnostic()
 		{
 			const string source = """
@@ -58,7 +98,6 @@ namespace EasyExtensions.Analyzers.Tests
 
 				public class Customer : BaseEntity<Guid>
 				{
-					public string Name { get; set; } = string.Empty;
 					public ICollection<string> Tags { get; set; } = [];
 					public object State { get; set; } = null!;
 				}
