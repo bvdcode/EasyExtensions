@@ -1,0 +1,17 @@
+is_global = true
+global_level = -100
+
+# Call asynchronous APIs from asynchronous methods
+dotnet_diagnostic.CA1849.severity = error
+
+# Use block-scoped namespaces
+csharp_style_namespace_declarations = block_scoped:error
+dotnet_diagnostic.IDE0160.severity = error
+
+# Prefer primary constructors when Roslyn can safely offer the conversion
+csharp_style_prefer_primary_constructors = true:warning
+dotnet_diagnostic.IDE0290.severity = warning
+
+# Prefer pattern-based null checks
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
+dotnet_diagnostic.IDE0041.severity = warning

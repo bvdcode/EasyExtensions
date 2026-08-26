@@ -13,4 +13,6 @@
 			ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
+	<Import Project="..\EasyExtensions.Analyzers\buildTransitive\EasyExtensions.Analyzers.props" />
+
 </Project>

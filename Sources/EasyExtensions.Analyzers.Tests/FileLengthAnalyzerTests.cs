@@ -21,7 +21,24 @@ namespace EasyExtensions.Analyzers.Tests
 
 			Assert.That(diagnostics.Length, Is.EqualTo(1));
 			Assert.That(diagnostics[0].Id, Is.EqualTo("EEX0001"));
-			Assert.That(diagnostics[0].GetMessage(), Does.Contain("configured maximum of 400"));
+			Assert.That(diagnostics[0].GetMessage(), Does.Contain("maximum of 400"));
+		}
+
+		[Test]
+		public async Task Analyze_ConfiguredLimitAboveMaximum_UsesHardMaximum()
+		{
+			string source = CreateClassWithProperties(400);
+			Dictionary<string, string> options = new()
+			{
+				[MaxLinesOptionName] = "500"
+			};
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				options: options);
+
+			Assert.That(diagnostics.Length, Is.EqualTo(1));
+			Assert.That(diagnostics[0].GetMessage(), Does.Contain("maximum of 400"));
 		}
 
 		[Test]

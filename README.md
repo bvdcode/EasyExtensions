@@ -28,7 +28,7 @@ The repository is intentionally split into small NuGet packages. Install only th
 | Package | Target | Use when you need |
 | --- | --- | --- |
 | [EasyExtensions](https://www.nuget.org/packages/EasyExtensions/) | `netstandard2.1` | Core extensions and helpers for strings, hashes, streams, enums, dates, IP/networking, claims, random strings, queues, password hashing abstractions, Brotli HTTP helpers, and stream cipher abstractions. |
-| [EasyExtensions.Analyzers](https://www.nuget.org/packages/EasyExtensions.Analyzers/) | Roslyn | Maintainability rules for C# projects, including a configurable significant-line limit for source files. |
+| [EasyExtensions.Analyzers](https://www.nuget.org/packages/EasyExtensions.Analyzers/) | Roslyn | Maintainability rules for C# projects, including a hard 400-significant-line limit for source files. |
 | [EasyExtensions.AspNetCore](https://www.nuget.org/packages/EasyExtensions.AspNetCore/) | `net10.0` | ASP.NET Core helpers for exception responses, health checks, CORS, request metadata, rate limiting helpers, console logging, controllers, form files, CPU usage, and PBKDF2 password hashing registration. |
 | [EasyExtensions.AspNetCore.Authorization](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Authorization/) | `net10.0` | JWT authentication setup, token creation, claim building, development authorization bypass, and a base auth controller with login, refresh, logout, password, and Google login hooks. |
 | [EasyExtensions.AspNetCore.Sentry](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Sentry/) | `net10.0` | Sentry ASP.NET Core integration with user capture. |
@@ -62,11 +62,11 @@ For an opinionated ASP.NET Core setup, start with:
 dotnet add package EasyExtensions.AspNetCore.Stack
 ```
 
-The analyzer package enables the following warnings by default:
+The analyzer package enables the following build errors by default. Their severity is analyzer-owned, so `dotnet_diagnostic.EEX*.severity` entries cannot lower or disable them. Use a local `#pragma warning disable EEXxxxx` only for an explicitly approved exception:
 
 | Rule | Enforces |
 | --- | --- |
-| `EEX0001` | C# files stay within a configurable significant-line limit; the default is 400. |
+| `EEX0001` | C# files stay within a hard maximum of 400 significant lines. |
 | `EEX0002` | The `sealed` keyword is not used. |
 | `EEX0003` | Each file contains one top-level class, record, interface, or enum, except a Mediator request with its handlers. |
 | `EEX0004` | Every EF Core relationship has a dependent navigation using `[DeleteBehavior(DeleteBehavior.Restrict)]`. |
@@ -81,15 +81,14 @@ The analyzer package enables the following warnings by default:
 | `EEX0013` | An enum is not duplicated by a same-named `*Dto` type. |
 | `EEX0014` | Local variables use explicit types, with exceptions for LINQ, anonymous types, tuple deconstruction, and visible generic construction types. |
 
-Blank lines, comment-only lines, and generated files are excluded from `EEX0001`. Configure its limit and severity in `.editorconfig`:
+Blank lines, comment-only lines, and generated files are excluded from `EEX0001`. The 400-line ceiling cannot be raised. `max_lines` may only set a stricter lower limit:
 
 ```ini
 [*.cs]
-dotnet_code_quality.EEX0001.max_lines = 400
-dotnet_diagnostic.EEX0001.severity = error
+dotnet_code_quality.EEX0001.max_lines = 300
 ```
 
-For the complete strict policy, copy [Sources/EasyExtensions.Analyzers.Example/.editorconfig](Sources/EasyExtensions.Analyzers.Example/.editorconfig) and [Sources/EasyExtensions.Analyzers.Example/Directory.Build.props](Sources/EasyExtensions.Analyzers.Example/Directory.Build.props) to the root of the consuming repository. The policy promotes all `EEX` diagnostics to errors and also configures Microsoft rules for asynchronous calls, block-scoped namespaces, primary constructors, and pattern-based null checks. Both files are included in the NuGet package under `config/`.
+The package also applies its Microsoft SDK analyzer policy transitively: `CA1849` and `IDE0160` are errors, while `IDE0290` and `IDE0041` are warnings. It enables the latest SDK analysis level and build-time code-style enforcement automatically. Consuming projects may override these defaults in their own `.editorconfig`.
 
 ## Quick Examples
 

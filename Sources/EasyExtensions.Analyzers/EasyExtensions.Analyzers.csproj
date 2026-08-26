@@ -37,8 +37,8 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<None Include="..\EasyExtensions.Analyzers.Example\.editorconfig" Pack="true" PackagePath="config\EasyExtensions.Analyzers.editorconfig" />
-		<None Include="..\EasyExtensions.Analyzers.Example\Directory.Build.props" Pack="true" PackagePath="config\Directory.Build.props" />
+		<None Include="buildTransitive\EasyExtensions.Analyzers.props" Pack="true" PackagePath="buildTransitive\EasyExtensions.Analyzers.props" />
+		<None Include="buildTransitive\EasyExtensions.Analyzers.globalconfig" Pack="true" PackagePath="buildTransitive\EasyExtensions.Analyzers.globalconfig" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.6.0" PrivateAssets="All" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.400" PrivateAssets="All" />
 	</ItemGroup>

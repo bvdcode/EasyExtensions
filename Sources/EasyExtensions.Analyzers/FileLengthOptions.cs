@@ -5,24 +5,29 @@ namespace EasyExtensions.Analyzers
 {
 	internal static class FileLengthOptions
 	{
-		public const int DefaultMaxLines = 400;
+		public const int MaximumLines = 400;
 		public const string MaxLinesOptionName = "dotnet_code_quality.EEX0001.max_lines";
 
 		public static int GetMaxLines(AnalyzerConfigOptions options)
 		{
 			if (!options.TryGetValue(MaxLinesOptionName, out string? configuredValue))
 			{
-				return DefaultMaxLines;
+				return MaximumLines;
 			}
 
 			if (!int.TryParse(configuredValue, NumberStyles.None, CultureInfo.InvariantCulture, out int maxLines))
 			{
-				return DefaultMaxLines;
+				return MaximumLines;
 			}
 
 			if (maxLines <= 0)
 			{
-				return DefaultMaxLines;
+				return MaximumLines;
+			}
+
+			if (maxLines > MaximumLines)
+			{
+				return MaximumLines;
 			}
 
 			return maxLines;

@@ -5,4 +5,8 @@
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 
+	<ItemGroup>
+		<EditorConfigFiles Include="$(MSBuildThisFileDirectory)EasyExtensions.Analyzers.globalconfig" />
+	</ItemGroup>
+
 </Project>
