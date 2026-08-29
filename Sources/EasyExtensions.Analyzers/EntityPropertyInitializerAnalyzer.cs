@@ -59,12 +59,23 @@ namespace EasyExtensions.Analyzers
 				return IsNullForgiving(initializer);
 			}
 
+			if (IsByteArray(property.Type))
+			{
+				return IsNullForgiving(initializer);
+			}
+
 			if (IsCollection(property.Type))
 			{
 				return initializer is CollectionExpressionSyntax collection && collection.Elements.Count == 0;
 			}
 
 			return property.Type.IsReferenceType && IsNullForgiving(initializer);
+		}
+
+		private static bool IsByteArray(ITypeSymbol type)
+		{
+			return type is IArrayTypeSymbol arrayType &&
+				arrayType.ElementType.SpecialType == SpecialType.System_Byte;
 		}
 
 		private static bool IsCollection(ITypeSymbol type)

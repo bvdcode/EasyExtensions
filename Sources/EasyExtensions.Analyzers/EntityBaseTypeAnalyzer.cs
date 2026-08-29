@@ -26,7 +26,9 @@ namespace EasyExtensions.Analyzers
 			{
 				Location? location = SymbolHelpers.GetSourceLocation(entity);
 
-				if (location is null || SymbolHelpers.IsEntity(entity))
+				if (location is null ||
+					SymbolHelpers.IsEntity(entity) ||
+					HasExplicitNaturalKey(entity))
 				{
 					continue;
 				}
@@ -36,6 +38,36 @@ namespace EasyExtensions.Analyzers
 					location,
 					entity.Name));
 			}
+		}
+
+		private static bool HasExplicitNaturalKey(INamedTypeSymbol entity)
+		{
+			bool hasExplicitKey = false;
+
+			for (INamedTypeSymbol? currentType = entity;
+				currentType is not null;
+				currentType = currentType.BaseType)
+			{
+				foreach (ISymbol member in currentType.GetMembers())
+				{
+					if (member is not IPropertySymbol property || property.IsStatic)
+					{
+						continue;
+					}
+
+					if (property.Name == "Id" || property.Name == entity.Name + "Id")
+					{
+						return false;
+					}
+
+					hasExplicitKey |= SymbolHelpers.GetAttribute(
+						property,
+						"System.ComponentModel.DataAnnotations",
+						"KeyAttribute") is not null;
+				}
+			}
+
+			return hasExplicitKey;
 		}
 	}
 }

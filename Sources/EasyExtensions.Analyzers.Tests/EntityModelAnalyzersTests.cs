@@ -29,6 +29,51 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task EntityBase_TableEntityWithExplicitNaturalKey_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using System.ComponentModel.DataAnnotations;
+				using System.ComponentModel.DataAnnotations.Schema;
+
+				[Table("chunks")]
+				public class Chunk
+				{
+					[Key]
+					public byte[] Hash { get; set; } = null!;
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityBaseTypeAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task EntityBase_TableEntityWithExplicitIdKey_ReportsDiagnostic()
+		{
+			const string source = """
+				using System;
+				using System.ComponentModel.DataAnnotations;
+				using System.ComponentModel.DataAnnotations.Schema;
+
+				[Table("customers")]
+				public class Customer
+				{
+					[Key]
+					public Guid Id { get; set; }
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityBaseTypeAnalyzer());
+
+			AssertDiagnostic(diagnostics, "EEX0006");
+		}
+
+		[Test]
 		public async Task EntityBase_DbSetEntityWithBaseEntity_DoesNotReportDiagnostic()
 		{
 			const string source = """

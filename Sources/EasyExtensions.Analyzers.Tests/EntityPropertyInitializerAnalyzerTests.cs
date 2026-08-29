@@ -89,6 +89,46 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task NonNullableByteArrayNullForgiving_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using EasyExtensions.EntityFrameworkCore.Abstractions;
+				using System;
+
+				public class ChunkReference : BaseEntity<Guid>
+				{
+					public byte[] ChunkHash { get; set; } = null!;
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityPropertyInitializerAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task NonNullableByteArrayEmpty_ReportsDiagnostic()
+		{
+			const string source = """
+				using EasyExtensions.EntityFrameworkCore.Abstractions;
+				using System;
+
+				public class ChunkReference : BaseEntity<Guid>
+				{
+					public byte[] ChunkHash { get; set; } = [];
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityPropertyInitializerAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
 		public async Task ApprovedInitializers_DoNotReportDiagnostic()
 		{
 			const string source = """
