@@ -270,7 +270,7 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
-		public async Task FluentModelConfiguration_ModelBuilderCall_ReportsDiagnostic()
+		public async Task FluentModelConfiguration_HasKeyCall_ReportsDiagnostic()
 		{
 			const string source = """
 				using Microsoft.EntityFrameworkCore;
@@ -284,7 +284,8 @@ namespace EasyExtensions.Analyzers.Tests
 				{
 					protected override void OnModelCreating(ModelBuilder modelBuilder)
 					{
-						modelBuilder.Entity<Customer>();
+						modelBuilder.Entity<Customer>()
+							.HasKey(customer => customer.Id);
 					}
 				}
 				""";
@@ -294,6 +295,110 @@ namespace EasyExtensions.Analyzers.Tests
 				analyzer: new EfFluentModelConfigurationAnalyzer());
 
 			AssertDiagnostic(diagnostics, "EEX0005");
+		}
+
+		[Test]
+		public async Task FluentModelConfiguration_AnnotationEquivalentCall_ReportsOneDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+
+				public class Customer
+				{
+					public string Name { get; set; } = null!;
+				}
+
+				public class AppDbContext : DbContext
+				{
+					protected override void OnModelCreating(ModelBuilder modelBuilder)
+					{
+						base.OnModelCreating(modelBuilder);
+						modelBuilder.Entity<Customer>()
+							.Property(customer => customer.Name)
+							.HasColumnName("customer_name");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EfFluentModelConfigurationAnalyzer());
+
+			Assert.That(diagnostics.Length, Is.EqualTo(1));
+			AssertDiagnostic(diagnostics, "EEX0005");
+			Assert.That(diagnostics[0].GetMessage(), Does.Contain("HasColumnName"));
+		}
+
+		[Test]
+		public async Task FluentModelConfiguration_ValueConverter_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+				public class Customer
+				{
+					public string Secret { get; set; } = null!;
+				}
+
+				public static class CustomerModelConfiguration
+				{
+					public static void Configure(ModelBuilder modelBuilder)
+					{
+						ValueConverter<string, string> converter = new(
+							value => value,
+							value => value);
+						ConfigureProperty<Customer>(modelBuilder, customer => customer.Secret, converter);
+					}
+
+					private static void ConfigureProperty<TEntity>(
+						ModelBuilder modelBuilder,
+						System.Linq.Expressions.Expression<System.Func<TEntity, string>> property,
+						ValueConverter<string, string> converter)
+						where TEntity : class
+					{
+						modelBuilder.Entity<TEntity>()
+							.Property(property)
+							.HasConversion(converter);
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EfFluentModelConfigurationAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task FluentModelConfiguration_ShadowProperties_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+
+				public class Customer
+				{
+					public int Id { get; set; }
+				}
+
+				public static class IntegrityModelConfiguration
+				{
+					public static void Configure(ModelBuilder modelBuilder)
+					{
+						modelBuilder.Entity<Customer>()
+							.Property<byte[]?>("IntegrityMac")
+							.HasColumnName("integrity_mac")
+							.IsConcurrencyToken();
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EfFluentModelConfigurationAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
 		}
 
 		[Test]

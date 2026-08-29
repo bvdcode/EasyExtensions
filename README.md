@@ -70,7 +70,7 @@ The analyzer package enables the following build errors by default. Their severi
 | `EEX0002` | The `sealed` keyword is not used. |
 | `EEX0003` | Each file contains one top-level class, record, interface, or enum, except a Mediator request with its handlers. |
 | `EEX0004` | Every EF Core relationship has a dependent navigation using `[DeleteBehavior(DeleteBehavior.Restrict)]`. |
-| `EEX0005` | EF Core data models use data annotations instead of Fluent API model builders. |
+| `EEX0005` | EF Core data models use data annotations instead of Fluent API when an annotation equivalent exists; value converters and shadow-property configuration remain allowed. |
 | `EEX0006` | Entities rooted in `DbSet<T>`, `[Table]`, or an existing `BaseEntity<T>` graph derive from `BaseEntity<T>`, except explicit natural-key entities with `[Key]` and no conventional `Id`. |
 | `EEX0007` | `*Dto` types that declare an `Id` derive from `BaseDto<T>`. |
 | `EEX0008` | Concrete Quartz `IJob` implementations declare `JobTriggerAttribute`. |
