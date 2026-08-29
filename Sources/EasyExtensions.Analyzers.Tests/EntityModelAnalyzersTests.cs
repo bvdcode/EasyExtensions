@@ -402,6 +402,49 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task FluentModelConfiguration_NonGenericShadowProperties_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using Microsoft.EntityFrameworkCore.Metadata.Builders;
+				using System;
+
+				public class Customer
+				{
+					public int Id { get; set; }
+				}
+
+				public static class IntegrityModelConfiguration
+				{
+					private const string VersionProperty = "IntegrityVersion";
+					private const string VersionColumn = "integrity_version";
+					private const string MacProperty = "IntegrityMac";
+					private const string MacColumn = "integrity_mac";
+
+					public static void Configure(ModelBuilder modelBuilder)
+					{
+						Type[] protectedTypes = [typeof(Customer)];
+						foreach (Type entityType in protectedTypes)
+						{
+							EntityTypeBuilder entity = modelBuilder.Entity(entityType);
+							entity.Property<int?>(VersionProperty)
+								.HasColumnName(VersionColumn);
+							entity.Property<byte[]?>(MacProperty)
+								.HasColumnName(MacColumn)
+								.IsConcurrencyToken();
+						}
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EfFluentModelConfigurationAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
 		public async Task FluentModelConfiguration_DataAnnotation_DoesNotReportDiagnostic()
 		{
 			const string source = """

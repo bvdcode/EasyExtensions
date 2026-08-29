@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
@@ -61,20 +59,12 @@ namespace EasyExtensions.Analyzers
 
 		private static bool IsShadowPropertyChain(IInvocationOperation invocation)
 		{
-			foreach (InvocationExpressionSyntax candidate in invocation.Syntax
-				.DescendantNodesAndSelf()
-				.OfType<InvocationExpressionSyntax>())
-			{
-				if (candidate.Expression is MemberAccessExpressionSyntax memberAccess &&
-					memberAccess.Name.Identifier.ValueText == "Property" &&
-					candidate.ArgumentList.Arguments.Any(argument =>
-						argument.Expression.IsKind(SyntaxKind.StringLiteralExpression)))
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return invocation.DescendantsAndSelf()
+				.OfType<IInvocationOperation>()
+				.Any(candidate =>
+					candidate.TargetMethod.Name == "Property" &&
+					candidate.Arguments.Any(argument =>
+						argument.Value.ConstantValue is { HasValue: true, Value: string }));
 		}
 
 		private static bool IsModelConfigurationMethod(IMethodSymbol method)
