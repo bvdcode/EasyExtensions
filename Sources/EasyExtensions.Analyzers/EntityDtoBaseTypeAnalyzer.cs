@@ -27,7 +27,7 @@ namespace EasyExtensions.Analyzers
 				type.IsAbstract ||
 				!type.Name.EndsWith("Dto", StringComparison.Ordinal) ||
 				SymbolHelpers.IsOrInheritsFrom(type, SymbolHelpers.BaseDtoNamespace, "BaseDto", 1) ||
-				!DeclaresIdProperty(type))
+				!DeclaresEntityIdProperty(type))
 			{
 				return;
 			}
@@ -43,11 +43,22 @@ namespace EasyExtensions.Analyzers
 			}
 		}
 
-		private static bool DeclaresIdProperty(INamedTypeSymbol type)
+		private static bool DeclaresEntityIdProperty(INamedTypeSymbol type)
 		{
 			return type.GetMembers("Id")
 				.OfType<IPropertySymbol>()
-				.Any(property => !property.IsStatic);
+				.Any(property => !property.IsStatic && IsEntityIdentifier(property.Type));
+		}
+
+		private static bool IsEntityIdentifier(ITypeSymbol type)
+		{
+			if (!type.IsValueType)
+			{
+				return false;
+			}
+
+			return type is not INamedTypeSymbol namedType ||
+				namedType.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
 		}
 	}
 }

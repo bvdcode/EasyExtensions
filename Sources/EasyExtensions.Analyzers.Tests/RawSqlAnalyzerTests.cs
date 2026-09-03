@@ -58,6 +58,146 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task ConstantCreateExtensionAsync_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using System.Threading.Tasks;
+
+				public class DatabaseInitializer
+				{
+					private const string CreateExtensionSql = "CREATE EXTENSION IF NOT EXISTS pgcrypto;";
+
+					public async Task InitializeAsync(DbContext context)
+					{
+						await context.Database.ExecuteSqlRawAsync(CreateExtensionSql);
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task InterpolatedCreateExtensionAsync_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using System.Threading.Tasks;
+
+				public class DatabaseInitializer
+				{
+					public async Task InitializeAsync(DbContext context, string extension)
+					{
+						await context.Database.ExecuteSqlRawAsync($"CREATE EXTENSION IF NOT EXISTS {extension};");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
+		public async Task RuntimeCreateExtensionStringAsync_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using System.Threading.Tasks;
+
+				public class DatabaseInitializer
+				{
+					public async Task InitializeAsync(DbContext context)
+					{
+						string sql = "CREATE EXTENSION IF NOT EXISTS pgcrypto;";
+						await context.Database.ExecuteSqlRawAsync(sql);
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
+		public async Task ConstantDmlAsync_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using System.Threading.Tasks;
+
+				public class DatabaseInitializer
+				{
+					public async Task InitializeAsync(DbContext context)
+					{
+						await context.Database.ExecuteSqlRawAsync("DELETE FROM customers;");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
+		public async Task ArbitraryConstantDdlAsync_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using System.Threading.Tasks;
+
+				public class DatabaseInitializer
+				{
+					public async Task InitializeAsync(DbContext context)
+					{
+						await context.Database.ExecuteSqlRawAsync("CREATE TABLE example (id integer);");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
+		public async Task ConstantCreateExtensionSync_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+
+				public class DatabaseInitializer
+				{
+					public void Initialize(DbContext context)
+					{
+						context.Database.ExecuteSqlRaw("CREATE EXTENSION IF NOT EXISTS pgcrypto;");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
 		public async Task EfLinqQuery_DoesNotReportDiagnostic()
 		{
 			const string source = """

@@ -76,7 +76,7 @@ namespace EasyExtensions.Analyzers
 			"Design",
 			DiagnosticSeverity.Error,
 			isEnabledByDefault: true,
-			description: "DTO types that declare their own Id property represent entities and must use the EasyExtensions DTO base type.",
+			description: "DTO types that declare a non-nullable value-type Id represent entities and must use the EasyExtensions DTO base type.",
 			customTags: EnforcedSeverityTags);
 
 		public static readonly DiagnosticDescriptor QuartzJobTrigger = new(
@@ -96,7 +96,7 @@ namespace EasyExtensions.Analyzers
 			"EntityFrameworkCore",
 			DiagnosticSeverity.Error,
 			isEnabledByDefault: true,
-			description: "Database access must use Entity Framework Core modeled queries rather than raw SQL or command text.",
+			description: "Database access must use Entity Framework Core modeled queries rather than raw SQL or command text, except constant PostgreSQL extension setup.",
 			customTags: EnforcedSeverityTags);
 
 		public static readonly DiagnosticDescriptor EntityMemberUtcSuffix = new(
@@ -146,7 +146,7 @@ namespace EasyExtensions.Analyzers
 			"Style",
 			DiagnosticSeverity.Error,
 			isEnabledByDefault: true,
-			description: "Use explicit local variable types except for LINQ, anonymous types, tuple deconstruction, and generic object construction with a visible type.",
+			description: "Use explicit local variable types except for LINQ, anonymous types, tuple deconstruction, and generic object construction with a visible type. Anonymous foreach and out variables are also allowed.",
 			customTags: EnforcedSeverityTags);
 	}
 }

@@ -57,6 +57,28 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task TypeIsAssignableFrom_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using System;
+
+				public class TypeRelationship
+				{
+					public bool Matches(Type contract, Type candidate)
+					{
+						return contract.IsAssignableFrom(candidate);
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new ReflectionUsageAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
 		public async Task RuntimeTypeNames_DoNotReportDiagnostic()
 		{
 			const string source = """

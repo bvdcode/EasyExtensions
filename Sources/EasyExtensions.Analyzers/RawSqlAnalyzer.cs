@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -10,6 +11,9 @@ namespace EasyExtensions.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RawSqlAnalyzer : DiagnosticAnalyzer
 	{
+		private static readonly Regex CreateExtensionPattern = new(
+			"""\A\s*CREATE\s+EXTENSION\s+IF\s+NOT\s+EXISTS\s+(?:"(?:""|[^"])+"|[A-Za-z_][A-Za-z0-9_$]*)\s*;\s*\z""",
+			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		private static readonly HashSet<string> EfRawSqlMethodNames = new(StringComparer.Ordinal)
 		{
 			"ExecuteSql",
@@ -47,6 +51,11 @@ namespace EasyExtensions.Analyzers
 				return;
 			}
 
+			if (IsConstantCreateExtensionInvocation(invocation, method, namespaceName))
+			{
+				return;
+			}
+
 			Report(context, invocation.Syntax.GetLocation(), invocation.TargetMethod.Name);
 		}
 
@@ -79,6 +88,49 @@ namespace EasyExtensions.Analyzers
 			return namespaceName == "Dapper" &&
 				(method.Name.StartsWith("Query", StringComparison.Ordinal) ||
 				method.Name.StartsWith("Execute", StringComparison.Ordinal));
+		}
+
+		private static bool IsConstantCreateExtensionInvocation(
+			IInvocationOperation invocation,
+			IMethodSymbol method,
+			string namespaceName)
+		{
+			if (method.Name != "ExecuteSqlRawAsync" ||
+				!namespaceName.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal))
+			{
+				return false;
+			}
+
+			foreach (IArgumentOperation argument in invocation.Arguments)
+			{
+				if (argument.Parameter?.Type.SpecialType != SpecialType.System_String)
+				{
+					continue;
+				}
+
+				IOperation value = UnwrapConversion(argument.Value);
+
+				if (value is IInterpolatedStringOperation ||
+					!value.ConstantValue.HasValue ||
+					value.ConstantValue.Value is not string sql)
+				{
+					return false;
+				}
+
+				return CreateExtensionPattern.IsMatch(sql);
+			}
+
+			return false;
+		}
+
+		private static IOperation UnwrapConversion(IOperation operation)
+		{
+			while (operation is IConversionOperation conversion)
+			{
+				operation = conversion.Operand;
+			}
+
+			return operation;
 		}
 
 		private static void Report(OperationAnalysisContext context, Location location, string apiName)

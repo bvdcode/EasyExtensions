@@ -94,6 +94,74 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task EntityDto_StringTransportIdentifiers_DoNotReportDiagnostic()
+		{
+			const string source = """
+				public class AssertionCredentialDto
+				{
+					public string Id { get; set; } = string.Empty;
+					public string RawId { get; set; } = string.Empty;
+					public string Type { get; set; } = string.Empty;
+					public object Response { get; set; } = null!;
+				}
+
+				public class AttestationCredentialDto
+				{
+					public string Id { get; set; } = string.Empty;
+					public string RawId { get; set; } = string.Empty;
+					public string Type { get; set; } = string.Empty;
+					public object Response { get; set; } = null!;
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityDtoBaseTypeAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task EntityDto_ValueTypeIdentityAndAuditMembers_ReportsDiagnostic()
+		{
+			const string source = """
+				using System;
+
+				public class PasskeyCredentialDto
+				{
+					public Guid Id { get; set; }
+					public DateTime CreatedAt { get; set; }
+					public DateTime UpdatedAt { get; set; }
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityDtoBaseTypeAnalyzer());
+
+			AssertDiagnostic(diagnostics, "EEX0007");
+		}
+
+		[Test]
+		public async Task EntityDto_NullableValueTypeId_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using System;
+
+				public class OptionalSelectionDto
+				{
+					public Guid? Id { get; set; }
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new EntityDtoBaseTypeAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
 		public async Task EntityDto_DerivesFromBaseDto_DoesNotReportDiagnostic()
 		{
 			const string source = """

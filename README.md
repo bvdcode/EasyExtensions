@@ -72,14 +72,14 @@ The analyzer package enables the following build errors by default. Their severi
 | `EEX0004` | Every EF Core relationship has a dependent navigation using `[DeleteBehavior(DeleteBehavior.Restrict)]`. |
 | `EEX0005` | EF Core data models use data annotations instead of Fluent API when an annotation equivalent exists; value converters and shadow-property configuration remain allowed. |
 | `EEX0006` | Entities rooted in `DbSet<T>`, `[Table]`, or an existing `BaseEntity<T>` graph derive from `BaseEntity<T>`, except explicit natural-key entities with `[Key]` and no conventional `Id`. |
-| `EEX0007` | `*Dto` types that declare an `Id` derive from `BaseDto<T>`. |
+| `EEX0007` | `*Dto` types with a non-nullable value-type `Id` derive from `BaseDto<T>`. |
 | `EEX0008` | Concrete Quartz `IJob` implementations declare `JobTriggerAttribute`. |
-| `EEX0009` | EF Core raw SQL, Dapper query/execute APIs, and `DbCommand.CommandText` are not used. |
+| `EEX0009` | EF Core raw SQL, Dapper query/execute APIs, and `DbCommand.CommandText` are not used, except constant `CREATE EXTENSION IF NOT EXISTS` setup through `ExecuteSqlRawAsync`. |
 | `EEX0010` | EF entity properties and fields do not end with `Utc`. |
-| `EEX0011` | Reflection discovery, activation, and invocation APIs require an explicit diagnostic suppression; runtime type names are allowed. |
+| `EEX0011` | Reflection discovery, activation, and invocation APIs require an explicit diagnostic suppression; runtime type names and `Type.IsAssignableFrom` are allowed. |
 | `EEX0012` | EF entity properties avoid business defaults: non-nullable strings, required byte arrays, and other reference values use `null!`; non-nullable collections may use `[]`; nullable properties have no initializer. |
 | `EEX0013` | An enum is not duplicated by a same-named `*Dto` type. |
-| `EEX0014` | Local variables use explicit types, with exceptions for LINQ, anonymous types, tuple deconstruction, and visible generic construction types. |
+| `EEX0014` | Local variables use explicit types, except where the inferred type is anonymous and cannot be named, plus the existing LINQ, tuple deconstruction, and visible generic construction exceptions. |
 
 Blank lines, comment-only lines, and generated files are excluded from `EEX0001`. The 400-line ceiling cannot be raised. `max_lines` may only set a stricter lower limit:
 

@@ -46,7 +46,7 @@ namespace EasyExtensions.Analyzers
 		{
 			ForEachStatementSyntax statement = (ForEachStatementSyntax)context.Node;
 
-			if (statement.Type.IsVar && !IsLinqExpression(statement.Expression, context))
+			if (statement.Type.IsVar && !HasAnonymousElementType(statement, context))
 			{
 				Report(context, statement.Type.GetLocation());
 			}
@@ -56,7 +56,9 @@ namespace EasyExtensions.Analyzers
 		{
 			DeclarationExpressionSyntax declaration = (DeclarationExpressionSyntax)context.Node;
 
-			if (declaration.Type.IsVar && !IsTupleDeconstruction(declaration))
+			if (declaration.Type.IsVar &&
+				!IsTupleDeconstruction(declaration) &&
+				!HasAnonymousDeclaredType(declaration, context))
 			{
 				Report(context, declaration.Type.GetLocation());
 			}
@@ -159,6 +161,35 @@ namespace EasyExtensions.Analyzers
 			return declaration.Ancestors()
 				.OfType<AssignmentExpressionSyntax>()
 				.Any(assignment => assignment.Left.Span.Contains(declaration.Span));
+		}
+
+		private static bool HasAnonymousElementType(
+			ForEachStatementSyntax statement,
+			SyntaxNodeAnalysisContext context)
+		{
+			ITypeSymbol? elementType = context.SemanticModel
+				.GetForEachStatementInfo(statement)
+				.ElementType;
+			return IsAnonymousType(elementType);
+		}
+
+		private static bool HasAnonymousDeclaredType(
+			DeclarationExpressionSyntax declaration,
+			SyntaxNodeAnalysisContext context)
+		{
+			if (declaration.Designation is not SingleVariableDesignationSyntax designation)
+			{
+				return false;
+			}
+
+			ILocalSymbol? local = context.SemanticModel
+				.GetDeclaredSymbol(designation, context.CancellationToken) as ILocalSymbol;
+			return IsAnonymousType(local?.Type);
+		}
+
+		private static bool IsAnonymousType(ITypeSymbol? type)
+		{
+			return type is INamedTypeSymbol namedType && namedType.IsAnonymousType;
 		}
 
 		private static void Report(SyntaxNodeAnalysisContext context, Location location)

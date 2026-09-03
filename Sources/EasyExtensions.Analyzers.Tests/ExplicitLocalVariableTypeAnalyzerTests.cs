@@ -115,6 +115,84 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
+		public async Task AnonymousTypeOutVar_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using System.Linq;
+
+				public class Example
+				{
+					public string? Find(int[] values)
+					{
+						var lookup = values.ToDictionary(
+							value => value,
+							value => new { Name = value.ToString() });
+
+						return lookup.TryGetValue(1, out var item) ? item.Name : null;
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new ExplicitLocalVariableTypeAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task AnonymousTypeForeachVar_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using System.Linq;
+
+				public class Example
+				{
+					public void Run(int[] values)
+					{
+						var items = values.Select(value => new { Value = value });
+
+						foreach (var item in items)
+						{
+							_ = item.Value;
+						}
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new ExplicitLocalVariableTypeAnalyzer());
+
+			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task NamedTypeLinqForeachVar_ReportsDiagnostic()
+		{
+			const string source = """
+				using System.Linq;
+
+				public class Example
+				{
+					public void Run(int[] values)
+					{
+						foreach (var item in values.Select(value => value.ToString()))
+						{
+							_ = item.Length;
+						}
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new ExplicitLocalVariableTypeAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
 		public async Task TupleDeconstructionVar_DoesNotReportDiagnostic()
 		{
 			const string source = """

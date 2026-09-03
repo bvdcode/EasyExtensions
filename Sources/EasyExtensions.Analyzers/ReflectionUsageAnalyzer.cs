@@ -26,7 +26,7 @@ namespace EasyExtensions.Analyzers
 			IInvocationOperation invocation = (IInvocationOperation)context.Operation;
 			IMethodSymbol method = invocation.TargetMethod;
 
-			if (IsReflectionType(method.ContainingType) ||
+			if ((IsReflectionType(method.ContainingType) && !IsSafeTypeRelationship(method)) ||
 				IsDynamicInvoke(method) ||
 				IsAttributeInspection(method))
 			{
@@ -76,6 +76,15 @@ namespace EasyExtensions.Analyzers
 					"System.Reflection",
 					"MemberInfo",
 					0);
+		}
+
+		private static bool IsSafeTypeRelationship(IMethodSymbol method)
+		{
+			return method.Name == "IsAssignableFrom" &&
+				SymbolHelpers.Matches(method.ContainingType, "System", "Type", 0) &&
+				method.Parameters.Length == 1 &&
+				method.Parameters[0].Type is INamedTypeSymbol parameterType &&
+				SymbolHelpers.Matches(parameterType, "System", "Type", 0);
 		}
 
 		private static bool IsDynamicInvoke(IMethodSymbol method)
