@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
@@ -11,9 +10,6 @@ namespace EasyExtensions.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RawSqlAnalyzer : DiagnosticAnalyzer
 	{
-		private static readonly Regex ExtensionExistenceQueryPattern = new(
-			"""\A\s*SELECT\s+EXISTS\s*\(\s*SELECT\s+1\s+FROM\s+pg_catalog\.pg_extension\s+WHERE\s+extname\s*=\s*'(?:''|[^'])+'\s*\)\s+AS\s+"Value"\s*;?\s*\z""",
-			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		private static readonly HashSet<string> EfRawSqlMethodNames = new(StringComparer.Ordinal)
 		{
 			"ExecuteSql",
@@ -51,11 +47,6 @@ namespace EasyExtensions.Analyzers
 				return;
 			}
 
-			if (IsConstantExtensionExistenceQuery(invocation, method, namespaceName))
-			{
-				return;
-			}
-
 			Report(context, invocation.Syntax.GetLocation(), invocation.TargetMethod.Name);
 		}
 
@@ -88,46 +79,6 @@ namespace EasyExtensions.Analyzers
 			return namespaceName == "Dapper" &&
 				(method.Name.StartsWith("Query", StringComparison.Ordinal) ||
 				method.Name.StartsWith("Execute", StringComparison.Ordinal));
-		}
-
-		private static bool IsConstantExtensionExistenceQuery(
-			IInvocationOperation invocation,
-			IMethodSymbol method,
-			string namespaceName)
-		{
-			if (method.Name != "SqlQueryRaw" ||
-				!namespaceName.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal) ||
-				method.TypeArguments.Length != 1 ||
-				method.TypeArguments[0].SpecialType != SpecialType.System_Boolean)
-			{
-				return false;
-			}
-
-			foreach (IArgumentOperation argument in invocation.Arguments)
-			{
-				if (argument.Parameter?.Type.SpecialType != SpecialType.System_String)
-				{
-					continue;
-				}
-
-				IOperation value = UnwrapConversion(argument.Value);
-
-				return value.ConstantValue.HasValue &&
-					value.ConstantValue.Value is string sql &&
-					ExtensionExistenceQueryPattern.IsMatch(sql);
-			}
-
-			return false;
-		}
-
-		private static IOperation UnwrapConversion(IOperation operation)
-		{
-			while (operation is IConversionOperation conversion)
-			{
-				operation = conversion.Operand;
-			}
-
-			return operation;
 		}
 
 		private static void Report(OperationAnalysisContext context, Location location, string apiName)

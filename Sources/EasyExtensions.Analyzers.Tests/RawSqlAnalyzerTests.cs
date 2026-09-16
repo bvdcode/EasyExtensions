@@ -83,7 +83,7 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
-		public async Task ConstantExtensionExistenceQuery_DoesNotReportDiagnostic()
+		public async Task ConstantInstalledExtensionQuery_ReportsDiagnostic()
 		{
 			const string source = """
 				using Microsoft.EntityFrameworkCore;
@@ -106,7 +106,29 @@ namespace EasyExtensions.Analyzers.Tests
 				source,
 				analyzer: new RawSqlAnalyzer());
 
-			Assert.That(diagnostics, Is.Empty);
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
+		public async Task ConstantAvailableExtensionQuery_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+
+				public class DatabaseInitializer
+				{
+					public void IsVectorAvailable(DbContext context)
+					{
+						context.Database.SqlQueryRaw<bool>("SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_available_extensions WHERE name = 'vector') AS \"Value\"");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
 		}
 
 		[Test]
