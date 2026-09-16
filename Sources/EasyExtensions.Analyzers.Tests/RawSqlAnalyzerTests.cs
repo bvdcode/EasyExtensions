@@ -58,7 +58,7 @@ namespace EasyExtensions.Analyzers.Tests
 		}
 
 		[Test]
-		public async Task ConstantCreateExtensionAsync_DoesNotReportDiagnostic()
+		public async Task ConstantCreateExtensionAsync_ReportsDiagnostic()
 		{
 			const string source = """
 				using Microsoft.EntityFrameworkCore;
@@ -79,7 +79,78 @@ namespace EasyExtensions.Analyzers.Tests
 				source,
 				analyzer: new RawSqlAnalyzer());
 
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
+		public async Task ConstantExtensionExistenceQuery_DoesNotReportDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+				using System.Threading.Tasks;
+
+				public class DatabaseInitializer
+				{
+					private const string ExtensionExistenceSql = "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_extension WHERE extname = 'vector') AS \"Value\"";
+
+					public async Task<bool> IsVectorInstalledAsync(DbContext context)
+					{
+						return await context.Database
+							.SqlQueryRaw<bool>(ExtensionExistenceSql)
+							.SingleAsync();
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
 			Assert.That(diagnostics, Is.Empty);
+		}
+
+		[Test]
+		public async Task InterpolatedExtensionExistenceQuery_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+
+				public class DatabaseInitializer
+				{
+					public void IsInstalled(DbContext context, string extension)
+					{
+						context.Database.SqlQueryRaw<bool>($"SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_extension WHERE extname = '{extension}') AS \"Value\"");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
+		}
+
+		[Test]
+		public async Task OtherExtensionCatalogQuery_ReportsDiagnostic()
+		{
+			const string source = """
+				using Microsoft.EntityFrameworkCore;
+
+				public class DatabaseInitializer
+				{
+					public void GetVersion(DbContext context)
+					{
+						context.Database.SqlQueryRaw<string>("SELECT extversion AS \"Value\" FROM pg_catalog.pg_extension WHERE extname = 'vector'");
+					}
+				}
+				""";
+
+			ImmutableArray<Diagnostic> diagnostics = await AnalyzerTestRunner.GetDiagnosticsAsync(
+				source,
+				analyzer: new RawSqlAnalyzer());
+
+			AssertDiagnostic(diagnostics);
 		}
 
 		[Test]

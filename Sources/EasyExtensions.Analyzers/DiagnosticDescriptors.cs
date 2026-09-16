@@ -96,7 +96,7 @@ namespace EasyExtensions.Analyzers
 			"EntityFrameworkCore",
 			DiagnosticSeverity.Error,
 			isEnabledByDefault: true,
-			description: "Database access must use Entity Framework Core modeled queries rather than raw SQL or command text, except constant PostgreSQL extension setup.",
+			description: "Database access must use Entity Framework Core modeled queries rather than raw SQL or command text, except constant PostgreSQL extension existence checks.",
 			customTags: EnforcedSeverityTags);
 
 		public static readonly DiagnosticDescriptor EntityMemberUtcSuffix = new(

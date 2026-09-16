@@ -11,8 +11,8 @@ namespace EasyExtensions.Analyzers
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RawSqlAnalyzer : DiagnosticAnalyzer
 	{
-		private static readonly Regex CreateExtensionPattern = new(
-			"""\A\s*CREATE\s+EXTENSION\s+IF\s+NOT\s+EXISTS\s+(?:"(?:""|[^"])+"|[A-Za-z_][A-Za-z0-9_$]*)\s*;\s*\z""",
+		private static readonly Regex ExtensionExistenceQueryPattern = new(
+			"""\A\s*SELECT\s+EXISTS\s*\(\s*SELECT\s+1\s+FROM\s+pg_catalog\.pg_extension\s+WHERE\s+extname\s*=\s*'(?:''|[^'])+'\s*\)\s+AS\s+"Value"\s*;?\s*\z""",
 			RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		private static readonly HashSet<string> EfRawSqlMethodNames = new(StringComparer.Ordinal)
 		{
@@ -51,7 +51,7 @@ namespace EasyExtensions.Analyzers
 				return;
 			}
 
-			if (IsConstantCreateExtensionInvocation(invocation, method, namespaceName))
+			if (IsConstantExtensionExistenceQuery(invocation, method, namespaceName))
 			{
 				return;
 			}
@@ -90,13 +90,15 @@ namespace EasyExtensions.Analyzers
 				method.Name.StartsWith("Execute", StringComparison.Ordinal));
 		}
 
-		private static bool IsConstantCreateExtensionInvocation(
+		private static bool IsConstantExtensionExistenceQuery(
 			IInvocationOperation invocation,
 			IMethodSymbol method,
 			string namespaceName)
 		{
-			if (method.Name != "ExecuteSqlRawAsync" ||
-				!namespaceName.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal))
+			if (method.Name != "SqlQueryRaw" ||
+				!namespaceName.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal) ||
+				method.TypeArguments.Length != 1 ||
+				method.TypeArguments[0].SpecialType != SpecialType.System_Boolean)
 			{
 				return false;
 			}
@@ -110,14 +112,9 @@ namespace EasyExtensions.Analyzers
 
 				IOperation value = UnwrapConversion(argument.Value);
 
-				if (value is IInterpolatedStringOperation ||
-					!value.ConstantValue.HasValue ||
-					value.ConstantValue.Value is not string sql)
-				{
-					return false;
-				}
-
-				return CreateExtensionPattern.IsMatch(sql);
+				return value.ConstantValue.HasValue &&
+					value.ConstantValue.Value is string sql &&
+					ExtensionExistenceQueryPattern.IsMatch(sql);
 			}
 
 			return false;
