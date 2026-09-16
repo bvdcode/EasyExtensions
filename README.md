@@ -163,6 +163,7 @@ builder.AddEasyStack(stack => stack
 
 ```csharp
 using EasyExtensions.EntityFrameworkCore.Npgsql.Extensions;
+using EasyExtensions.EntityFrameworkCore.Npgsql.Models;
 
 builder.Services.AddPostgresDbContext<AppDbContext>(postgres =>
 {
@@ -172,6 +173,22 @@ builder.Services.AddPostgresDbContext<AppDbContext>(postgres =>
 
 bool isInstalled = await dbContext.Database.IsExtensionInstalledAsync("vector", cancellationToken);
 bool isAvailable = await dbContext.Database.IsExtensionAvailableAsync("vector", cancellationToken);
+
+await dbContext.Database.CreateVectorCosineHnswIndexConcurrentlyAsync(
+    schemaName: "public",
+    tableName: "file_embeddings",
+    indexName: "ix_file_embeddings_bge_m3_v1",
+    vectorColumnName: "embedding",
+    dimensions: 1024,
+    filterColumnName: "index_version",
+    filterValue: 1,
+    cancellationToken: cancellationToken);
+
+PostgresIndexStatus indexStatus = await dbContext.Database.GetIndexStatusAsync(
+    schemaName: "public",
+    tableName: "file_embeddings",
+    indexName: "ix_file_embeddings_bge_m3_v1",
+    cancellationToken: cancellationToken);
 ```
 
 ```json

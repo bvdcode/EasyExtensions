@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
+using EasyExtensions.EntityFrameworkCore.Npgsql.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -15,6 +16,20 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_extension WHERE extname = {0}) AS \"Value\"";
         private const string AvailableExtensionQuery =
             "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_available_extensions WHERE name = {0}) AS \"Value\"";
+        private const string IndexStatusQuery = """
+            SELECT target.oid IS NOT NULL AS "Exists",
+                   COALESCE(i.indisvalid, false) AS "IsValid",
+                   COALESCE(pg_catalog.pg_get_indexdef(i.indexrelid), '') AS "Definition",
+                   COALESCE(pg_catalog.pg_relation_size(i.indexrelid), 0) AS "SizeBytes",
+                   EXISTS (
+                       SELECT 1
+                       FROM pg_catalog.pg_stat_progress_create_index p
+                       WHERE p.datname = current_database()
+                         AND p.relid = pg_catalog.to_regclass({1})
+                   ) AS "IsBuilding"
+            FROM (SELECT pg_catalog.to_regclass({0}) AS oid) target
+            LEFT JOIN pg_catalog.pg_index i ON i.indexrelid = target.oid
+            """;
 
         /// <summary>
         /// Determines whether a PostgreSQL extension is installed in the current database.
@@ -54,6 +69,84 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
                 cancellationToken);
         }
 
+        /// <summary>
+        /// Creates a partial PostgreSQL HNSW index using cosine distance without blocking writes to the table.
+        /// </summary>
+        /// <param name="database">The database facade used to create the index.</param>
+        /// <param name="schemaName">The unqualified schema name containing the table.</param>
+        /// <param name="tableName">The unqualified table name.</param>
+        /// <param name="indexName">The unqualified index name.</param>
+        /// <param name="vectorColumnName">The vector column indexed by HNSW.</param>
+        /// <param name="dimensions">The vector dimensions used by the index expression.</param>
+        /// <param name="filterColumnName">The integer column used by the partial-index predicate.</param>
+        /// <param name="filterValue">The value required by the partial-index predicate.</param>
+        /// <param name="cancellationToken">The token used to cancel the asynchronous operation.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">A transaction is active on the database facade.</exception>
+        /// <remarks>PostgreSQL does not allow <c>CREATE INDEX CONCURRENTLY</c> inside a transaction.</remarks>
+        public static async Task CreateVectorCosineHnswIndexConcurrentlyAsync(
+            this DatabaseFacade database,
+            string schemaName,
+            string tableName,
+            string indexName,
+            string vectorColumnName,
+            int dimensions,
+            string filterColumnName,
+            int filterValue,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(database);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(dimensions);
+
+            if (database.CurrentTransaction is not null)
+            {
+                throw new InvalidOperationException(
+                    "CREATE INDEX CONCURRENTLY cannot run inside a transaction.");
+            }
+
+            string quotedTableName = QualifyIdentifier(schemaName, tableName, nameof(tableName));
+            string quotedIndexName = QuoteIdentifier(indexName, nameof(indexName));
+            string quotedVectorColumnName = QuoteIdentifier(vectorColumnName, nameof(vectorColumnName));
+            string quotedFilterColumnName = QuoteIdentifier(filterColumnName, nameof(filterColumnName));
+            string query = FormattableString.Invariant($"""
+                CREATE INDEX CONCURRENTLY IF NOT EXISTS {quotedIndexName}
+                ON {quotedTableName}
+                USING hnsw (({quotedVectorColumnName}::vector({dimensions})) vector_cosine_ops)
+                WHERE {quotedFilterColumnName} = {filterValue}
+                """);
+
+            await database.ExecuteSqlRawAsync(query, cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets the existence, validity, definition, size, and build state of a PostgreSQL index.
+        /// </summary>
+        /// <param name="database">The database facade used to query index metadata.</param>
+        /// <param name="schemaName">The unqualified schema name containing the table and index.</param>
+        /// <param name="tableName">The unqualified table name.</param>
+        /// <param name="indexName">The unqualified index name.</param>
+        /// <param name="cancellationToken">The token used to cancel the asynchronous operation.</param>
+        /// <returns>The current index status.</returns>
+        public static async Task<PostgresIndexStatus> GetIndexStatusAsync(
+            this DatabaseFacade database,
+            string schemaName,
+            string tableName,
+            string indexName,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(database);
+
+            string qualifiedIndexName = QualifyIdentifier(schemaName, indexName, nameof(indexName));
+            string qualifiedTableName = QualifyIdentifier(schemaName, tableName, nameof(tableName));
+
+            return await database
+                .SqlQueryRaw<PostgresIndexStatus>(
+                    IndexStatusQuery,
+                    qualifiedIndexName,
+                    qualifiedTableName)
+                .SingleAsync(cancellationToken);
+        }
+
         private static async Task<bool> ExtensionExistsAsync(
             DatabaseFacade database,
             string query,
@@ -68,6 +161,26 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             return await database
                 .SqlQueryRaw<bool>(query, normalizedExtensionName)
                 .SingleAsync(cancellationToken);
+        }
+
+        private static string QualifyIdentifier(
+            string schemaName,
+            string identifier,
+            string parameterName)
+        {
+            return $"{QuoteIdentifier(schemaName, nameof(schemaName))}.{QuoteIdentifier(identifier, parameterName)}";
+        }
+
+        private static string QuoteIdentifier(string identifier, string parameterName)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(identifier, parameterName);
+
+            if (identifier.Contains('\0'))
+            {
+                throw new ArgumentException("PostgreSQL identifiers cannot contain null characters.", parameterName);
+            }
+
+            return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
         }
     }
 }
