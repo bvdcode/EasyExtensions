@@ -9,6 +9,33 @@ on:
       - .github/workflows/publish-release.yml
       
 jobs:
+  postgres-index-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: index_metadata_tests
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d index_metadata_tests"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Verify PostgreSQL index metadata
+        env:
+          EASYEXTENSIONS_TEST_POSTGRES: Host=localhost;Port=5432;Database=index_metadata_tests;Username=postgres
+        run: >-
+          dotnet test Sources/EasyExtensions.Tests/EasyExtensions.Tests.csproj
+          --configuration Release --filter "FullyQualifiedName~PostgresIndexMetadata"
+
   build:
     runs-on: ubuntu-latest    
     outputs: 
@@ -52,7 +79,7 @@ jobs:
         
   release:
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, postgres-index-tests]
     if: github.ref == 'refs/heads/main' # only run job if on the master branch
     permissions:
       id-token: write # required for NuGet Trusted Publishing (OIDC)

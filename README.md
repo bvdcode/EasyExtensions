@@ -174,22 +174,30 @@ builder.Services.AddPostgresDbContext<AppDbContext>(postgres =>
 bool isInstalled = await dbContext.Database.IsExtensionInstalledAsync("vector", cancellationToken);
 bool isAvailable = await dbContext.Database.IsExtensionAvailableAsync("vector", cancellationToken);
 
-await dbContext.Database.CreateVectorCosineHnswIndexConcurrentlyAsync(
-    schemaName: "public",
-    tableName: "file_embeddings",
-    indexName: "ix_file_embeddings_bge_m3_v1",
-    vectorColumnName: "embedding",
-    dimensions: 1024,
-    filterColumnName: "index_version",
-    filterValue: 1,
-    cancellationToken: cancellationToken);
+PostgresVectorIndexDefinition indexDefinition = new(
+    SchemaName: "public",
+    TableName: "file_embeddings",
+    IndexName: "ix_file_embeddings_bge_m3_v1",
+    VectorColumnName: "embedding",
+    Dimensions: 1024,
+    FilterColumnName: "index_version",
+    FilterValue: 1);
+
+await dbContext.Database.CreateVectorCosineHnswIndexConcurrentlyAsync(indexDefinition, cancellationToken);
 
 PostgresIndexStatus indexStatus = await dbContext.Database.GetIndexStatusAsync(
-    schemaName: "public",
-    tableName: "file_embeddings",
-    indexName: "ix_file_embeddings_bge_m3_v1",
+    schemaName: indexDefinition.SchemaName,
+    tableName: indexDefinition.TableName,
+    indexName: indexDefinition.IndexName,
     cancellationToken: cancellationToken);
+
+bool isReady = indexStatus.IsValid && indexStatus.IsCompatibleWith(indexDefinition);
 ```
+
+Index compatibility uses catalog metadata and the supported column-cast and integer-equality
+expressions. Quoted identifiers, including `quote_all_identifiers=on`, do not affect the result.
+Other expressions or predicates produce a null `VectorDefinition` and are not compatible.
+`Definition` contains PostgreSQL's SQL rendering for display only.
 
 ```json
 {

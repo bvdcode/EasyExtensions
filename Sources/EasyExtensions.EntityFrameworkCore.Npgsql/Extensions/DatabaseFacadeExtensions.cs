@@ -2,6 +2,7 @@
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
 using EasyExtensions.EntityFrameworkCore.Npgsql.Models;
+using EasyExtensions.EntityFrameworkCore.Npgsql.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -16,20 +17,6 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_extension WHERE extname = {0}) AS \"Value\"";
         private const string AvailableExtensionQuery =
             "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_available_extensions WHERE name = {0}) AS \"Value\"";
-        private const string IndexStatusQuery = """
-            SELECT target.oid IS NOT NULL AS "Exists",
-                   COALESCE(i.indisvalid, false) AS "IsValid",
-                   COALESCE(pg_catalog.pg_get_indexdef(i.indexrelid), '') AS "Definition",
-                   COALESCE(pg_catalog.pg_relation_size(i.indexrelid), 0) AS "SizeBytes",
-                   EXISTS (
-                       SELECT 1
-                       FROM pg_catalog.pg_stat_progress_create_index p
-                       WHERE p.datname = current_database()
-                         AND p.relid = pg_catalog.to_regclass({1})
-                   ) AS "IsBuilding"
-            FROM (SELECT pg_catalog.to_regclass({0}) AS oid) target
-            LEFT JOIN pg_catalog.pg_index i ON i.indexrelid = target.oid
-            """;
 
         /// <summary>
         /// Determines whether a PostgreSQL extension is installed in the current database.
@@ -119,7 +106,31 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
         }
 
         /// <summary>
-        /// Gets the existence, validity, definition, size, and build state of a PostgreSQL index.
+        /// Creates a partial cosine HNSW index from a reusable structured definition.
+        /// </summary>
+        /// <param name="database">The database facade used to create the index.</param>
+        /// <param name="definition">The definition also used for compatibility checks.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task representing index creation.</returns>
+        public static Task CreateVectorCosineHnswIndexConcurrentlyAsync(
+            this DatabaseFacade database,
+            PostgresVectorIndexDefinition definition,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(definition);
+            return database.CreateVectorCosineHnswIndexConcurrentlyAsync(
+                definition.SchemaName,
+                definition.TableName,
+                definition.IndexName,
+                definition.VectorColumnName,
+                definition.Dimensions,
+                definition.FilterColumnName,
+                definition.FilterValue,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Gets index status and structured metadata for a supported partial cosine HNSW index.
         /// </summary>
         /// <param name="database">The database facade used to query index metadata.</param>
         /// <param name="schemaName">The unqualified schema name containing the table and index.</param>
@@ -139,12 +150,8 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             string qualifiedIndexName = QualifyIdentifier(schemaName, indexName, nameof(indexName));
             string qualifiedTableName = QualifyIdentifier(schemaName, tableName, nameof(tableName));
 
-            return await database
-                .SqlQueryRaw<PostgresIndexStatus>(
-                    IndexStatusQuery,
-                    qualifiedIndexName,
-                    qualifiedTableName)
-                .SingleAsync(cancellationToken);
+            return await PostgresIndexMetadataReader.ReadAsync(
+                database, qualifiedIndexName, qualifiedTableName, cancellationToken);
         }
 
         private static async Task<bool> ExtensionExistsAsync(

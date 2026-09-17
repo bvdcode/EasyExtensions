@@ -19,6 +19,7 @@
 		</PackageReference>
 		<PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
 		<ProjectReference Include="..\EasyExtensions.Clients\EasyExtensions.Clients.csproj" />
+		<ProjectReference Include="..\EasyExtensions.EntityFrameworkCore.Npgsql\EasyExtensions.EntityFrameworkCore.Npgsql.csproj" />
 		<ProjectReference Include="..\EasyExtensions.Drawing\EasyExtensions.Drawing.csproj" />
 		<ProjectReference Include="..\EasyExtensions.Fonts\EasyExtensions.Fonts.csproj" />
 		<ProjectReference Include="..\EasyExtensions\EasyExtensions.csproj" />
