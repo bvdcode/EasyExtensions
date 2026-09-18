@@ -25,7 +25,8 @@ namespace EasyExtensions.Analyzers.Tests
 				new ReflectionUsageAnalyzer(),
 				new EntityPropertyInitializerAnalyzer(),
 				new EnumDtoAnalyzer(),
-				new ExplicitLocalVariableTypeAnalyzer()
+				new ExplicitLocalVariableTypeAnalyzer(),
+				new EfUntrackedMutationAnalyzer()
 			];
 
 			foreach (DiagnosticAnalyzer analyzer in analyzers)

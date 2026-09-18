@@ -80,6 +80,9 @@ The analyzer package enables the following build errors by default. Their severi
 | `EEX0012` | EF entity properties avoid business defaults: non-nullable strings, required byte arrays, and other reference values use `null!`; non-nullable collections may use `[]`; nullable properties have no initializer. |
 | `EEX0013` | An enum is not duplicated by a same-named `*Dto` type. |
 | `EEX0014` | Local variables use explicit types, except where the inferred type is anonymous and cannot be named, plus the existing LINQ, tuple deconstruction, and visible generic construction exceptions. |
+| `EEX0015` | EF Core `ExecuteUpdate`, `ExecuteDelete`, and their async variants are prohibited, including method-group references. Modify tracked entities and use `SaveChanges` / `SaveChangesAsync` instead. |
+
+`EEX0015` resolves EF Core method symbols, so unrelated methods with the same names are unaffected. Tracked `Add`, `Update`, `Remove`, their range variants, and read-only `AsNoTracking` queries remain allowed. Raw SQL is covered separately by `EEX0009`.
 
 Blank lines, comment-only lines, and generated files are excluded from `EEX0001`. The 400-line ceiling cannot be raised. `max_lines` may only set a stricter lower limit:
 

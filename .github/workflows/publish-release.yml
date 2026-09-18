@@ -71,6 +71,8 @@ jobs:
           cd Sources
           dotnet build --configuration Release
           dotnet pack --configuration Release --output nupkg -p:Version='${{ steps.gitversion.outputs.MajorMinorPatch }}'
+    - name: Test analyzers
+      run: dotnet test Sources/EasyExtensions.Analyzers.Tests/EasyExtensions.Analyzers.Tests.csproj --configuration Release --no-build --no-restore
     - name: Upload NuGet package to GitHub
       uses: actions/upload-artifact@v7
       with:

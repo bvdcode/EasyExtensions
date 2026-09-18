@@ -16,3 +16,4 @@ EEX0011 | Usage | Error | ReflectionUsageAnalyzer
 EEX0012 | EntityFrameworkCore | Error | EntityPropertyInitializerAnalyzer
 EEX0013 | Design | Error | EnumDtoAnalyzer
 EEX0014 | Style | Error | ExplicitLocalVariableTypeAnalyzer
+EEX0015 | EntityFrameworkCore | Error | EfUntrackedMutationAnalyzer

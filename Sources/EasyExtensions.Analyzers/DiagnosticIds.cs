@@ -16,5 +16,6 @@ namespace EasyExtensions.Analyzers
 		public const string EntityPropertyInitializer = "EEX0012";
 		public const string EnumDto = "EEX0013";
 		public const string ExplicitLocalVariableType = "EEX0014";
+		public const string EfUntrackedMutation = "EEX0015";
 	}
 }

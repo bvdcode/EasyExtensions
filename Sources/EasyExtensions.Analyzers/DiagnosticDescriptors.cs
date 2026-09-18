@@ -139,6 +139,16 @@ namespace EasyExtensions.Analyzers
 			description: "An enum should be used directly in API models and database entities instead of being wrapped in a same-named DTO.",
 			customTags: CompilationEndEnforcedSeverityTags);
 
+		public static readonly DiagnosticDescriptor EfUntrackedMutation = new(
+			DiagnosticIds.EfUntrackedMutation,
+			"Do not bypass the EF Core change tracker when modifying data",
+			"EF Core API '{0}' bypasses the change tracker; modify tracked entities and use SaveChanges or SaveChangesAsync",
+			"EntityFrameworkCore",
+			DiagnosticSeverity.Error,
+			isEnabledByDefault: true,
+			description: "ExecuteUpdate, ExecuteDelete, and their asynchronous variants modify database rows without change tracking or the SaveChanges pipeline.",
+			customTags: EnforcedSeverityTags);
+
 		public static readonly DiagnosticDescriptor ExplicitLocalVariableType = new(
 			DiagnosticIds.ExplicitLocalVariableType,
 			"Use an explicit local variable type",
