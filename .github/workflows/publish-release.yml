@@ -34,7 +34,7 @@ jobs:
           EASYEXTENSIONS_TEST_POSTGRES: Host=localhost;Port=5432;Database=index_metadata_tests;Username=postgres
         run: >-
           dotnet test Sources/EasyExtensions.Tests/EasyExtensions.Tests.csproj
-          --configuration Release --filter "FullyQualifiedName~PostgresIndexMetadata"
+          --configuration Release --filter "FullyQualifiedName~PostgresIndexMetadata|FullyQualifiedName~PostgresHnswScan"
 
   build:
     runs-on: ubuntu-latest    

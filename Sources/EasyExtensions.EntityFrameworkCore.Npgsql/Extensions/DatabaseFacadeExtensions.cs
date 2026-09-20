@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
 {
     /// <summary>
-    /// Provides PostgreSQL-specific extension methods for database metadata queries.
+    /// Provides PostgreSQL-specific database operations.
     /// </summary>
     public static class DatabaseFacadeExtensions
     {
@@ -17,6 +17,27 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Extensions
             "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_extension WHERE extname = {0}) AS \"Value\"";
         private const string AvailableExtensionQuery =
             "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_available_extensions WHERE name = {0}) AS \"Value\"";
+
+        /// <summary>
+        /// Enables strict-order HNSW iterative scans for the current transaction.
+        /// </summary>
+        /// <param name="database">The database facade with an active EF Core transaction.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <exception cref="InvalidOperationException">No EF Core transaction is active.</exception>
+        /// <remarks>The setting expires on commit or rollback. Execute the search in the same transaction.</remarks>
+        public static async Task EnableHnswStrictOrderScanAsync(
+            this DatabaseFacade database,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(database);
+            if (database.CurrentTransaction is null)
+            {
+                throw new InvalidOperationException("HNSW SET LOCAL requires an active EF Core transaction.");
+            }
+
+            await database.ExecuteSqlRawAsync("SET LOCAL hnsw.iterative_scan = strict_order;", cancellationToken);
+        }
 
         /// <summary>
         /// Determines whether a PostgreSQL extension is installed in the current database.

@@ -202,6 +202,18 @@ expressions. Quoted identifiers, including `quote_all_identifiers=on`, do not af
 Other expressions or predicates produce a null `VectorDefinition` and are not compatible.
 `Definition` contains PostgreSQL's SQL rendering for display only.
 
+Enable strict-order HNSW iterative scans only for the transaction running the search:
+
+```csharp
+await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+await dbContext.Database.EnableHnswStrictOrderScanAsync(cancellationToken);
+// Execute and materialize the search query here, before completing the transaction.
+await transaction.CommitAsync(cancellationToken);
+```
+
+This executes `SET LOCAL hnsw.iterative_scan = strict_order;` and requires an active
+EF Core transaction. The setting expires on commit or rollback.
+
 ```json
 {
   "DatabaseSettings": {
