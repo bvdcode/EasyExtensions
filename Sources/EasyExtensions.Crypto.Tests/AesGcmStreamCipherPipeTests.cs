@@ -63,70 +63,36 @@ public class AesGcmStreamCipherPipeTests
     [Test]
     public async Task EncryptAsync_StreamOverload_Cancellation()
     {
-        var key = Key();
-        var cipher = new AesGcmStreamCipher(key, keyId: 13, threads: 2);
-        // More chunks, minimal chunk size to increase chance of pending read
-        byte[] data = [.. Enumerable.Range(0, 16 * AesGcmStreamCipher.MinChunkSize).Select(i => (byte)(i & 0xFF))];
-        using var input = new MemoryStream(data);
-        using var cts = new CancellationTokenSource();
-        cts.CancelAfter(25);
+        using AesGcmStreamCipher cipher = new(Key(), keyId: 13, threads: 2);
+        using CancellationReadStream input = new(new byte[AesGcmStreamCipher.MinChunkSize]);
+        using CancellationTokenSource cts = new();
+        await using Stream stream = await cipher.EncryptAsync(input, chunkSize: AesGcmStreamCipher.MinChunkSize, ct: cts.Token);
 
-        var stream = await cipher.EncryptAsync(input, chunkSize: AesGcmStreamCipher.MinChunkSize, ct: cts.Token);
-        byte[] buffer = new byte[8 * 1024];
-        TaskCanceledException? caught = null;
-        long totalRead = 0;
-        try
-        {
-            while (true)
-            {
-                int r = await stream.ReadAsync(buffer, cts.Token);
-                if (r == 0) break;
-                totalRead += r;
-                await Task.Delay(5); // slow down to increase chance of cancellation
-            }
-        }
-        catch (TaskCanceledException ex)
-        {
-            caught = ex;
-        }
+        await input.ReadStarted.WaitAsync(TimeSpan.FromSeconds(10));
+        await cts.CancelAsync();
 
-        Assert.That(caught != null || (cts.IsCancellationRequested && totalRead < data.Length), "Expected cancellation to abort or truncate encryption stream.");
+        Assert.That(async () => await stream.CopyToAsync(Stream.Null).WaitAsync(TimeSpan.FromSeconds(10)),
+            Throws.InstanceOf<OperationCanceledException>());
     }
 
     [Test]
     public async Task DecryptAsync_StreamOverload_Cancellation()
     {
-        var key = Key();
-        var encCipher = new AesGcmStreamCipher(key, keyId: 14, threads: 2);
-        var decCipher = new AesGcmStreamCipher(key, keyId: 14, threads: 2);
-        byte[] data = [.. Enumerable.Range(0, 16 * AesGcmStreamCipher.MinChunkSize).Select(i => (byte)(i & 0xFF))];
-        using var input = new MemoryStream(data);
-        using var encrypted = new MemoryStream();
+        byte[] key = Key();
+        using AesGcmStreamCipher encCipher = new(key, keyId: 14, threads: 2);
+        using AesGcmStreamCipher decCipher = new(key, keyId: 14, threads: 2);
+        using MemoryStream input = new(new byte[AesGcmStreamCipher.MinChunkSize]);
+        using MemoryStream encrypted = new();
         await encCipher.EncryptAsync(input, encrypted, chunkSize: AesGcmStreamCipher.MinChunkSize);
-        encrypted.Position = 0;
+        using CancellationReadStream pendingInput = new(encrypted.ToArray());
+        using CancellationTokenSource cts = new();
+        await using Stream decStream = await decCipher.DecryptAsync(pendingInput, ct: cts.Token);
 
-        using var cts = new CancellationTokenSource();
-        cts.CancelAfter(25);
-        var decStream = await decCipher.DecryptAsync(encrypted, ct: cts.Token);
-        byte[] buffer = new byte[8 * 1024];
-        TaskCanceledException? caught = null;
-        long totalRead = 0;
-        try
-        {
-            while (true)
-            {
-                int r = await decStream.ReadAsync(buffer, cts.Token);
-                if (r == 0) break;
-                totalRead += r;
-                await Task.Delay(5); // slow down to increase chance of cancellation
-            }
-        }
-        catch (TaskCanceledException ex)
-        {
-            caught = ex;
-        }
+        await pendingInput.ReadStarted.WaitAsync(TimeSpan.FromSeconds(10));
+        await cts.CancelAsync();
 
-        Assert.That(caught != null || (cts.IsCancellationRequested && totalRead < data.Length), "Expected cancellation to abort or truncate decryption stream.");
+        Assert.That(async () => await decStream.CopyToAsync(Stream.Null).WaitAsync(TimeSpan.FromSeconds(10)),
+            Throws.InstanceOf<OperationCanceledException>());
     }
 
     [Test]

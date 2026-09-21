@@ -41,6 +41,12 @@ namespace EasyExtensions.Helpers
 
                 await socket.ConnectAsync(new IPEndPoint(address, 0));
                 byte[] packet = CreateIcmpEchoPacket(address.AddressFamily);
+                int icmpOffset = address.AddressFamily switch
+                {
+                    AddressFamily.InterNetwork => 20,
+                    AddressFamily.InterNetworkV6 => 0,
+                    _ => throw new NotSupportedException("Only IPv4 and IPv6 ICMP are supported.")
+                };
                 await socket.SendAsync(new ArraySegment<byte>(packet), SocketFlags.None, cancellationToken);
 
                 var receiveBuffer = new byte[1024];
@@ -50,13 +56,21 @@ namespace EasyExtensions.Helpers
 
                 try
                 {
-                    var received = await socket.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), SocketFlags.None, linkedCts.Token);
-                    var elapsedMs = (long)(DateTime.UtcNow - startTime).TotalMilliseconds;
-                    if (IsIcmpEchoReply(receiveBuffer, received, address.AddressFamily))
+                    while (true)
                     {
-                        return new IcmpResult(IcmpStatus.Success, elapsedMs);
+                        int received = await socket.ReceiveAsync(new ArraySegment<byte>(receiveBuffer), SocketFlags.None, linkedCts.Token);
+                        if (IsIcmpEchoReply(receiveBuffer, received, address.AddressFamily))
+                        {
+                            long elapsedMs = (long)(DateTime.UtcNow - startTime).TotalMilliseconds;
+                            return new IcmpResult(IcmpStatus.Success, elapsedMs);
+                        }
+                        if (received < icmpOffset + 8 || receiveBuffer[icmpOffset] != packet[0])
+                        {
+                            long elapsedMs = (long)(DateTime.UtcNow - startTime).TotalMilliseconds;
+                            return new IcmpResult(IcmpStatus.Failed, elapsedMs,
+                                new Exception("Received packet is not an ICMP Echo Reply."));
+                        }
                     }
-                    return new IcmpResult(IcmpStatus.Failed, elapsedMs, new Exception("Received packet is not an ICMP Echo Reply."));
                 }
                 catch (OperationCanceledException ex)
                 {

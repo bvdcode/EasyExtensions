@@ -32,7 +32,7 @@ namespace EasyExtensions.Tests
             using (Assert.EnterMultipleScope())
             {
                 // Assert
-                Assert.That(result.Status, Is.EqualTo(IcmpStatus.Success));
+                Assert.That(result.Status, Is.EqualTo(IcmpStatus.Success), result.Exception?.ToString());
                 Assert.That(result.RoundtripTime, Is.GreaterThanOrEqualTo(0));
             }
         }
@@ -47,7 +47,7 @@ namespace EasyExtensions.Tests
             var result = await NetworkHelpers.TryPingAsync(ipAddress);
 
             // Assert
-            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.IsSuccess, Is.True, result.Exception?.ToString());
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace EasyExtensions.Tests
             using (Assert.EnterMultipleScope())
             {
                 // Assert
-                Assert.That(result.Status, Is.EqualTo(IcmpStatus.Success));
+                Assert.That(result.Status, Is.EqualTo(IcmpStatus.Success), result.Exception?.ToString());
                 Assert.That(result.RoundtripTime, Is.GreaterThanOrEqualTo(0));
             }
         }
@@ -76,7 +76,7 @@ namespace EasyExtensions.Tests
             var result = await NetworkHelpers.TryPingAsync(ipAddress);
 
             // Assert
-            Assert.That(result.IsSuccess, Is.True);
+            Assert.That(result.IsSuccess, Is.True, result.Exception?.ToString());
         }
 
         [Test]
