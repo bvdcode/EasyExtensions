@@ -31,6 +31,7 @@ jobs:
           dotnet-version: 10.0.x
       - name: Verify PostgreSQL index metadata
         env:
+          SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
           EASYEXTENSIONS_TEST_POSTGRES: Host=localhost;Port=5432;Database=index_metadata_tests;Username=postgres
         run: >-
           dotnet test Sources/EasyExtensions.Tests/EasyExtensions.Tests.csproj
@@ -67,12 +68,14 @@ jobs:
       with:
         dotnet-version: 10.0.x
     - name: Build and Pack NuGet package
+      env:
+        SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
       run: |
           cd Sources
           dotnet build --configuration Release
           dotnet pack --configuration Release --output nupkg -p:Version='${{ steps.gitversion.outputs.MajorMinorPatch }}'
-    - name: Test analyzers
-      run: dotnet test Sources/EasyExtensions.Analyzers.Tests/EasyExtensions.Analyzers.Tests.csproj --configuration Release --no-build --no-restore
+    - name: Test solution
+      run: dotnet test Sources/EasyExtensions.sln --configuration Release --no-build --no-restore
     - name: Upload NuGet package to GitHub
       uses: actions/upload-artifact@v7
       with:

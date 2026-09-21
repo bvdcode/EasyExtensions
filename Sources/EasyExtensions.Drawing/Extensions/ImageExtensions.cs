@@ -24,8 +24,8 @@ namespace EasyExtensions.Drawing.Extensions
         {
             Font font = FontHelpers.GetAnyFont(24);
             const int offset = 5;
-            PointF pointf = new(offset, offset);
-            image.Mutate(x => x.DrawText(text, font, Color.Purple, pointf));
+            RichTextOptions options = new(font) { Origin = new(offset, offset) };
+            image.Mutate(x => x.Paint(canvas => canvas.DrawText(options, text, Brushes.Solid(Color.Purple), pen: null)));
             return image;
         }
 

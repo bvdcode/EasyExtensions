@@ -289,6 +289,10 @@ await client.UploadFileAsync(backup, "backups/backup.zip");
 
 ## Build and Test
 
+For Release builds of the drawing package or the full solution, set the
+`SixLaborsLicenseKey` environment variable to a valid SixLabors license.
+GitHub Actions reads it from the `SIXLABORS_LICENSE_KEY` repository secret.
+
 ```bash
 git clone https://github.com/bvdcode/EasyExtensions.git
 cd EasyExtensions/Sources
