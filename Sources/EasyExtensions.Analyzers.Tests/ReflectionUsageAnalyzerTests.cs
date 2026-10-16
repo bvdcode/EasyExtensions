@@ -225,7 +225,7 @@ namespace EasyExtensions.Analyzers.Tests
 		private static void AssertDiagnostics(ImmutableArray<Diagnostic> diagnostics, int expectedCount)
 		{
 			Assert.That(diagnostics.Length, Is.EqualTo(expectedCount));
-			Assert.That(diagnostics, Has.All.Matches<Diagnostic>(diagnostic => diagnostic.Id == "EEX0011"));
+				Assert.That(diagnostics, Has.All.Matches<Diagnostic>(diagnostic => diagnostic is not null && diagnostic.Id == "EEX0011"));
 		}
 	}
 }
