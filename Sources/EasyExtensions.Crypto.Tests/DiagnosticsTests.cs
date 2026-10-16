@@ -13,7 +13,7 @@ public class DiagnosticsTests
 
     // 16. Truncated inside chunk => CryptographicException
     [Test]
-    public void Decrypt_TruncatedInsideChunk_MapsToCrypto()
+    public async Task Decrypt_TruncatedInsideChunk_MapsToCrypto()
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 21, threads: 1);
@@ -28,12 +28,12 @@ public class DiagnosticsTests
         int cut = headerLen + chunkHdrLen + (AesGcmStreamCipher.MinChunkSize / 2);
         using var truncated = new MemoryStream(bytes.AsSpan(0, cut).ToArray(), writable: false);
         using var outDec = new MemoryStream();
-        Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated, outDec));
+        await Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated, outDec));
     }
 
     // 17. Corrupt chunkHeader.Length => InvalidDataException
     [Test]
-    public void Decrypt_CorruptChunkHeaderLength_FailsBeforeAEAD()
+    public async Task Decrypt_CorruptChunkHeaderLength_FailsBeforeAEAD()
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 22, threads: 1);
@@ -48,12 +48,12 @@ public class DiagnosticsTests
         BinaryPrimitives.WriteInt32LittleEndian(bytes.AsSpan(fileHeaderLen + 4, 4), len - 8);
         using var tampered = new MemoryStream(bytes, writable: false);
         using var outDec = new MemoryStream();
-        Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
+        await Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
     }
 
     // 18. Duplicate and far out-of-order
     [Test]
-    public void Encrypt_Consumer_OrderDiagnostics()
+    public async Task Encrypt_Consumer_OrderDiagnostics()
     {
         // Construct minimal fake sequence to hit consumer paths is non-trivial, so run real encrypt with small window
         var key = Key();
@@ -72,6 +72,6 @@ public class DiagnosticsTests
         dup.Write(bytes, fh, ch + AesGcmStreamCipher.MinChunkSize);
         dup.Position = 0;
         using var outDec = new MemoryStream();
-        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(dup, outDec));
+        await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(dup, outDec));
     }
 }

@@ -11,13 +11,13 @@ namespace EasyExtensions.Tests
     public class NetworkHelpersTests
     {
         [Test]
-        public void PingAsync_NullAddress_ThrowsArgumentNullException()
+        public async Task PingAsync_NullAddress_ThrowsArgumentNullException()
         {
             // Arrange
             IPAddress? ipAddress = null;
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await Assert.ThrowsAsync<ArgumentNullException>(async () =>
                 await NetworkHelpers.PingAsync(ipAddress!));
         }
 
@@ -126,7 +126,7 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        public void PingAsync_WithCancellation_RespectsToken()
+        public async Task PingAsync_WithCancellation_RespectsToken()
         {
             // Arrange
             // This IP is reserved for documentation and should never be reachable
@@ -138,7 +138,7 @@ namespace EasyExtensions.Tests
             cts.Cancel();
 
             // Act & Assert
-            Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             {
                 await NetworkHelpers.PingAsync(ipAddress, timeout: longTimeout, cancellationToken: cts.Token);
             });

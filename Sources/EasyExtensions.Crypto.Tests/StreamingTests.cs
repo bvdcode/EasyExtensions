@@ -30,7 +30,7 @@ public class StreamingTests
     }
 
     [Test]
-    public void Encrypt_Cancellation_MidPipeline_NoLeaks()
+    public async Task Encrypt_Cancellation_MidPipeline_NoLeaks()
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 5, threads: 2);
@@ -39,19 +39,19 @@ public class StreamingTests
         using var slowOut = new SlowWriteStream(new MemoryStream(), delayMs: 10);
         using var cts = new CancellationTokenSource();
 
-        long before = GC.GetAllocatedBytesForCurrentThread();
+        long before = GC.GetTotalAllocatedBytes(precise: true);
         var task = cipher.EncryptAsync(input, slowOut, chunkSize: AesGcmStreamCipher.MinChunkSize, ct: cts.Token);
         // cancel after small delay to let pipeline spin up
-        Task.Delay(30).ContinueWith(_ => cts.Cancel());
+        cts.CancelAfter(30);
 
-        Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
-        long after = GC.GetAllocatedBytesForCurrentThread();
+        await Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
+        long after = GC.GetTotalAllocatedBytes(precise: true);
         // Not a strict zero-alloc, but ensure we didn't balloon allocations by > 10MB due to leaks
         Assert.That(after - before, Is.LessThan(10L * 1024 * 1024));
     }
 
     [Test]
-    public void Decrypt_Cancellation_MidPipeline_NoLeaks()
+    public async Task Decrypt_Cancellation_MidPipeline_NoLeaks()
     {
         var key = Key();
         var enc = new AesGcmStreamCipher(key, keyId: 6, threads: 2);
@@ -66,12 +66,12 @@ public class StreamingTests
         using var slowOut = new SlowWriteStream(new MemoryStream(), delayMs: 25);
         using var cts = new CancellationTokenSource();
 
-        long before = GC.GetAllocatedBytesForCurrentThread();
+        long before = GC.GetTotalAllocatedBytes(precise: true);
         // Kick off decryption; request cancellation soon after to interrupt mid-pipeline
         var task = dec.DecryptAsync(ciphertext, slowOut, ct: cts.Token);
         cts.CancelAfter(50);
-        Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
-        long after = GC.GetAllocatedBytesForCurrentThread();
+        await Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
+        long after = GC.GetTotalAllocatedBytes(precise: true);
         Assert.That(after - before, Is.LessThan(10L * 1024 * 1024));
     }
 

@@ -11,18 +11,18 @@ namespace EasyExtensions.Tests
     public class PostgresHnswScanTests
     {
         [Test]
-        public void NullDatabase_IsRejected()
+        public async Task NullDatabase_IsRejected()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() =>
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
                 ((DatabaseFacade)null!).EnableHnswStrictOrderScanAsync());
         }
 
         [Test]
-        public void NoTransaction_IsRejectedWithoutOpeningConnection()
+        public async Task NoTransaction_IsRejectedWithoutOpeningConnection()
         {
             using DbContext context = new(new DbContextOptionsBuilder()
                 .UseNpgsql("Host=localhost;Database=unused;Username=postgres").Options);
-            Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnableHnswStrictOrderScanAsync());
+            await Assert.ThrowsAsync<InvalidOperationException>(() => context.Database.EnableHnswStrictOrderScanAsync());
         }
 
         [TestCase(true)]

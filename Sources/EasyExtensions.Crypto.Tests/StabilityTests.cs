@@ -28,7 +28,7 @@ namespace EasyExtensions.Crypto.Tests
         private static AesGcmStreamCipher Cipher(int keyId = 1, int? threads = null)
             => new(ValidMasterKey(), keyId, threads);
         [Test]
-        public void Truncation_Fails_OnFileHeader()
+        public async Task Truncation_Fails_OnFileHeader()
         {
             var cipher = Cipher(keyId: 3);
             byte[] data = RandomBytes(MinChunk + 123, 55);
@@ -41,11 +41,11 @@ namespace EasyExtensions.Crypto.Tests
             int cut = fileHeaderLen / 2; // mid-file-header
             using var truncated = new MemoryStream(full.AsSpan(0, cut).ToArray(), writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated, outDec));
+            await Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated, outDec));
         }
 
         [Test]
-        public void Tamper_FileHeader_NoncePrefix_ShouldFailEarly_NoPayload()
+        public async Task Tamper_FileHeader_NoncePrefix_ShouldFailEarly_NoPayload()
         {
             var cipher = Cipher(keyId: 17);
             byte[] data = RandomBytes(MinChunk + 10_000, 106);
@@ -59,12 +59,12 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(bytes, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
             Assert.That(outDec.Length, Is.Zero);
         }
 
         [Test]
-        public void Tamper_ChunkHeader_Length_ShouldFail_NoPayload()
+        public async Task Tamper_ChunkHeader_Length_ShouldFail_NoPayload()
         {
             var cipher = Cipher(keyId: 18);
             byte[] data = RandomBytes((MinChunk * 2) + 999, 107);
@@ -83,12 +83,12 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(bytes, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
             Assert.That(outDec.Length, Is.Zero);
         }
 
         [Test]
-        public void Tamper_ChunkHeader_KeyId_ShouldFail_NoPayload()
+        public async Task Tamper_ChunkHeader_KeyId_ShouldFail_NoPayload()
         {
             var cipher = Cipher(keyId: 19);
             byte[] data = RandomBytes((MinChunk * 2) + 777, 108);
@@ -106,12 +106,12 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(bytes, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
             Assert.That(outDec.Length, Is.Zero);
         }
 
         [Test]
-        public void Duplicate_SecondChunk_ShouldFail_AfterFirstChunkOnly()
+        public async Task Duplicate_SecondChunk_ShouldFail_AfterFirstChunkOnly()
         {
             var cipher = Cipher(keyId: 20);
             byte[] data = RandomBytes((MinChunk * 2) + 123, 109);
@@ -137,13 +137,13 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(dup, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
             // first chunk may have been written successfully, but no further payload
             Assert.That(outDec.Length, Is.EqualTo((int)chunks[0].hdr.DataLength));
         }
 
         [Test]
-        public void Skip_SecondChunk_ShouldFail_AfterFirstChunkOnly()
+        public async Task Skip_SecondChunk_ShouldFail_AfterFirstChunkOnly()
         {
             var cipher = Cipher(keyId: 22);
             byte[] data = RandomBytes((MinChunk * 3) + 321, 110);
@@ -167,7 +167,7 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(skipped, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
             Assert.That(outDec.Length, Is.EqualTo((int)chunks[0].hdr.DataLength));
         }
 
@@ -224,7 +224,7 @@ namespace EasyExtensions.Crypto.Tests
         }
 
         [Test]
-        public void Decrypt_Fails_WithWrongMasterKey()
+        public async Task Decrypt_Fails_WithWrongMasterKey()
         {
             var mk1 = ValidMasterKey();
             var mk2 = ValidMasterKey();
@@ -240,11 +240,11 @@ namespace EasyExtensions.Crypto.Tests
 
             outEnc.Position = 0;
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher2.DecryptAsync(outEnc, outDec));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher2.DecryptAsync(outEnc, outDec));
         }
 
         [Test]
-        public void Decrypt_Fails_WithKeyIdMismatch()
+        public async Task Decrypt_Fails_WithKeyIdMismatch()
         {
             var mk = ValidMasterKey();
             var enc = new AesGcmStreamCipher(mk, keyId: 10);
@@ -257,7 +257,7 @@ namespace EasyExtensions.Crypto.Tests
 
             outEnc.Position = 0;
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<InvalidDataException>(async () => await dec.DecryptAsync(outEnc, outDec));
+            await Assert.ThrowsAsync<InvalidDataException>(async () => await dec.DecryptAsync(outEnc, outDec));
         }
 
         [Test]
@@ -280,7 +280,7 @@ namespace EasyExtensions.Crypto.Tests
         }
 
         [Test]
-        public void Truncation_Fails_OnChunkHeaderOrCiphertext()
+        public async Task Truncation_Fails_OnChunkHeaderOrCiphertext()
         {
             var cipher = Cipher(keyId: 2);
             byte[] data = RandomBytes(MinChunk + 10_000, 123);
@@ -296,17 +296,17 @@ namespace EasyExtensions.Crypto.Tests
             int cut = chunks[0].cipherOffset + (int)(chunks[0].hdr.DataLength / 2);
             using var truncated1 = new MemoryStream(full.AsSpan(0, cut).ToArray(), writable: false);
             using var dec1 = new MemoryStream();
-            Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated1, dec1));
+            await Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated1, dec1));
 
             // Truncate just before a chunk header
             int beforeHeader = chunks[0].cipherOffset - 1;
             using var truncated2 = new MemoryStream(full.AsSpan(0, beforeHeader).ToArray(), writable: false);
             using var dec2 = new MemoryStream();
-            Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated2, dec2));
+            await Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated2, dec2));
         }
 
         [Test]
-        public void Tamper_EachChunk_ShouldFail()
+        public async Task Tamper_EachChunk_ShouldFail()
         {
             var cipher = Cipher(keyId: 8);
             byte[] data = RandomBytes((MinChunk * 2) + 50_000, 222);
@@ -329,12 +329,12 @@ namespace EasyExtensions.Crypto.Tests
                 }
                 using var tampered = new MemoryStream(copy, writable: false);
                 using var output = new MemoryStream();
-                Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, output), $"Tamper in chunk {i} should fail");
+                await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, output), $"Tamper in chunk {i} should fail");
             }
         }
 
         [Test]
-        public void Decrypt_Cancellation_Throws()
+        public async Task Decrypt_Cancellation_Throws()
         {
             var cipher = Cipher();
             byte[] data = RandomBytes(500_000, 314);
@@ -346,7 +346,7 @@ namespace EasyExtensions.Crypto.Tests
             using var output = new MemoryStream();
             using var cts = new CancellationTokenSource();
             cts.Cancel();
-            Assert.ThrowsAsync<TaskCanceledException>(async () => await cipher.DecryptAsync(outEnc, output, ct: cts.Token));
+            await Assert.ThrowsAsync<TaskCanceledException>(async () => await cipher.DecryptAsync(outEnc, output, ct: cts.Token));
         }
 
         [Test]
@@ -367,7 +367,7 @@ namespace EasyExtensions.Crypto.Tests
         }
 
         [Test]
-        public void Tamper_FileHeader_KeyId_ShouldFailEarly()
+        public async Task Tamper_FileHeader_KeyId_ShouldFailEarly()
         {
             var cipher = Cipher(keyId: 12);
             byte[] data = RandomBytes(MinChunk + 5_000, 100);
@@ -381,11 +381,11 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(bytes, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
         }
 
         [Test]
-        public void Tamper_FileHeader_EncryptedKey_ShouldFail()
+        public async Task Tamper_FileHeader_EncryptedKey_ShouldFail()
         {
             var cipher = Cipher(keyId: 13);
             byte[] data = RandomBytes(MinChunk + 1, 101);
@@ -399,11 +399,11 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(bytes, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
         }
 
         [Test]
-        public void Tamper_FileHeader_TagOrNonce_ShouldFail()
+        public async Task Tamper_FileHeader_TagOrNonce_ShouldFail()
         {
             var cipher = Cipher(keyId: 14);
             byte[] data = RandomBytes(MinChunk + 2, 102);
@@ -419,7 +419,7 @@ namespace EasyExtensions.Crypto.Tests
             tagTampered[tagOffset] ^= 0xFF;
             using var s1 = new MemoryStream(tagTampered, writable: false);
             using var o1 = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(s1, o1));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(s1, o1));
 
             // Flip a byte in nonce
             var nonceTampered = (byte[])original.Clone();
@@ -427,11 +427,11 @@ namespace EasyExtensions.Crypto.Tests
             nonceTampered[nonceOffset] ^= 0xFF;
             using var s2 = new MemoryStream(nonceTampered, writable: false);
             using var o2 = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(s2, o2));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(s2, o2));
         }
 
         [Test]
-        public void Tamper_Chunk_Tag_ShouldFail()
+        public async Task Tamper_Chunk_Tag_ShouldFail()
         {
             var cipher = Cipher(keyId: 15);
             byte[] data = RandomBytes(MinChunk + 10_000, 103);
@@ -450,12 +450,12 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(bytes, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
             Assert.That(outDec.Length, Is.Zero);
         }
 
         [Test]
-        public void Tamper_Reorder_FirstTwoChunks_ShouldFail()
+        public async Task Tamper_Reorder_FirstTwoChunks_ShouldFail()
         {
             var cipher = Cipher(keyId: 16);
             byte[] data = RandomBytes((MinChunk * 2) + 123, 104);
@@ -483,7 +483,7 @@ namespace EasyExtensions.Crypto.Tests
 
             using var tampered = new MemoryStream(swapped, writable: false);
             using var outDec = new MemoryStream();
-            Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+            await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
         }
     }
 }

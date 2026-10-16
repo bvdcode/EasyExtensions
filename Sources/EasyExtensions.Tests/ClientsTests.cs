@@ -13,7 +13,6 @@ namespace EasyExtensions.Tests
         private const int DelayBetweenTests = 1000; // 1 second delay
 
         [Test]
-        [Order(1)]
         public async Task IpApiCoClient_LookupAsync_ValidIpAddress_ValidOutput()
         {
             // Arrange
@@ -34,7 +33,6 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        [Order(2)]
         public async Task IpApiCoClient_LookupAsync_InvalidIpAddress_ThrowsArgumentException()
         {
             // Arrange
@@ -42,24 +40,22 @@ namespace EasyExtensions.Tests
             const string invalidIp = "999.999.999.999";
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync(invalidIp));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync(invalidIp));
         }
 
         [Test]
-        [Order(3)]
         public async Task IpApiCoClient_LookupAsync_NullOrWhitespace_ThrowsArgumentException()
         {
             // Arrange
             await Task.Delay(DelayBetweenTests);
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync(null!));
-            Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync(""));
-            Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync("   "));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync(null!));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync(""));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await IpApiCoClient.LookupAsync("   "));
         }
 
         [Test]
-        [Order(4)]
         public async Task IpApiCoClient_LookupCurrentHostAsync_ReturnsValidResponse()
         {
             // Arrange
@@ -78,7 +74,6 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        [Order(5)]
         public async Task GeoIpClient_LookupAsync_ValidIpAddress_ValidOutput()
         {
             // Arrange
@@ -100,7 +95,6 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        [Order(6)]
         public async Task GeoIpClient_LookupAsync_InvalidIpAddress_ThrowsArgumentException()
         {
             // Arrange
@@ -108,11 +102,10 @@ namespace EasyExtensions.Tests
             const string invalidIp = "999.999.999.999";
 
             // Act & Assert
-            Assert.ThrowsAsync<ArgumentException>(async () => await GeoIpClient.Shared.LookupAsync(invalidIp));
+            await Assert.ThrowsAsync<ArgumentException>(async () => await GeoIpClient.Shared.LookupAsync(invalidIp));
         }
 
         [Test]
-        [Order(7)]
         public async Task GeoIpClient_TryLookupAsync_InvalidIpAddress_ReturnsNull()
         {
             // Arrange
@@ -127,7 +120,6 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        [Order(8)]
         public async Task GeoIpClient_TryLookupAsync_ValidIpAddress_ReturnsValidOutput()
         {
             // Arrange
@@ -147,18 +139,16 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        [Order(9)]
         public async Task GeoIpClient_TryLookupAsync_CurrentHost_DoesNotThrow()
         {
             // Arrange
             await Task.Delay(DelayBetweenTests);
 
             // Act & Assert
-            Assert.DoesNotThrowAsync(async () => await GeoIpClient.Shared.TryLookupAsync());
+            await Assert.DoesNotThrowAsync(async () => await GeoIpClient.Shared.TryLookupAsync());
         }
 
         [Test]
-        [Order(10)]
         public async Task GeoIpClient_LookupAsync_CustomEndpoint_AppendsIpAfterEndpointPath()
         {
             // Arrange
@@ -178,7 +168,6 @@ namespace EasyExtensions.Tests
         }
 
         [Test]
-        [Order(11)]
         public async Task GeoIpClient_LookupAsync_CustomEndpointWithoutIp_UsesEndpointAddressAsIs()
         {
             // Arrange

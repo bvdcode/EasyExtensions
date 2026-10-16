@@ -73,7 +73,7 @@ public class ReliabilityTests
 
     // 12. Wrong magic in chunk-header
     [Test]
-    public void Decrypt_WrongMagic_FailsFast()
+    public async Task Decrypt_WrongMagic_FailsFast()
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 12, threads: 1);
@@ -91,12 +91,12 @@ public class ReliabilityTests
         bytes[fileHeaderLen + 3] ^= 0xFF;
         using var tampered = new MemoryStream(bytes, writable: false);
         using var outDec = new MemoryStream();
-        Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
+        await Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
     }
 
     // 13. StrictLengthCheck
     [Test]
-    public void StrictLengthCheck_HeaderMismatch()
+    public async Task StrictLengthCheck_HeaderMismatch()
     {
         var key = Key();
         var cipher = new AesGcmStreamCipher(key, keyId: 13, threads: 1, strictLengthCheck: true);
@@ -116,12 +116,12 @@ public class ReliabilityTests
         SetTotal(L - 1);
         using var tamperedMinus = new MemoryStream(bytes, writable: false);
         using var outDec1 = new MemoryStream();
-        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tamperedMinus, outDec1));
+        await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tamperedMinus, outDec1));
         // L+1
         SetTotal(L + 1);
         using var tamperedPlus = new MemoryStream(bytes, writable: false);
         using var outDec2 = new MemoryStream();
-        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tamperedPlus, outDec2));
+        await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tamperedPlus, outDec2));
         // Exactly L passes
         SetTotal(L);
         using var ok = new MemoryStream(bytes, writable: false);

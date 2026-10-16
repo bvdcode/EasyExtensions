@@ -85,23 +85,23 @@ public class AesGcmStreamCipherTests
     }
 
     [Test]
-    public void Encrypt_InvalidChunkSize_Throws_BelowMin()
+    public async Task Encrypt_InvalidChunkSize_Throws_BelowMin()
     {
         var mk = ValidMasterKey();
         var cipher = CreateCipher(mk);
         using var input = new MemoryStream(CreateRandomBytes(1024));
         using var output = new MemoryStream();
-        Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cipher.EncryptAsync(input, output, MinChunkSize - 1));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cipher.EncryptAsync(input, output, MinChunkSize - 1));
     }
 
     [Test]
-    public void Encrypt_InvalidChunkSize_Throws_AboveMax()
+    public async Task Encrypt_InvalidChunkSize_Throws_AboveMax()
     {
         var mk = ValidMasterKey();
         var cipher = CreateCipher(mk);
         using var input = new MemoryStream(CreateRandomBytes(1024));
         using var output = new MemoryStream();
-        Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cipher.EncryptAsync(input, output, MaxChunkSize + 1));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () => await cipher.EncryptAsync(input, output, MaxChunkSize + 1));
     }
 
     [Test]
@@ -190,7 +190,7 @@ public class AesGcmStreamCipherTests
     }
 
     [Test]
-    public void Decrypt_Fails_OnTamperedCiphertext()
+    public async Task Decrypt_Fails_OnTamperedCiphertext()
     {
         var mk = ValidMasterKey();
         var cipher = CreateCipher(mk);
@@ -211,11 +211,11 @@ public class AesGcmStreamCipherTests
 
         using var tampered = new MemoryStream(bytes, writable: false);
         using var output = new MemoryStream();
-        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, output));
+        await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, output));
     }
 
     [Test]
-    public void Encrypt_Cancellation_Throws()
+    public async Task Encrypt_Cancellation_Throws()
     {
         var mk = ValidMasterKey();
         var cipher = CreateCipher(mk);
@@ -226,6 +226,6 @@ public class AesGcmStreamCipherTests
         using var cts = new CancellationTokenSource();
         cts.Cancel();
 
-        Assert.ThrowsAsync<TaskCanceledException>(async () => await cipher.EncryptAsync(input, output, chunkSize: 65_536, ct: cts.Token));
+        await Assert.ThrowsAsync<TaskCanceledException>(async () => await cipher.EncryptAsync(input, output, chunkSize: 65_536, ct: cts.Token));
     }
 }

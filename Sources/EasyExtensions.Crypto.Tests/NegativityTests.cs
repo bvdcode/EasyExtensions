@@ -41,7 +41,7 @@ public class NegativityTests
     }
 
     [Test]
-    public void Tamper_FileHeader_KeyId_ShouldFailEarly()
+    public async Task Tamper_FileHeader_KeyId_ShouldFailEarly()
     {
         var cipher = new AesGcmStreamCipher(ValidMasterKey(), keyId: 12);
         byte[] data = [.. Enumerable.Range(0, MinChunk + 5_000).Select(i => (byte)(i & 0xFF))];
@@ -55,11 +55,11 @@ public class NegativityTests
 
         using var tampered = new MemoryStream(bytes, writable: false);
         using var outDec = new MemoryStream();
-        Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
+        await Assert.ThrowsAsync<InvalidDataException>(async () => await cipher.DecryptAsync(tampered, outDec));
     }
 
     [Test]
-    public void Tamper_FileHeader_EncryptedKey_ShouldFail()
+    public async Task Tamper_FileHeader_EncryptedKey_ShouldFail()
     {
         var cipher = new AesGcmStreamCipher(ValidMasterKey(), keyId: 13);
         byte[] data = [.. Enumerable.Range(0, MinChunk + 1).Select(i => (byte)(i & 0xFF))];
@@ -73,11 +73,11 @@ public class NegativityTests
 
         using var tampered = new MemoryStream(bytes, writable: false);
         using var outDec = new MemoryStream();
-        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+        await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
     }
 
     [Test]
-    public void Tamper_Chunk_Tag_ShouldFail_NoPayload()
+    public async Task Tamper_Chunk_Tag_ShouldFail_NoPayload()
     {
         var cipher = new AesGcmStreamCipher(ValidMasterKey(), keyId: 15);
         byte[] data = [.. Enumerable.Range(0, MinChunk + 10_000).Select(i => (byte)(i & 0xFF))];
@@ -96,12 +96,12 @@ public class NegativityTests
 
         using var tampered = new MemoryStream(bytes, writable: false);
         using var outDec = new MemoryStream();
-        Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
+        await Assert.ThrowsAsync<AuthenticationTagMismatchException>(async () => await cipher.DecryptAsync(tampered, outDec));
         Assert.That(outDec.Length, Is.EqualTo(0));
     }
 
     [Test]
-    public void Truncation_Fails_OnFileHeader_And_Chunk()
+    public async Task Truncation_Fails_OnFileHeader_And_Chunk()
     {
         var cipher = new AesGcmStreamCipher(ValidMasterKey(), keyId: 2);
         byte[] data = [.. Enumerable.Range(0, MinChunk + 10_000).Select(i => (byte)(i & 0xFF))];
@@ -117,13 +117,13 @@ public class NegativityTests
         int cut = chunks[0].cipherOffset + (int)(chunks[0].hdr.DataLength / 2);
         using var truncated1 = new MemoryStream(full.AsSpan(0, cut).ToArray(), writable: false);
         using var dec1 = new MemoryStream();
-        Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated1, dec1));
+        await Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated1, dec1));
 
         // Truncate mid-file-header
         int fileHeaderLen = 4 + 4 + 8 + 4 + 4 + NonceSize + TagSize + 32;
         int cut2 = fileHeaderLen / 2;
         using var truncated2 = new MemoryStream(full.AsSpan(0, cut2).ToArray(), writable: false);
         using var dec2 = new MemoryStream();
-        Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated2, dec2));
+        await Assert.ThrowsAsync<EndOfStreamException>(async () => await cipher.DecryptAsync(truncated2, dec2));
     }
 }
