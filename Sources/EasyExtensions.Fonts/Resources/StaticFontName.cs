@@ -9,28 +9,38 @@ namespace EasyExtensions.Fonts.Resources
     public enum StaticFontName
     {
         /// <summary>
-        /// Arial - A widely-used sans-serif font known for its simplicity, readability, and clean design.
+        /// Tuffy - A sans-serif font with Latin, Greek, and Cyrillic support.
         /// </summary>
-        Arial = 1,
+        Tuffy = 1,
 
         /// <summary>
-        /// Consola - A monospaced font resembling text produced by a classic typewriter, often used in coding environments.
+        /// Y224 - A monospaced font with Latin and Cyrillic support.
         /// </summary>
-        Consola = 2,
+        Y224 = 2,
 
         /// <summary>
-        /// FreeMonospaced - A free, open-source monospaced font designed for consistent character width, suitable for coding or terminal applications.
+        /// OSerif - A serif font with Latin support.
         /// </summary>
-        FreeMonospaced = 3,
+        OSerif = 3,
 
         /// <summary>
-        /// RetroGaming - A pixelated font inspired by old-school video games, offering a nostalgic look reminiscent of the 8-bit and 16-bit eras.
+        /// Public Pixel - A pixel font with Latin, Greek, and Cyrillic support.
         /// </summary>
-        RetroGaming = 4,
+        PublicPixel = 4,
 
         /// <summary>
-        /// UbuntuMono - A modern, monospaced font from the Ubuntu font family, providing a clean and stylish appearance for coding or terminal use.
+        /// Tuffy Bold - A bold sans-serif font with Latin, Greek, and Cyrillic support.
         /// </summary>
-        UbuntuMono = 5,
+        TuffyBold = 5,
+
+        /// <summary>
+        /// Tuffy Italic - An italic sans-serif font with Latin, Greek, and Cyrillic support.
+        /// </summary>
+        TuffyItalic = 6,
+
+        /// <summary>
+        /// Tuffy Bold Italic - A bold italic sans-serif font with Latin, Greek, and Cyrillic support.
+        /// </summary>
+        TuffyBoldItalic = 7,
     }
 }

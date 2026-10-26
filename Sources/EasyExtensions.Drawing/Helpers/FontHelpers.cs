@@ -28,7 +28,7 @@ namespace EasyExtensions.Drawing.Helpers
             {
                 return found.CreateFont(size);
             }
-            return CreateFont(StaticFontName.Consola, size);
+            return CreateFont(StaticFontName.Y224, size);
         }
 
         /// <summary>
