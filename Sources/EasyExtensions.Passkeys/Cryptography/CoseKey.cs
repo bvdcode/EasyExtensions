@@ -30,7 +30,7 @@ namespace EasyExtensions.Passkeys.Cryptography
             Y = [];
             Modulus = [];
             Exponent = [];
-            if (map.Contains("-4") || (Type == 3 && Enumerable.Range(5, 5).Any(label => map.Contains("-" + label))))
+            if (map.Contains("-4") || (Type == 3 && Enumerable.Range(3, 7).Any(label => map.Contains("-" + label))))
             {
                 throw new PasskeyVerificationException("Private COSE keys are not accepted.");
             }

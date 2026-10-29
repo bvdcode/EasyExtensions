@@ -94,6 +94,19 @@ namespace EasyExtensions.Passkeys.Attestation
 
         private static AttestationTrust VerifyApple(CborMap statement, AttestationContext context, PasskeyServerOptions options)
         {
+            int expectedFields = 1;
+            if (statement.Contains("alg"))
+            {
+                expectedFields++;
+                if (statement.Integer("alg") != (int)context.Key.Algorithm)
+                {
+                    throw new PasskeyVerificationException("Apple attestation algorithm does not match the credential key.");
+                }
+            }
+            if (statement.Count != expectedFields)
+            {
+                throw new PasskeyVerificationException("Invalid Apple attestation fields.");
+            }
             byte[][] certificates = statement.Certificates();
             using X509Certificate2 leaf = X509CertificateLoader.LoadCertificate(certificates[0]);
             X509Extension extension = leaf.Extensions["1.2.840.113635.100.8.2"]
@@ -105,7 +118,7 @@ namespace EasyExtensions.Passkeys.Attestation
             tagged.ThrowIfNotEmpty();
             sequence.ThrowIfNotEmpty();
             reader.ThrowIfNotEmpty();
-            if (statement.Count != 1 || !CryptographicOperations.FixedTimeEquals(nonce, SHA256.HashData(context.SignedData))
+            if (!CryptographicOperations.FixedTimeEquals(nonce, SHA256.HashData(context.SignedData))
                 || !CertificateValidation.MatchesKey(leaf, context.Key))
             {
                 throw new PasskeyVerificationException("Apple attestation nonce or public key does not match.");

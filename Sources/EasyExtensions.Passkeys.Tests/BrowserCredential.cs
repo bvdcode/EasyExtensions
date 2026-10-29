@@ -58,7 +58,7 @@ namespace EasyExtensions.Passkeys.Tests
         internal static PasskeyServer Server() => new(Configuration);
 
         internal ECParameters EcParameters() => (ec ?? throw new InvalidOperationException()).ExportParameters(false);
-        internal RSAParameters RsaParameters() => (rsa ?? throw new InvalidOperationException()).ExportParameters(false);
+        internal RSAParameters RsaParameters(bool includePrivateParameters = false) => (rsa ?? throw new InvalidOperationException()).ExportParameters(includePrivateParameters);
 
         internal CertificateRequest CertificateRequest(string subject)
         {
