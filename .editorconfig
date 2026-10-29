@@ -8,3 +8,7 @@ dotnet_diagnostic.CA1850.severity = none
 # ArgumentNullException.ThrowIfNull is unavailable in .NET Standard 2.1.
 [Sources/{EasyExtensions,EasyExtensions.Mediator}/**.cs]
 dotnet_diagnostic.CA1510.severity = none
+
+# ObjectDisposedException.ThrowIf is unavailable in .NET Standard 2.1.
+[Sources/EasyExtensions/Streams/ChunkedStream.cs]
+dotnet_diagnostic.CA1513.severity = none
