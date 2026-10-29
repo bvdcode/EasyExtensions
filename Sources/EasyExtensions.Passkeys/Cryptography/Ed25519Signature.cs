@@ -60,14 +60,14 @@ namespace EasyExtensions.Passkeys.Cryptography
             }
             BigInteger ySquared = Mod(y * y);
             BigInteger u = Mod(ySquared - 1);
-            BigInteger v = Mod(D * ySquared + 1);
+            BigInteger v = Mod((D * ySquared) + 1);
             BigInteger xSquared = Mod(u * BigInteger.ModPow(v, Prime - 2, Prime));
             BigInteger x = BigInteger.ModPow(xSquared, (Prime + 3) / 8, Prime);
-            if (Mod(x * x - xSquared) != 0)
+            if (Mod((x * x) - xSquared) != 0)
             {
                 x = Mod(x * SquareRootOfMinusOne);
             }
-            if (Mod(x * x - xSquared) != 0 || (x.IsZero && sign != 0))
+            if (Mod((x * x) - xSquared) != 0 || (x.IsZero && sign != 0))
             {
                 return false;
             }
@@ -109,13 +109,13 @@ namespace EasyExtensions.Passkeys.Cryptography
 
         private static bool Equal(EdwardsPoint left, EdwardsPoint right)
         {
-            return Mod(left.X * right.Z - right.X * left.Z).IsZero
-                && Mod(left.Y * right.Z - right.Y * left.Z).IsZero;
+            return Mod((left.X * right.Z) - (right.X * left.Z)).IsZero
+                && Mod((left.Y * right.Z) - (right.Y * left.Z)).IsZero;
         }
 
         private static BigInteger Mod(BigInteger value)
         {
-            return (value % Prime + Prime) % Prime;
+            return ((value % Prime) + Prime) % Prime;
         }
 
         private static EdwardsPoint DecodeBasePoint()

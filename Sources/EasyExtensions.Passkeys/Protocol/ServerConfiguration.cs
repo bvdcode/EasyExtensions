@@ -41,6 +41,18 @@ namespace EasyExtensions.Passkeys.Protocol
                 AttestationPreference.None or AttestationPreference.Direct or AttestationPreference.Indirect or AttestationPreference.Enterprise => true,
                 _ => throw new ArgumentException("Invalid attestation preference.", nameof(options))
             };
+            Origins = CreateOrigins(options);
+            Options = options with
+            {
+                AllowedOrigins = Origins.ToArray(),
+                Algorithms = options.Algorithms.Distinct().ToArray(),
+                AttestationTrustRoots = options.AttestationTrustRoots.Select(root => root.ToArray()).ToArray()
+            };
+        }
+
+        private static HashSet<string> CreateOrigins(PasskeyServerOptions options)
+        {
+            string id = options.RelyingPartyId;
             HashSet<string> origins = new(StringComparer.Ordinal);
             foreach (string origin in options.AllowedOrigins)
             {
@@ -54,13 +66,7 @@ namespace EasyExtensions.Passkeys.Protocol
                 }
                 origins.Add(origin);
             }
-            Origins = origins;
-            Options = options with
-            {
-                AllowedOrigins = origins.ToArray(),
-                Algorithms = options.Algorithms.Distinct().ToArray(),
-                AttestationTrustRoots = options.AttestationTrustRoots.Select(root => root.ToArray()).ToArray()
-            };
+            return origins;
         }
 
         internal static bool RequiresVerification(UserVerificationRequirement requirement)

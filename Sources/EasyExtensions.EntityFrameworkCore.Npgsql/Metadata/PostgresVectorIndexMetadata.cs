@@ -22,31 +22,14 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Metadata
 
         public static PostgresVectorIndexDefinition? Parse(PostgresIndexMetadataRow row)
         {
-            if (!row.Exists || row.AccessMethod != "hnsw" ||
-                row.OperatorClass != "vector_cosine_ops" ||
-                !row.IsVectorType || !row.IsVectorOperatorClass ||
-                row.KeyCount != 1 || row.AttributeCount != 1 ||
-                row.Dimensions is not > 0 ||
+            if (!IsVectorIndex(row) || row.Dimensions is not > 0 ||
                 row.SchemaName is null || row.TableName is null || row.IndexName is null ||
                 row.Predicate is null)
             {
                 return null;
             }
 
-            string? vectorColumn = row.ColumnName;
-            if (row.Expression is not null)
-            {
-                Match expression = VectorExpression.Match(row.Expression);
-                if (!expression.Success ||
-                    !int.TryParse(expression.Groups["dimensions"].Value, CultureInfo.InvariantCulture, out int dimensions) ||
-                    dimensions != row.Dimensions)
-                {
-                    return null;
-                }
-
-                vectorColumn = Unquote(expression.Groups["column"].Value);
-            }
-
+            string? vectorColumn = GetVectorColumn(row);
             Match predicate = IntegerPredicate.Match(row.Predicate);
             if (vectorColumn is null || !predicate.Success ||
                 !int.TryParse(predicate.Groups["value"].Value, CultureInfo.InvariantCulture, out int filterValue))
@@ -62,6 +45,32 @@ namespace EasyExtensions.EntityFrameworkCore.Npgsql.Metadata
                 row.Dimensions.Value,
                 Unquote(predicate.Groups["column"].Value),
                 filterValue);
+        }
+
+        private static bool IsVectorIndex(PostgresIndexMetadataRow row)
+        {
+            return row.Exists && row.AccessMethod == "hnsw"
+                && row.OperatorClass == "vector_cosine_ops"
+                && row.IsVectorType && row.IsVectorOperatorClass
+                && row.KeyCount == 1 && row.AttributeCount == 1;
+        }
+
+        private static string? GetVectorColumn(PostgresIndexMetadataRow row)
+        {
+            if (row.Expression is null)
+            {
+                return row.ColumnName;
+            }
+
+            Match expression = VectorExpression.Match(row.Expression);
+            if (!expression.Success ||
+                !int.TryParse(expression.Groups["dimensions"].Value, CultureInfo.InvariantCulture, out int dimensions) ||
+                dimensions != row.Dimensions)
+            {
+                return null;
+            }
+
+            return Unquote(expression.Groups["column"].Value);
         }
 
         private static string Unquote(string identifier)

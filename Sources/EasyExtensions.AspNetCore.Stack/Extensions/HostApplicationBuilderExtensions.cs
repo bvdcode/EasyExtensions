@@ -101,47 +101,8 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
                 logger.LogInformation("Found job added: {job}", x.Name);
             });
 
-            // Setup Origins if presented in configuration, or allow all if asked
-            string[] corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? [];
-            if (corsOrigins.Length > 0)
-            {
-                builder.Services.AddDefaultCorsWithOrigins(corsOrigins);
-                logger.LogInformation("Added CORS with {count} origins from configuration", corsOrigins.Length);
-                foreach (var origin in corsOrigins)
-                {
-                    logger.LogInformation(" - CORS Origin: {origin}", origin);
-                }
-            }
-            else
-            {
-                builder.Services.AddCors(options =>
-                {
-                    options.AddDefaultPolicy(policy =>
-                    {
-                        policy.AllowAnyOrigin()
-                              .AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .WithExposedHeaders("*");
-                    });
-                });
-                logger.LogWarning("No CORS origins found in configuration - allowing ALL origins.");
-            }
-
-            // EasyVault - if URL presented in configuration
-            bool isVaultPresented = !string.IsNullOrWhiteSpace(builder.Configuration[EasyVault.SDK.Extensions.ConfigurationExtensions.DefaultServerUrlKey]);
-            if (isVaultPresented && options.UseSecretVault)
-            {
-                EasyVault.SDK.Extensions.ConfigurationExtensions.AddSecrets(builder.Configuration);
-                logger.LogInformation("VaultApiUrl found in configuration, added EasyVault");
-            }
-
-            // Add Pbkdf2
-            bool isPepperPresented = !string.IsNullOrWhiteSpace(builder.Configuration[AspNetCore.Extensions.ServiceCollectionExtensions.Pbkdf2PepperDefaultConfigurationKey]);
-            if (isPepperPresented)
-            {
-                builder.Services.AddPbkdf2PasswordHashService();
-                logger.LogInformation("Pepper found in configuration, added Pbkdf2PasswordHashService");
-            }
+            ConfigureCors(builder, logger);
+            bool isPepperPresented = ConfigureSecrets(builder, options, logger);
 
             // Add Postgres if asked
             if (options.ConfigureDatabase != null)
@@ -175,6 +136,52 @@ namespace EasyExtensions.AspNetCore.Stack.Extensions
             }
 
             return builder;
+        }
+
+        private static void ConfigureCors(IHostApplicationBuilder builder, ILogger logger)
+        {
+            string[] corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>() ?? [];
+            if (corsOrigins.Length > 0)
+            {
+                builder.Services.AddDefaultCorsWithOrigins(corsOrigins);
+                logger.LogInformation("Added CORS with {count} origins from configuration", corsOrigins.Length);
+                foreach (string origin in corsOrigins)
+                {
+                    logger.LogInformation(" - CORS Origin: {origin}", origin);
+                }
+            }
+            else
+            {
+                builder.Services.AddCors(options =>
+                {
+                    options.AddDefaultPolicy(policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .WithExposedHeaders("*");
+                    });
+                });
+                logger.LogWarning("No CORS origins found in configuration - allowing ALL origins.");
+            }
+        }
+
+        private static bool ConfigureSecrets(IHostApplicationBuilder builder, EasyStackOptions options, ILogger logger)
+        {
+            bool isVaultPresented = !string.IsNullOrWhiteSpace(builder.Configuration[EasyVault.SDK.Extensions.ConfigurationExtensions.DefaultServerUrlKey]);
+            if (isVaultPresented && options.UseSecretVault)
+            {
+                EasyVault.SDK.Extensions.ConfigurationExtensions.AddSecrets(builder.Configuration);
+                logger.LogInformation("VaultApiUrl found in configuration, added EasyVault");
+            }
+
+            bool isPepperPresented = !string.IsNullOrWhiteSpace(builder.Configuration[AspNetCore.Extensions.ServiceCollectionExtensions.Pbkdf2PepperDefaultConfigurationKey]);
+            if (isPepperPresented)
+            {
+                builder.Services.AddPbkdf2PasswordHashService();
+                logger.LogInformation("Pepper found in configuration, added Pbkdf2PasswordHashService");
+            }
+            return isPepperPresented;
         }
     }
 }

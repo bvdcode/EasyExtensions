@@ -88,7 +88,7 @@ namespace EasyExtensions.Analyzers
 			}
 
 			string namespaceName = namedType.ContainingNamespace.ToDisplayString();
-			return namespaceName == "Microsoft.EntityFrameworkCore" && namedType.Name == "ModelBuilder" ||
+			return (namespaceName == "Microsoft.EntityFrameworkCore" && namedType.Name == "ModelBuilder") ||
 				namespaceName.StartsWith("Microsoft.EntityFrameworkCore.Metadata.Builders", StringComparison.Ordinal);
 		}
 	}

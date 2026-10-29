@@ -4,3 +4,7 @@
 # But codefactor thinks anotherwise - the static method does not exist in the .NET Standard.
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1850
 dotnet_diagnostic.CA1850.severity = none
+
+# ArgumentNullException.ThrowIfNull is unavailable in .NET Standard 2.1.
+[Sources/{EasyExtensions,EasyExtensions.Mediator}/**.cs]
+dotnet_diagnostic.CA1510.severity = none

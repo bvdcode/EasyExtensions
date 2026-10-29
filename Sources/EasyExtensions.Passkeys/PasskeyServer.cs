@@ -85,6 +85,23 @@ namespace EasyExtensions.Passkeys
             ArgumentNullException.ThrowIfNull(originalOptions);
             ArgumentNullException.ThrowIfNull(credential);
             ValidateCredentialId(response.Id, response.RawId, response.Type);
+            ValidateAuthenticationCredential(response, originalOptions, credential);
+            byte[] clientHash = ClientData.Verify(response.Response.ClientDataJSON, "webauthn.get", originalOptions.Challenge, configuration.Origins);
+            bool requireVerification = ServerConfiguration.RequiresVerification(Options.UserVerification)
+                || ServerConfiguration.RequiresVerification(originalOptions.UserVerification);
+            AuthenticatorData data = new(response.Response.AuthenticatorData, Options.RelyingPartyId, registration: false, requireVerification);
+            CoseKey key = new(credential.CosePublicKey);
+            ValidateCredentialState(data, credential);
+            byte[] signedData = [.. response.Response.AuthenticatorData, .. clientHash];
+            if (response.Response.Signature.Length is 0 or > 1024 || !key.Verify(signedData, response.Response.Signature))
+            {
+                throw new PasskeyVerificationException("Invalid assertion signature.");
+            }
+            return new AuthenticationResult(response.RawId.ToArray(), data.SignatureCounter, data.IsBackedUp);
+        }
+
+        private void ValidateAuthenticationCredential(AuthenticationResponse response, AuthenticationOptions originalOptions, StoredCredential credential)
+        {
             byte[]? userHandle = response.Response.UserHandle;
             if (originalOptions.RpId != Options.RelyingPartyId || !response.RawId.AsSpan().SequenceEqual(credential.CredentialId)
                 || (originalOptions.AllowCredentials.Count != 0 && !originalOptions.AllowCredentials.Any(item => item.Id.AsSpan().SequenceEqual(response.RawId)))
@@ -94,22 +111,15 @@ namespace EasyExtensions.Passkeys
             {
                 throw new PasskeyVerificationException("Credential or user handle does not match the authentication options.");
             }
-            byte[] clientHash = ClientData.Verify(response.Response.ClientDataJSON, "webauthn.get", originalOptions.Challenge, configuration.Origins);
-            bool requireVerification = ServerConfiguration.RequiresVerification(Options.UserVerification)
-                || ServerConfiguration.RequiresVerification(originalOptions.UserVerification);
-            AuthenticatorData data = new(response.Response.AuthenticatorData, Options.RelyingPartyId, registration: false, requireVerification);
-            CoseKey key = new(credential.CosePublicKey);
+        }
+
+        private static void ValidateCredentialState(AuthenticatorData data, StoredCredential credential)
+        {
             if (data.IsBackupEligible != credential.IsBackupEligible
                 || ((data.SignatureCounter != 0 || credential.SignatureCounter != 0) && data.SignatureCounter <= credential.SignatureCounter))
             {
                 throw new PasskeyVerificationException("Backup eligibility changed or the signature counter did not advance.");
             }
-            byte[] signedData = [.. response.Response.AuthenticatorData, .. clientHash];
-            if (response.Response.Signature.Length is 0 or > 1024 || !key.Verify(signedData, response.Response.Signature))
-            {
-                throw new PasskeyVerificationException("Invalid assertion signature.");
-            }
-            return new AuthenticationResult(response.RawId.ToArray(), data.SignatureCounter, data.IsBackedUp);
         }
 
         private static void ValidateCredentialId(string id, byte[] rawId, string type)

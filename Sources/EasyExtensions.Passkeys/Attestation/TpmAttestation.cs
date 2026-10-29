@@ -1,6 +1,7 @@
 ﻿// SPDX-License-Identifier: MIT
 // Copyright (c) 2025–2026 Vadim Belov <https://belov.us>
 
+using System.Buffers;
 using System.Buffers.Binary;
 using System.Formats.Asn1;
 using System.Numerics;
@@ -14,6 +15,8 @@ namespace EasyExtensions.Passkeys.Attestation
 {
     internal static class TpmAttestation
     {
+        private static readonly SearchValues<char> HexadecimalCharacters = SearchValues.Create("0123456789abcdefABCDEF");
+
         internal static AttestationTrust Verify(CborMap statement, AttestationContext context, PasskeyServerOptions options)
         {
             if (statement.Count != 6 || statement.Text("ver") != "2.0" || statement.Contains("ecdaaKeyId"))
@@ -139,11 +142,7 @@ namespace EasyExtensions.Passkeys.Attestation
                     AsnReader name = names.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 4, isConstructed: true));
                     Dictionary<string, string> attributes = CertificateValidation.ReadName(name.ReadEncodedValue());
                     name.ThrowIfNotEmpty();
-                    if (attributes.TryGetValue("2.23.133.2.1", out string? manufacturer)
-                        && manufacturer.Length == 11 && manufacturer.StartsWith("id:", StringComparison.Ordinal)
-                        && manufacturer.AsSpan(3).IndexOfAnyExcept("0123456789abcdefABCDEF") < 0
-                        && attributes.TryGetValue("2.23.133.2.2", out string? model) && !string.IsNullOrWhiteSpace(model)
-                        && attributes.TryGetValue("2.23.133.2.3", out string? version) && !string.IsNullOrWhiteSpace(version))
+                    if (IsTpmDeviceName(attributes))
                     {
                         found = true;
                     }
@@ -158,6 +157,15 @@ namespace EasyExtensions.Passkeys.Attestation
             {
                 throw new PasskeyVerificationException("Missing TPM manufacturer, model or version.");
             }
+        }
+
+        private static bool IsTpmDeviceName(Dictionary<string, string> attributes)
+        {
+            return attributes.TryGetValue("2.23.133.2.1", out string? manufacturer)
+                && manufacturer.Length == 11 && manufacturer.StartsWith("id:", StringComparison.Ordinal)
+                && manufacturer.AsSpan(3).IndexOfAnyExcept(HexadecimalCharacters) < 0
+                && attributes.TryGetValue("2.23.133.2.2", out string? model) && !string.IsNullOrWhiteSpace(model)
+                && attributes.TryGetValue("2.23.133.2.3", out string? version) && !string.IsNullOrWhiteSpace(version);
         }
     }
 }

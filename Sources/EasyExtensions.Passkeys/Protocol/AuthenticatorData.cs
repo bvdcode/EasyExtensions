@@ -21,18 +21,8 @@ namespace EasyExtensions.Passkeys.Protocol
 
         internal AuthenticatorData(byte[] data, string relyingPartyId, bool registration, bool requireVerification)
         {
-            ArgumentNullException.ThrowIfNull(data);
-            if (data.Length is < 37 or > ProtocolLimits.MaximumAttestationLength)
-            {
-                throw new PasskeyVerificationException("Invalid authenticator data size.");
-            }
-            byte[] expectedRpHash = SHA256.HashData(Encoding.UTF8.GetBytes(relyingPartyId));
+            VerifyRelyingParty(data, relyingPartyId, requireVerification);
             byte flags = data[32];
-            if (!CryptographicOperations.FixedTimeEquals(data.AsSpan(0, 32), expectedRpHash)
-                || (flags & 0x01) == 0 || (requireVerification && (flags & 0x04) == 0))
-            {
-                throw new PasskeyVerificationException("RP ID, user presence or user verification does not match.");
-            }
             IsBackupEligible = (flags & 0x08) != 0;
             IsBackedUp = (flags & 0x10) != 0;
             if ((flags & 0x22) != 0 || (IsBackedUp && !IsBackupEligible) || ((flags & 0x40) != 0) != registration)
@@ -72,6 +62,22 @@ namespace EasyExtensions.Passkeys.Protocol
             if (offset != data.Length)
             {
                 throw new PasskeyVerificationException("Unexpected trailing authenticator data.");
+            }
+        }
+
+        private static void VerifyRelyingParty(byte[] data, string relyingPartyId, bool requireVerification)
+        {
+            ArgumentNullException.ThrowIfNull(data);
+            if (data.Length is < 37 or > ProtocolLimits.MaximumAttestationLength)
+            {
+                throw new PasskeyVerificationException("Invalid authenticator data size.");
+            }
+            byte[] expectedRpHash = SHA256.HashData(Encoding.UTF8.GetBytes(relyingPartyId));
+            byte flags = data[32];
+            if (!CryptographicOperations.FixedTimeEquals(data.AsSpan(0, 32), expectedRpHash)
+                || (flags & 0x01) == 0 || (requireVerification && (flags & 0x04) == 0))
+            {
+                throw new PasskeyVerificationException("RP ID, user presence or user verification does not match.");
             }
         }
     }

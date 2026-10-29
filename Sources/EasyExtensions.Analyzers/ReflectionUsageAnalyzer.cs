@@ -59,7 +59,7 @@ namespace EasyExtensions.Analyzers
 		{
 			string namespaceName = type.ContainingNamespace.ToDisplayString();
 			return namespaceName.StartsWith("System.Reflection", StringComparison.Ordinal) ||
-				namespaceName == "System" && (type.Name == "Type" || type.Name == "Activator");
+				(namespaceName == "System" && (type.Name == "Type" || type.Name == "Activator"));
 		}
 
 		private static bool IsSafeMetadataName(IPropertySymbol property)
