@@ -50,12 +50,12 @@ jobs:
 
     #Install and calculate the new version with GitVersion
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.7.0
+      uses: GitTools/actions/gitversion/setup@v4.7.0
       with:
-        versionSpec: 6.x #gittools v4.7.x requires GitVersion >=6.2.0 <7.0.0
+        versionSpec: 6.8.2 #gittools v4.7.x requires GitVersion >=6.2.0 <7.0.0
 
     - name: Determine Version
-      uses: gittools/actions/gitversion/execute@v4.7.0
+      uses: GitTools/actions/gitversion/execute@v4.7.0
       id: gitversion # step id used as reference for output values
     - name: Display GitVersion outputs
       run: |
