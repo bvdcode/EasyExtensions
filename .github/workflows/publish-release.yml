@@ -15,77 +15,33 @@ concurrency:
 
 jobs:
   checks:
-    runs-on: ubuntu-latest
-    env:
-      SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-      - name: Check solution
-        uses: bvdcode/github-workflows/actions/dotnet-checks@v1
-        with:
-          project: Sources/EasyExtensions.sln
-          dotnet-version: 10.0.x
-          enable-raw-icmp: true
-
-  postgres-index-tests:
-    runs-on: ubuntu-latest
-    env:
-      SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
-      EASYEXTENSIONS_TEST_POSTGRES: Host=localhost;Port=5432;Database=index_metadata_tests;Username=postgres
-    services:
-      postgres:
-        image: pgvector/pgvector:pg18
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_DB: index_metadata_tests
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d index_metadata_tests"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 12
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-      - name: Check PostgreSQL index metadata
-        uses: bvdcode/github-workflows/actions/dotnet-checks@v1
-        with:
-          project: Sources/EasyExtensions.Tests/EasyExtensions.Tests.csproj
-          dotnet-version: 10.0.x
-          test-filter: FullyQualifiedName~PostgresIndexMetadata|FullyQualifiedName~PostgresHnswScan
-          test-results-name: postgres-index-tests
+    uses: bvdcode/github-workflows/.github/workflows/dotnet-checks.yml@v1
+    with:
+      project: Sources/EasyExtensions.sln
+      dotnet-version: 10.0.x
+      enable-raw-icmp: true
+      postgres-project: Sources/EasyExtensions.Tests/EasyExtensions.Tests.csproj
+      postgres-test-filter: FullyQualifiedName~PostgresIndexMetadata|FullyQualifiedName~PostgresHnswScan
+      postgres-image: pgvector/pgvector:pg18
+      postgres-database: index_metadata_tests
+      postgres-connection-variable: EASYEXTENSIONS_TEST_POSTGRES
+    secrets:
+      SIXLABORS_LICENSE_KEY: ${{ secrets.SIXLABORS_LICENSE_KEY }}
 
   version:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [checks, postgres-index-tests]
+    needs: checks
     uses: bvdcode/github-workflows/.github/workflows/gitversion.yml@v1
 
   pack:
     needs: version
-    runs-on: ubuntu-latest
-    env:
-      SixLaborsLicenseKey: ${{ secrets.SIXLABORS_LICENSE_KEY }}
-    outputs:
-      artifact-name: ${{ steps.pack.outputs.artifact-name }}
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Pack solution
-        id: pack
-        uses: bvdcode/github-workflows/actions/dotnet-pack@v1
-        with:
-          projects: Sources/EasyExtensions.sln
-          dotnet-version: 10.0.x
-          version: ${{ needs.version.outputs.version }}
+    uses: bvdcode/github-workflows/.github/workflows/dotnet-pack.yml@v1
+    with:
+      projects: Sources/EasyExtensions.sln
+      dotnet-version: 10.0.x
+      version: ${{ needs.version.outputs.version }}
+    secrets:
+      SIXLABORS_LICENSE_KEY: ${{ secrets.SIXLABORS_LICENSE_KEY }}
 
   publish:
     needs: [version, pack]
