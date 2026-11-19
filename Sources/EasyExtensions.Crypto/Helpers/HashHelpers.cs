@@ -35,12 +35,10 @@ namespace EasyExtensions.Crypto.Helpers
         /// <param name="input">The input stream containing the data to hash. The stream must be readable and positioned at the start of the
         /// data to hash.</param>
         /// <returns>A lowercase hexadecimal string representing the hash of the input data.</returns>
-        [Obsolete("Use EasyExtensions.Crypto.Hashing.HashingExtensions.ComputeHashToHex extension method instead.")]
+        [Obsolete("Use Convert.ToHexStringLower(SHA256.HashData(input)) instead.")]
         public static string HashToHex(Stream input)
         {
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            byte[] result = sha256.ComputeHash(input);
-            return Convert.ToHexString(result).ToLowerInvariant();
+            return Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(input));
         }
 
         [GeneratedRegex("^[0-9a-f]{64}$", RegexOptions.Compiled)]

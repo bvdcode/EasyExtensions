@@ -5,6 +5,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
@@ -29,18 +30,7 @@ namespace EasyExtensions.Crypto.Internals.Pipelines
             int allowedBacklog = Math.Min(windowCap * 2, 32768);
             int maxCount = checked(jobCap + threads + resCap + allowedBacklog);
 
-            static int NextPow2(int x)
-            {
-                x--;
-                x |= x >> 1;
-                x |= x >> 2;
-                x |= x >> 4;
-                x |= x >> 8;
-                x |= x >> 16;
-                x++;
-                return x < 16 ? 16 : x;
-            }
-            long estSize = NextPow2(chunkSize);
+            long estSize = Math.Max(16U, BitOperations.RoundUpToPowerOf2((uint)chunkSize));
             long maxBytes = estSize * maxCount;
             using var scope = new BufferScope(pool, maxCount: maxCount, maxBytes: maxBytes);
 

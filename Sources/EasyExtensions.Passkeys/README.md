@@ -1,6 +1,6 @@
 # EasyExtensions.Passkeys
 
-WebAuthn registration and authentication for .NET 10. The package is independent of ASP.NET Core Identity, Entity Framework and application account models.
+WebAuthn registration and authentication for .NET 11. The package is independent of ASP.NET Core Identity, Entity Framework and application account models.
 
 ```sh
 dotnet add package EasyExtensions.Passkeys

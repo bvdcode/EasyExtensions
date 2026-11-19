@@ -29,17 +29,17 @@ The repository is intentionally split into small NuGet packages. Install only th
 | --- | --- | --- |
 | [EasyExtensions](https://www.nuget.org/packages/EasyExtensions/) | `netstandard2.1` | Core extensions and helpers for strings, hashes, streams, enums, dates, IP/networking, claims, random strings, queues, password hashing abstractions, Brotli HTTP helpers, and stream cipher abstractions. |
 | [EasyExtensions.Analyzers](https://www.nuget.org/packages/EasyExtensions.Analyzers/) | Roslyn | Maintainability rules for C# projects, including a hard 400-significant-line limit for source files. |
-| [EasyExtensions.AspNetCore](https://www.nuget.org/packages/EasyExtensions.AspNetCore/) | `net10.0` | ASP.NET Core helpers for exception responses, health checks, CORS, request metadata, rate limiting helpers, console logging, controllers, form files, CPU usage, and PBKDF2 password hashing registration. |
-| [EasyExtensions.AspNetCore.Authorization](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Authorization/) | `net10.0` | JWT authentication setup, token creation, claim building, development authorization bypass, and a base auth controller with login, refresh, logout, password, and Google login hooks. |
-| [EasyExtensions.AspNetCore.Sentry](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Sentry/) | `net10.0` | Sentry ASP.NET Core integration with user capture. |
-| [EasyExtensions.AspNetCore.Stack](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Stack/) | `net10.0` | One-call application setup for controllers, logging, compression, Quartz, SignalR, CORS, health checks, optional PostgreSQL, optional authorization, and optional EasyVault secrets. |
-| [EasyExtensions.Clients](https://www.nuget.org/packages/EasyExtensions.Clients/) | `net10.0` | Cached IP lookup helpers backed by ipapi.co and configurable GeoIP endpoints. |
-| [EasyExtensions.Crypto](https://www.nuget.org/packages/EasyExtensions.Crypto/) | `net10.0` | Streaming AES-GCM encryption/decryption, per-chunk authentication, HKDF subkeys, secure random bytes, and hash helpers. |
-| [EasyExtensions.Drawing](https://www.nuget.org/packages/EasyExtensions.Drawing/) | `net10.0` | ImageSharp helpers for JPEG conversion, drawing text, blurred backgrounds, automatic brightness adjustment, and font integration. |
-| [EasyExtensions.EntityFrameworkCore](https://www.nuget.org/packages/EasyExtensions.EntityFrameworkCore/) | `net10.0` | Audited entities and DbContext base types, Gridify mapper registration, database health checks, and migration helpers. |
-| [EasyExtensions.EntityFrameworkCore.Npgsql](https://www.nuget.org/packages/EasyExtensions.EntityFrameworkCore.Npgsql/) | `net10.0` | PostgreSQL DbContext registration, connection string construction, extension metadata checks, lazy loading options, and design-time factory registration. |
+| [EasyExtensions.AspNetCore](https://www.nuget.org/packages/EasyExtensions.AspNetCore/) | `net11.0` | ASP.NET Core helpers for exception responses, health checks, CORS, request metadata, rate limiting helpers, console logging, controllers, form files, CPU usage, and PBKDF2 password hashing registration. |
+| [EasyExtensions.AspNetCore.Authorization](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Authorization/) | `net11.0` | JWT authentication setup, token creation, claim building, development authorization bypass, and a base auth controller with login, refresh, logout, password, and Google login hooks. |
+| [EasyExtensions.AspNetCore.Sentry](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Sentry/) | `net11.0` | Sentry ASP.NET Core integration with user capture. |
+| [EasyExtensions.AspNetCore.Stack](https://www.nuget.org/packages/EasyExtensions.AspNetCore.Stack/) | `net11.0` | One-call application setup for controllers, logging, compression, Quartz, SignalR, CORS, health checks, optional PostgreSQL, optional authorization, and optional EasyVault secrets. |
+| [EasyExtensions.Clients](https://www.nuget.org/packages/EasyExtensions.Clients/) | `net11.0` | Cached IP lookup helpers backed by ipapi.co and configurable GeoIP endpoints. |
+| [EasyExtensions.Crypto](https://www.nuget.org/packages/EasyExtensions.Crypto/) | `net11.0` | Streaming AES-GCM encryption/decryption, per-chunk authentication, HKDF subkeys, secure random bytes, and hash helpers. |
+| [EasyExtensions.Drawing](https://www.nuget.org/packages/EasyExtensions.Drawing/) | `net11.0` | ImageSharp helpers for JPEG conversion, drawing text, blurred backgrounds, automatic brightness adjustment, and font integration. |
+| [EasyExtensions.EntityFrameworkCore](https://www.nuget.org/packages/EasyExtensions.EntityFrameworkCore/) | `net11.0` | Audited entities and DbContext base types, Gridify mapper registration, database health checks, and migration helpers. |
+| [EasyExtensions.EntityFrameworkCore.Npgsql](https://www.nuget.org/packages/EasyExtensions.EntityFrameworkCore.Npgsql/) | `net11.0` | PostgreSQL DbContext registration, connection string construction, extension metadata checks, lazy loading options, and design-time factory registration. |
 | [EasyExtensions.Fonts](https://www.nuget.org/packages/EasyExtensions.Fonts/) | `netstandard2.1` | Embedded public-domain/CC0 fonts: Tuffy (Regular, Bold, Italic, Bold Italic), Y224, OSerif (Latin only), and Public Pixel. No font attribution or license notices required. |
-| [EasyExtensions.Passkeys](Sources/EasyExtensions.Passkeys/README.md) | `net10.0` | WebAuthn passkey registration and authentication, existing COSE public keys, ECDSA/RSA/Ed25519 verification, and attestation policies without Fido2 or NSec. |
+| [EasyExtensions.Passkeys](Sources/EasyExtensions.Passkeys/README.md) | `net11.0` | WebAuthn passkey registration and authentication, existing COSE public keys, ECDSA/RSA/Ed25519 verification, and attestation policies without Fido2 or NSec. |
 | [EasyExtensions.Mediator](https://www.nuget.org/packages/EasyExtensions.Mediator/) | `netstandard2.1` | A MediatR v12.5.0 based mediator package with request, notification, stream request, pipeline behavior, pre/post processor, and exception processor support. |
 | [EasyExtensions.Quartz](https://www.nuget.org/packages/EasyExtensions.Quartz/) | `netstandard2.1` | Reflection-based Quartz job registration with `JobTriggerAttribute`, hosted service setup, and optional PostgreSQL persistent store. |
 | [EasyExtensions.WebDav](https://www.nuget.org/packages/EasyExtensions.WebDav/) | `netstandard2.1` | WebDAV and Nextcloud file operations: folders, existence checks, uploads, listings, downloads, and deletes. |
@@ -281,7 +281,7 @@ await client.UploadFileAsync(backup, "backups/backup.zip");
 
 ## Configuration Notes
 
-- The full solution currently uses the .NET 10 SDK. Some packages still target `netstandard2.1`; see the package table before choosing a package for older applications.
+- The full solution currently uses the .NET 11 SDK. Some packages still target `netstandard2.1`; see the package table before choosing a package for older applications.
 - `EasyExtensions.AspNetCore.Authorization` accepts either a `JwtSettings` section or flat `JwtKey`, `JwtIssuer`, `JwtAudience`, and `JwtLifetimeMinutes` keys. Configure a persistent signing key in production.
 - `EasyExtensions.AspNetCore.Stack` allows all CORS origins when `CorsOrigins` is missing. Set `CorsOrigins` explicitly for production services.
 - `EasyExtensions.AspNetCore.Sentry` enables `SendDefaultPii` when Sentry is active. Review this against your data handling policy.
@@ -302,11 +302,15 @@ dotnet build --configuration Release
 dotnet test --configuration Release
 ```
 
-The test projects use NUnit and target `net10.0`.
+The solution requires the .NET 11 SDK. The test projects use NUnit and target `net11.0`.
 
 ## Releases
 
-Releases are produced by GitHub Actions from `main` when files under `Sources/` change. The workflow builds the solution, packs NuGet packages, publishes artifacts, pushes packages to GitHub Packages and NuGet.org, and creates a GitHub release. Versioning is driven by GitVersion; the current `next-version` is configured in [GitVersion.yml](GitVersion.yml).
+Version 4 targets .NET 11 for packages that previously required .NET 10. Packages targeting .NET Standard retain their existing target frameworks.
+
+The Entity Framework packages use EF Core 11 RC3 and the Npgsql 11 RC3 provider.
+
+GitHub Actions builds and tests pushes and pull requests targeting `main` or `develop`. Pushes to `main` also calculate the release version, pack NuGet packages, publish them to GitHub Packages and NuGet.org, and create a GitHub release. Versioning is driven by GitVersion; the current `next-version` is configured in [GitVersion.yml](GitVersion.yml).
 
 ## Contributing
 

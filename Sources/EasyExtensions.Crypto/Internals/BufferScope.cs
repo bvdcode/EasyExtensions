@@ -17,7 +17,7 @@ namespace EasyExtensions.Crypto.Internals
         private readonly ConcurrentBag<byte[]> _free = [];
         private readonly ConcurrentBag<byte[]> _tracked = [];
         private readonly ArrayPool<byte> _pool = pool ?? throw new ArgumentNullException(nameof(pool));
-        private readonly ConcurrentDictionary<byte[], byte?> _active = new(ReferenceEqualityComparer<byte[]>.Instance);
+        private readonly ConcurrentDictionary<byte[], byte?> _active = new(ReferenceEqualityComparer.Instance);
         private readonly int _maxCount = maxCount > 0 ? maxCount : throw new ArgumentOutOfRangeException(nameof(maxCount));
         private readonly long _maxBytes = maxBytes > 0 ? maxBytes : throw new ArgumentOutOfRangeException(nameof(maxBytes));
 
@@ -88,7 +88,7 @@ namespace EasyExtensions.Crypto.Internals
         {
             if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
             // Deduplicate tracked and free to avoid double return
-            var unique = new HashSet<byte[]>(ReferenceEqualityComparer<byte[]>.Instance);
+            var unique = new HashSet<byte[]>(ReferenceEqualityComparer.Instance);
             while (_tracked.TryTake(out var arr1)) unique.Add(arr1);
             while (_free.TryTake(out var arr2)) unique.Add(arr2);
             foreach (var kv in _active.Keys)
