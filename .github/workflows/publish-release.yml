@@ -18,7 +18,7 @@ jobs:
     uses: bvdcode/github-workflows/.github/workflows/dotnet-checks.yml@v1
     with:
       project: Sources/EasyExtensions.sln
-      dotnet-version: 10.0.x
+      dotnet-version: 11.0.x
       enable-raw-icmp: true
       postgres-project: Sources/EasyExtensions.Tests/EasyExtensions.Tests.csproj
       postgres-test-filter: FullyQualifiedName~PostgresIndexMetadata|FullyQualifiedName~PostgresHnswScan
@@ -38,7 +38,7 @@ jobs:
     uses: bvdcode/github-workflows/.github/workflows/dotnet-pack.yml@v1
     with:
       projects: Sources/EasyExtensions.sln
-      dotnet-version: 10.0.x
+      dotnet-version: 11.0.x
       version: ${{ needs.version.outputs.version }}
     secrets:
       SIXLABORS_LICENSE_KEY: ${{ secrets.SIXLABORS_LICENSE_KEY }}

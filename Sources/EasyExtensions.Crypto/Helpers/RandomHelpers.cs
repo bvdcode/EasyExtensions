@@ -20,12 +20,7 @@ namespace EasyExtensions.Crypto.Helpers
         /// specified length. If length is zero, an empty array is returned.</returns>
         public static byte[] GetRandomBytes(int length)
         {
-            var randomBytes = new byte[length];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomBytes);
-            }
-            return randomBytes;
+            return RandomNumberGenerator.GetBytes(length);
         }
     }
 }

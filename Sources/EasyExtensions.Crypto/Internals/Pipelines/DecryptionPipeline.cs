@@ -217,8 +217,8 @@ namespace EasyExtensions.Crypto.Internals.Pipelines
 
                         int cipherLength = (int)chunkHeader.PlaintextLength;
                         byte[] cipher = scope.Rent(cipherLength);
-                        await AesGcmStreamFormat
-                            .ReadExactlyAsync(input, cipher, cipherLength, ct)
+                        await input
+                            .ReadExactlyAsync(cipher.AsMemory(0, cipherLength), ct)
                             .ConfigureAwait(false);
                         if (unchecked((ulong)idx) == ulong.MaxValue)
                         {
