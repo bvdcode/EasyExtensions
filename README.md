@@ -308,7 +308,7 @@ The solution requires the .NET 11 SDK. The test projects use NUnit and target `n
 
 Version 4 targets .NET 11 for packages that previously required .NET 10. Packages targeting .NET Standard retain their existing target frameworks.
 
-The Entity Framework packages use EF Core 11 RC3 and the Npgsql 11 RC3 provider.
+The Entity Framework packages use stable EF Core 11 and the Npgsql 11 provider.
 
 GitHub Actions builds and tests pushes and pull requests targeting `main` or `develop`. Pushes to `main` also calculate the release version, pack NuGet packages, publish them to GitHub Packages and NuGet.org, and create a GitHub release. Versioning is driven by GitVersion; the current `next-version` is configured in [GitVersion.yml](GitVersion.yml).
 

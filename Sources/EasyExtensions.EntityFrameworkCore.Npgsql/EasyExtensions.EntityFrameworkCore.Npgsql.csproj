@@ -28,9 +28,9 @@
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 		<None Include="packageIcon.png" Pack="true" PackagePath="\" />
 		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0-rc.3.26522.148" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0-rc.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="11.0.0-rc.3.26522.148" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="11.0.0" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100" PrivateAssets="All" />
 	</ItemGroup>
 	<ItemGroup>
